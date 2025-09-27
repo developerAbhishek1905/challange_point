@@ -10,6 +10,7 @@ import SettingIcon from "../../../public/icons/SettingIcon.svg";
 import ResultIcon from "../../../public/icons/ResultIcon.svg";
 import UserIcon from "../../../public/icons/UserIcon.svg";
 import { Avatar, Modal } from "antd";
+import { GraduationCap } from 'lucide-react'
 
 // Hardcoded user info
 const userData = {
@@ -26,7 +27,7 @@ const SIDEBAR_ITEMS = [
     roles: ["admin"],
   },
   {
-    name: "Events Management",
+    name: "Challenge Management",
     icon: EventIcon,
     color: "#8B5CF6",
     href: "/events",
@@ -40,14 +41,14 @@ const SIDEBAR_ITEMS = [
     href: "/organization",
     roles: ["admin"],
   },
-  {
-    name: "Participants",
-    icon: ParticipantIcon,
-    color: "#3B82F6",
-    href: "/participants",
-    roles: ["admin", "user"],
-  },
-  { name: "Results", icon: ResultIcon, color: "#be2528", href: "/resultEvents", roles: ["admin", "user"],},
+  // {
+  //   name: "Participants",
+  //   icon: ParticipantIcon,
+  //   color: "#3B82F6",
+  //   href: "/participants",
+  //   roles: ["admin", "user"],
+  // },
+  // { name: "Results", icon: ResultIcon, color: "#be2528", href: "/resultEvents", roles: ["admin", "user"],},
   {
     name: "Reports & Settings",
     icon: SettingIcon,
@@ -98,7 +99,7 @@ const Sidebar = () => {
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ duration: 0.2, delay: 0.2 }}
                 >
-                  <span className="font-semibold text-sm">ChallangePoint</span>
+                  <span className="font-semibold text-sm">STK Challenge app</span>
                   <span className="text-xs text-gray-500">{userData.role === 'admin' ? 'Admin' : 'User'}</span>
                 </motion.div>
               )}
@@ -141,6 +142,30 @@ const Sidebar = () => {
             );
           })}
         </nav>
+           
+           <div className="mt-auto flex items-center gap-3  p-3 hover:bg-gray-100 rounded-lg ">
+          <GraduationCap className="text-black" />
+          <AnimatePresence>
+            {isSidebarOpen && (
+              <motion.div
+                className="flex flex-col"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2, delay: 0.3 }}
+              >
+                <a
+                  href="/leaderboard"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm ml-1 font-medium hover:underline"
+                >
+                  Leaderboard
+                </a>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
         {/* Bottom Profile Section */}
         <div className="mt-auto flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition-colors">
