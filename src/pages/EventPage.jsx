@@ -7,11 +7,12 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { EventCSV } from "../Redux/API/API";
 import { saveAs } from "file-saver";
+import { getAllChallangeList } from "../utils/api";
 
 const ProductsPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("");
-
+  
 const dispatch = useDispatch();
 
   const handleCSV = async() =>{
@@ -29,7 +30,7 @@ const dispatch = useDispatch();
 
   return (
     <div className="flex-1 overflow-auto relative z-10">
-      <Header title="Events" placeholder="search events" showSearch={true} />
+      <Header title="Challanges" placeholder="search events" showSearch={true} />
 
       <main className="max-w-7xl mx-auto py-2 px-4 lg:px-8">
             <div className="flex flex-wrap">

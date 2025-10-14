@@ -1,45 +1,14 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Edit, Ellipsis, Eye, Trash2 } from "lucide-react";
-import { useState } from "react";
-import { DatePicker, Dropdown, Empty, Input, Menu, Pagination, Select, TimePicker } from "antd";
+import { DatePicker, Dropdown, Empty, Input, Menu, Pagination, Select, TimePicker, Popover, Modal } from "antd";
 import dayjs from "dayjs";
 import ConfirmationModal from "../ConfirmationModal";
 import AddCategoryModal from "./AddCategoryModal";
 import { toast } from "react-toastify";
-
-// Hardcoded data
-const initialEvents = [
-  {
-    _id: "1",
-    event_name: "Annual Sports Meet",
-    event_code: "CHE001",
-    date: "2025-09-20",
-    time: "10:00",
-    venue: "Main Stadium",
-    organization_name: "Checkpoint Org",
-    organization_id: { _id: "org1" },
-    category_id: [
-      { _id: "cat1", category_name: "Track" },
-      { _id: "cat2", category_name: "Field" }
-    ],
-    totalParticipants: 120
-  },
-  {
-    _id: "2",
-    event_name: "Science Fair",
-    event_code: "CHE002",
-    date: "2025-10-05",
-    time: "09:00",
-    venue: "Auditorium",
-    organization_name: "Checkpoint Org",
-    organization_id: { _id: "org1" },
-    category_id: [
-      { _id: "cat3", category_name: "Robotics" }
-    ],
-    totalParticipants: 80
-  }
-];
-
+import { getAllChallangeList, } from "../../utils/api"; // Import the API
+import ChallengeDetails from "../ChallengeDetails";
+// Remove hardcoded initialEvents
 const initialCategories = [
   { _id: "cat1", category_name: "Track" },
   { _id: "cat2", category_name: "Field" },
@@ -57,7 +26,7 @@ const EventsTable = ({
   modalMode,
   setModalMode,
 }) => {
-  const [allEvents, setAllEvents] = useState(initialEvents);
+  const [allEvents, setAllEvents] = useState([]);
   const [categories, setCategories] = useState(initialCategories);
   const [allOrganisation, setAllOrgainisation] = useState(initialOrganisations);
 
@@ -65,7 +34,7 @@ const EventsTable = ({
   const [openMenuId, setOpenMenuId] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totatItems, setTotalItems] = useState(initialEvents.length);
+  const [totatItems, setTotalItems] = useState(0);
 
   const [eventName, setEventName] = useState("");
   const [eventCode, setEventCode] = useState("");
@@ -78,10 +47,30 @@ const EventsTable = ({
   const [eventIdToDelete, setEventIdToDelete] = useState(null);
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [errors, setErrors] = useState({});
+  const [challengeDetailsData, setChallengeDetailsData] = useState(null); // 🆕 For challenge details
 
-  // Pagination logic (hardcoded for demo)
+
+  console.log(challengeDetailsData)
   const pageSize = 5;
-  const pagedEvents = allEvents.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  // Fetch events from API
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const data = await getAllChallangeList(currentPage);
+        setAllEvents(data.challenges || []);
+        setTotalItems(data.totalCount || (data.challenges ? data.challenges.length : 0));
+      } catch (error) {
+        setAllEvents([]);
+        setTotalItems(0);
+        toast.error("Failed to fetch events");
+      }
+    };
+    fetchEvents();
+  }, [currentPage]);
+
+  // Remove hardcoded pagination logic
+  const pagedEvents = allEvents;
 
   const resetFormFields = () => {
     setEventName("");
@@ -195,6 +184,11 @@ const EventsTable = ({
     setShowCategoryModal(false);
   };
 
+  const handleViewChallenge = async (product) => {
+    setChallengeDetailsData(product); // Set data
+    setShowDetailModal(true);         // 🆕 Open modal
+  };
+
   const categoryOptions = categories.map((category) => ({
     label: category.category_name,
     value: category._id,
@@ -210,13 +204,11 @@ const EventsTable = ({
       <Menu.Item
         key="view"
         icon={<Eye size={16} />}
-        onClick={() => {
-          setShowDetailModal(true);
-          setOpenMenuId(product._id);
-        }}
+        onClick={() => handleViewChallenge(product)} // 🆕 Use handler
       >
         View
       </Menu.Item>
+
       <Menu.Item
         key="edit"
         icon={<Edit size={16} />}
@@ -240,6 +232,15 @@ const EventsTable = ({
 
   const clearError = (field) => {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+  };
+
+  // Utility to truncate to N words
+  const truncateWords = (text, numWords = 4) => {
+    if (!text) return "";
+    const words = text.split(" ");
+    return words.length > numWords
+      ? words.slice(0, numWords).join(" ") + "..."
+      : text;
   };
 
   return (
@@ -449,14 +450,9 @@ const EventsTable = ({
                   Venue
                 </th>
                 <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Organization
+                  Description
                 </th>
-                <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Categories
-                </th>
-                <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Paticipants
-                </th>
+                
                 <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Status
                 </th>
@@ -475,27 +471,35 @@ const EventsTable = ({
                     transition={{ duration: 0.3 }}
                   >
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700 flex gap-2 items-center">
-                      {product.event_name}
+                      <Popover content={product.title} title="Title">
+                        {truncateWords(product.title, 4)}
+                      </Popover>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {product.date
-                        ? new Date(product.date).toISOString().split("T")[0]
-                        : "-"}
+                      <Popover content={product.expireAt} title="Date">
+                        {truncateWords(
+                          product.expireAt
+                            ? new Date(product.expireAt).toISOString().split("T")[0]
+                            : "-",
+                          4
+                        )}
+                      </Popover>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {product.venue}
+                      <Popover content={product.address} title="Address">
+                        {truncateWords(product.address, 4)}
+                      </Popover>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {product.organization_name || 'N/A'}
+                      <Popover content={product.description || 'N/A'} title="Description">
+                        {truncateWords(product.description, 4)}
+                      </Popover>
                     </td>
+                    
+                    
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {product.category_id?.map(cat => cat.category_name).join(", ") || 'N/A'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      {product.totalParticipants}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      Ongoing
+                     {product
+                     .status || 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 relative">
                       <Dropdown overlay={eventMenu(product)} trigger={['click']} placement="bottomRight">
@@ -521,11 +525,11 @@ const EventsTable = ({
         </div>
         <Pagination
           align="end"
-          defaultCurrent={currentPage}
+          current={currentPage}
           total={totatItems}
           pageSize={pageSize}
           showSizeChanger={false}
-          onChange={handlePageChange}
+          onChange={setCurrentPage}
         />
       </motion.div>
 
@@ -540,6 +544,18 @@ const EventsTable = ({
         description="This action can’t be undone once confirmed"
         confirmText={"Yes, I'm sure"}
       />
+
+      {/* Challenge Details Modal */}
+      <Modal
+        open={showDetailModal}
+        onCancel={() => setShowDetailModal(false)}
+        footer={null}
+        width={900}
+        destroyOnClose
+      >
+        <ChallengeDetails data={challengeDetailsData} />
+      </Modal>
+
     </>
   );
 };
