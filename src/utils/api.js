@@ -1,6 +1,6 @@
 import axios from "axios";
 import { updateUser } from "../Redux/API/API";
-const BASE_URL ="http://localhost:5001/"
+const BASE_URL ="http://65.0.93.117/"
 
 const headers={
     'Content-Type': 'application/json',
