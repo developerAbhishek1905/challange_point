@@ -1,66 +1,36 @@
 import React, { useState } from "react";
-import { Plus, MoreVertical, Search } from "lucide-react";
+import { Plus, MoreVertical } from "lucide-react";
+import { addMember } from "../../utils/api";
+import { toast } from "react-toastify";
 
-export default function OrganizationDetails({ organization }) {
-    //  if (!organization) return null;
-//   const [organization, setOrganization] = useState({
-//     name: "Tech Innovators",
-//     description:
-//       "A community of innovators working on AI, ML, and Cloud solutions.",
-//     members: [
-//       {
-//         user: {
-//           name: "Shubham Pal",
-//           email: "shubhampalpal832@gmail.com",
-//           profileImage:
-//             "https://lh3.googleusercontent.com/a/ACg8ocJFc9xFKuI2i2bS6hRLHeyd0X485ez7YqVLkpUJAhoul533d_Ox=s96-c",
-//         },
-//         status: "active",
-//       },
-//       {
-//         user: {
-//           name: "Urvashi Patidar",
-//           email: "patidarurvashi99@gmail.com",
-//           profileImage:
-//             "https://lh3.googleusercontent.com/a/ACg8ocIECBGUkGj-HXbrxl_faELP8XAs2SkNjqQm0VWvJeNKuL5-Dw=s96-c",
-//         },
-//         status: "inactive",
-//       },
-//     ],
-//   });
-
+export default function OrganizationDetails({ organization, Users, memberAdded, seMemberAdded, onMemberAdded }) {
   const [showModal, setShowModal] = useState(false);
-  const [newMember, setNewMember] = useState({
-    name: "",
-    email: "",
-    profileImage: "",
-    status: "active",
-  });
+  const [checkedUser, setCheckedUser] = useState({}); // Only one user at a time
 
-  const handleAddMember = () => {
-    if (!newMember.name || !newMember.email) {
-      alert("Please fill all fields");
+  // Get IDs of current members
+  const memberIds = organization.members.map(m => m.user?._id);
+
+  // Filter Users to only those not already members
+  const nonMemberUsers = Users.filter(u => !memberIds.includes(u._id));
+
+  const handleRadioChange = (id) => {
+    setCheckedUser({ userId: id });
+  };
+
+  const handleAddUser = async (orgId) => {
+    if (!checkedUser.userId) {
+      toast.error("Please select a user to add.");
       return;
     }
-
-    const newM = {
-      user: {
-        name: newMember.name,
-        email: newMember.email,
-        profileImage:
-          newMember.profileImage ||
-          "https://via.placeholder.com/96x96.png?text=User",
-      },
-      status: newMember.status,
-    };
-
-    setOrganization((prev) => ({
-      ...prev,
-      members: [...prev.members, newM],
-    }));
-
-    setNewMember({ name: "", email: "", profileImage: "", status: "active" });
-    setShowModal(false);
+    try {
+      await addMember(orgId, checkedUser); // Send only userId
+      setCheckedUser({});
+      setShowModal(false);
+      toast.success("Member added successfully!");
+      if (onMemberAdded) await onMemberAdded(); // Recall getAllOrganizationsList in parent
+    } catch (error) {
+      toast.error("Failed to add member");
+    }
   };
 
   return (
@@ -182,50 +152,39 @@ export default function OrganizationDetails({ organization }) {
       </main>
 
       {/* Add Member Modal */}
-      {/* {showModal && (
-        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+      {showModal && (
+        <div className="fixed  inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
             <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              Add New Member
+              Select User to Add
             </h3>
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={newMember.name}
-                onChange={(e) =>
-                  setNewMember({ ...newMember, name: e.target.value })
-                }
-                className="border w-full p-2 rounded-md"
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                value={newMember.email}
-                onChange={(e) =>
-                  setNewMember({ ...newMember, email: e.target.value })
-                }
-                className="border w-full p-2 rounded-md"
-              />
-              <input
-                type="text"
-                placeholder="Profile Image URL"
-                value={newMember.profileImage}
-                onChange={(e) =>
-                  setNewMember({ ...newMember, profileImage: e.target.value })
-                }
-                className="border w-full p-2 rounded-md"
-              />
-              <select
-                value={newMember.status}
-                onChange={(e) =>
-                  setNewMember({ ...newMember, status: e.target.value })
-                }
-                className="border w-full p-2 rounded-md"
-              >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-              </select>
+            <div className="space-y-3 max-h-[100%] overflow-y-auto">
+              {nonMemberUsers.length === 0 ? (
+                <div className="text-gray-500 text-center">No users available to add.</div>
+              ) : (
+                nonMemberUsers.map((user) => (
+                  <label
+                    key={user._id}
+                    className="flex items-center gap-3 border p-2 rounded-md cursor-pointer hover:bg-gray-50"
+                  >
+                    <input
+                      type="radio"
+                      checked={checkedUser.userId === user._id}
+                      onChange={() => handleRadioChange(user._id)}
+                      className="w-4 h-4"
+                    />
+                    <img
+                      src={user.profileImage}
+                      alt={user.name}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                    <div>
+                      <p className="font-medium text-[#0c2443]">{user.name}</p>
+                      <p className="text-sm text-gray-500">{user.email}</p>
+                    </div>
+                  </label>
+                ))
+              )}
             </div>
             <div className="mt-5 flex justify-end gap-3">
               <button
@@ -235,12 +194,39 @@ export default function OrganizationDetails({ organization }) {
                 Cancel
               </button>
               <button
-                onClick={handleAddMember}
-                className="bg-black text-white px-4 py-2 rounded-md"
+                onClick={() => handleAddUser(organization._id)}
+                className="bg-[#0c2443] text-white px-4 py-2 rounded-md hover:bg-[#143b6b]"
+                disabled={nonMemberUsers.length === 0}
               >
                 Add
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Organization Modal */}
+      {/* {viewModalOpen && organizationToView && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-lg w-full max-w-6xl h-[90vh] overflow-y-auto relative">
+            <button
+              onClick={() => setViewModalOpen(false)}
+              className="absolute top-4 right-4 text-black  bg-gray-100 hover:bg-gray-200 rounded-full px-3  py-1"
+            >
+              ✕
+            </button>
+            <OrganizationDetails
+              organization={organizationToView}
+              Users={Users}
+              onMemberAdded={async () => {
+                await fetchOrganizations();
+                // Find the updated organization and set it for the modal
+                const updatedOrg = allOrganisation.find(
+                  (org) => org._id === organizationToView._id
+                );
+                if (updatedOrg) setOrganizationToView(updatedOrg);
+              }}
+            />
           </div>
         </div>
       )} */}

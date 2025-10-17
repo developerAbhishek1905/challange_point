@@ -87,14 +87,15 @@ const UsersTable = ({ showModal, setShowModal, modalMode, setModalMode }) => {
     setModalMode("Edit");
     setShowModal(true);
   };
+  console.log(email)
 
   // console.log(name, email, selectedUser._id);
   // ✅ Update User
   const handleEditSubmit = async () => {
     if (!selectedUser || !validateForm()) return;
     try {
-      const updatedUser = { name, email };
-      await userUpdate(selectedUser._id, updatedUser);
+      const updatedUser = { name };
+      await userUpdate(email, updatedUser);
       toast.success("User updated successfully");
       setShowModal(false);
       resetFormFields();

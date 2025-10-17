@@ -7,9 +7,9 @@ import { useNavigate } from "react-router-dom";
 
 const recentResults = [
   {
-    title: "Create Events",
+    title: "Create Challange",
     icon: TotalEventsIcon,
-    path:'/events'
+    path:'/events '
   },
   {
     title: "Create Organizations",

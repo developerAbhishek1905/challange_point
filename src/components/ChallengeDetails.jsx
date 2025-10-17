@@ -108,7 +108,7 @@ const ChallengeDetails = ({ data }) => {
       </div>
 
       {/* MAP PREVIEW */}
-      <div className="mt-10">
+      {/* <div className="mt-10">
         <div className="bg-white shadow-md rounded-xl p-4">
           <h3 className="font-semibold text-lg mb-3 text-gray-800">Location</h3>
           <iframe
@@ -120,7 +120,7 @@ const ChallengeDetails = ({ data }) => {
             allowFullScreen
           ></iframe>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { updateUser } from "../Redux/API/API";
-const BASE_URL ="http://65.0.93.117/"
+const BASE_URL ="http://localhost:5001/"
 
 const headers={
     'Content-Type': 'application/json',
@@ -48,6 +48,18 @@ export const deleteOrganization = async (id) => {
     throw error;
   }
 };
+
+export const addMember = async (orgId, userId) => {
+  console.log(orgId,userId)
+  try {
+    const response = await axios.post(`${BASE_URL}api/organizations/${orgId}/members`, userId, { headers: headers });
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error("Error adding member:", error);
+    throw error;
+  }
+}
 
 
 //get all challange list 
@@ -114,9 +126,17 @@ export const signUp = async (userData) => {
   }
 }
 
-export const userUpdate = async (id, userData) => { 
+export const userUpdate = async (email, userData) => { 
   try {
-    const response = await axios.put(`${BASE_URL}api/user/update/${id}`,userData, { headers: headers });
+    const response = await axios.put(`${BASE_URL}api/user/update`,userData, { 
+      
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-email': email,
+      } 
+    }
+    
+    );
     return response.data;
   } catch (error) {
     console.error("Error updating user:", error);

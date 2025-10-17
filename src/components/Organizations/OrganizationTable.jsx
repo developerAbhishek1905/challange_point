@@ -9,6 +9,7 @@ import {
   createOrganization,
   updateOrganization,
   deleteOrganization,
+  getAllUsers,
 } from "../../utils/api";
 import OrganizationDetails from "./OrganizationDetails";
 
@@ -18,7 +19,7 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
   const [openMenuId, setOpenMenuId] = useState(null);
 
   const [allOrganisation, setAllOrganisation] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
+  const [Users, setUsers] = useState([]);
   const [errors, setErrors] = useState({});
 
   const [organisationName, setOrganisationName] = useState("");
@@ -37,6 +38,8 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
     // 🆕 New state for "View" popup
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [organizationToView, setOrganizationToView] = useState(null);
+  const [addPopupOpen, setAddPopupOpen] = useState(false);
+  const [memberAdded, setMemberAdded] = useState(false);
 
   console.log(JSON.stringify(selectedUserId), "selectedUserId");
   // ✅ Fetch organizations once & on demand
@@ -44,6 +47,10 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
     try {
       const orgs = await getAllOrganizationsList();
       setAllOrganisation(orgs.organizations || []);
+      const allusers = await getAllUsers();
+      setUsers(allusers.users || []);
+      console.log(allusers.users)
+      console.log(orgs)
       setTotalItems((orgs.organizations || []).length);
     } catch (error) {
       toast.error("Failed to fetch organizations");
@@ -52,7 +59,7 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
 
   useEffect(() => {
     fetchOrganizations();
-  }, [currentPage]);
+  }, [currentPage,memberAdded]);
 
   // Pagination
   const pagedOrganisations = allOrganisation.slice(
@@ -146,10 +153,10 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
   };
 
   // If you have user data, map it for Select options
-  const UsersOptions = allUsers.map((user) => ({
-    label: `${user.first_name} ${user.last_name}`,
-    value: user._id,
-  }));
+  // const UsersOptions = allUsers.map((user) => ({
+  //   label: `${user.first_name} ${user.last_name}`,
+  //   value: user._id,
+  // }));
 
   const eventMenu = (Organisation) => (
     <Menu>
@@ -389,15 +396,24 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
       {viewModalOpen && organizationToView && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-lg w-full max-w-6xl h-[90vh] overflow-y-auto relative">
-            {/* Close button */}
             <button
               onClick={() => setViewModalOpen(false)}
               className="absolute top-4 right-4 text-black  bg-gray-100 hover:bg-gray-200 rounded-full px-3  py-1"
             >
               ✕
             </button>
-            {/* Render OrganizationDetails */}
-            <OrganizationDetails organization={organizationToView} />
+            <OrganizationDetails
+              organization={organizationToView}
+              Users={Users}
+              onMemberAdded={async () => {
+                await fetchOrganizations();
+                // Find the updated organization and set it for the modal
+                const updatedOrg = allOrganisation.find(
+                  (org) => org._id === organizationToView._id
+                );
+                if (updatedOrg) setOrganizationToView(updatedOrg);
+              }}
+            />
           </div>
         </div>
       )}

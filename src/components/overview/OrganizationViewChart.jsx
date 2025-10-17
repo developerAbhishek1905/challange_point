@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 
 const OrganizationViewChart = ({data}) => {
   const navigate = useNavigate();
+
+    const topOrganizations = data && data.length > 0 ? data.slice(0, 5) : [];
   return (
     <motion.div
       className="bg-white border border-gray-200 divide-y divide-gray-100 rounded-xl"
@@ -22,15 +24,15 @@ const OrganizationViewChart = ({data}) => {
 
       {/* List */}
       <div>
-        {data && data.length >0 ? (
-        data.map((org) => (
+        {topOrganizations && topOrganizations.length >0 ? (
+        topOrganizations.map((org) => (
           <div
             key={org._id}
             className="flex items-center justify-between px-4 py-3"
           >
             <div className="flex items-center gap-3">
               <div className="text-sm">
-                <p className="font-medium text-gray-900">{org.organization_name}</p>
+                <p className="font-medium text-gray-900 capitalize">{ org.name}</p>
                 <p className="text-gray-500">{org.organization_type}</p>
               </div>
             </div>
