@@ -34,15 +34,15 @@ const dispatch = useDispatch();
 
       <main className="max-w-7xl mx-auto py-2 px-4 lg:px-8">
             <div className="flex flex-wrap">
-          <button
+          {/* <button
             className="bg-green-700 border-2 text-white rounded-lg mb-2 pl-4 pr-4 py-2 flex gap-1"
             onClick={handleCSV}
           >
             {" "}
             <Download /> Export CSV{" "}
-          </button>
+          </button> */}
 
-          <button
+          {/* <button
             onClick={() => {
               setShowModal(true);
               setModalMode("create");
@@ -52,7 +52,7 @@ const dispatch = useDispatch();
             {" "}
             <Plus />
             Create Event{" "}
-          </button>
+          </button> */}
         </div>
         <EventsTable
           showModal={showModal}

@@ -6,7 +6,7 @@ import dayjs from "dayjs";
 import ConfirmationModal from "../ConfirmationModal";
 import AddCategoryModal from "./AddCategoryModal";
 import { toast } from "react-toastify";
-import { getAllChallangeList, } from "../../utils/api"; // Import the API
+import { getAllChallangeList, deleteChallange } from "../../utils/api"; // Import the API
 import ChallengeDetails from "../ChallengeDetails";
 // Remove hardcoded initialEvents
 const initialCategories = [
@@ -168,16 +168,32 @@ const EventsTable = ({
     setCurrentPage(page);
   };
 
-  const handleDelete = () => {
-    setAllEvents(allEvents.filter(ev => ev._id !== eventIdToDelete));
-    setTotalItems(allEvents.length - 1);
-    toast.success("Event deleted successfully");
-    setEventIdToDelete(null);
+  const handleDelete = async () => {
+    if (!eventIdToDelete) return;
+    try {
+      await deleteChallange(eventIdToDelete);
+      toast.success("Event deleted successfully");
+      // refresh current page data from server
+      try {
+        const data = await getAllChallangeList(currentPage);
+        setAllEvents(data.challenges || []);
+        setTotalItems(data.totalCount || (data.challenges ? data.challenges.length : 0));
+      } catch (fetchErr) {
+        // fallback: remove locally if re-fetch fails
+        setAllEvents((prev) => prev.filter((ev) => ev._id !== eventIdToDelete));
+        setTotalItems((prev) => Math.max(0, prev - 1));
+      }
+      setEventIdToDelete(null);
+      setConfirmModalOpen(false);
+    } catch (error) {
+      console.error("Error deleting challenge from server:", error);
+      toast.error("Failed to delete event");
+    }
   };
 
   const handleCategoryCreated = (newCategory) => {
-    setCategories(prevCategories => [...prevCategories, newCategory]);
-    setSelectedCategoryId(prevSelected =>
+    setCategories((prev) => [...prev, newCategory]);
+    setSelectedCategoryId((prevSelected) =>
       prevSelected ? [...prevSelected, newCategory._id] : [newCategory._id]
     );
     clearError("selectedCategoryId");
@@ -209,13 +225,13 @@ const EventsTable = ({
         View
       </Menu.Item>
 
-      <Menu.Item
+      {/* <Menu.Item
         key="edit"
         icon={<Edit size={16} />}
         onClick={() => handlEditClick(product)}
       >
         Edit
-      </Menu.Item>
+      </Menu.Item> */}
       <Menu.Item
         key="delete"
         icon={<Trash2 size={16} />}

@@ -99,9 +99,10 @@ const OverviewPage = () => {
 				{/* CHARTS */}
 
 				<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
-					<RecentResultTable data = {leaderBoard} />
-					<QuickActionsTable/>
 					<UpcomingRacesTable data = {Challange}/>
+					<QuickActionsTable/>
+										<RecentResultTable data = {leaderBoard} />
+
 					<OrganizationViewChart data={organizationsList}/>
 
 				</div>

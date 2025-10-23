@@ -1,6 +1,7 @@
 import axios from "axios";
 import { updateUser } from "../Redux/API/API";
 const BASE_URL ="http://65.0.93.117/"
+// const BASE_URL ="http://localhost:5001/"
 
 const headers={
     'Content-Type': 'application/json',
@@ -78,6 +79,16 @@ export const getAllChallangeList = async (page) => {
   }
 }
 
+export const deleteChallange = async (id) => {
+  try {
+    const response = await axios.delete(`${BASE_URL}api/challenges/${id}`, { headers: headers });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting challenge:", error);
+    throw error;
+  }
+}
+
 //get leaderboard
 
 
@@ -150,6 +161,17 @@ export const deleteUser = async (id) => {
     return response.data;
   } catch (error) {
     console.error("Error deleting user:", error);
+    throw error;
+  }
+}
+
+export const getAllMembers = async (orgId) => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/challenges/${orgId}/members`,{ headers: headers });
+    return response.data;
+    
+  } catch (error) {
+    console.error("Error fetching members:", error);
     throw error;
   }
 }

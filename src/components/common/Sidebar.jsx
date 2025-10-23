@@ -88,7 +88,7 @@ const Sidebar = () => {
         <div className="mt-6 mb-4">
           <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-100">
             <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              C
+              <img src="/WhatsApp Image 2025-10-06 at 22.17.14.jpeg" alt="" />
             </div>
             <AnimatePresence>
               {isSidebarOpen && (

@@ -153,57 +153,72 @@ export default function OrganizationDetails({ organization, Users, memberAdded, 
 
       {/* Add Member Modal */}
       {showModal && (
-        <div className="fixed  inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4 text-gray-800">
-              Select User to Add
-            </h3>
-            <div className="space-y-3 max-h-[100%] overflow-y-auto">
-              {nonMemberUsers.length === 0 ? (
-                <div className="text-gray-500 text-center">No users available to add.</div>
-              ) : (
-                nonMemberUsers.map((user) => (
-                  <label
-                    key={user._id}
-                    className="flex items-center gap-3 border p-2 rounded-md cursor-pointer hover:bg-gray-50"
-                  >
-                    <input
-                      type="radio"
-                      checked={checkedUser.userId === user._id}
-                      onChange={() => handleRadioChange(user._id)}
-                      className="w-4 h-4"
-                    />
-                    <img
-                      src={user.profileImage}
-                      alt={user.name}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                    <div>
-                      <p className="font-medium text-[#0c2443]">{user.name}</p>
-                      <p className="text-sm text-gray-500">{user.email}</p>
-                    </div>
-                  </label>
-                ))
-              )}
-            </div>
-            <div className="mt-5 flex justify-end gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className="border px-4 py-2 rounded-md"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => handleAddUser(organization._id)}
-                className="bg-[#0c2443] text-white px-4 py-2 rounded-md hover:bg-[#143b6b]"
-                disabled={nonMemberUsers.length === 0}
-              >
-                Add
-              </button>
-            </div>
+  <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-xl shadow-lg w-full max-w-md h-[90vh] flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 pt-6">
+        <h3 className="text-lg font-semibold text-gray-800">
+          Select User to Add
+        </h3>
+        <button
+          onClick={() => setShowModal(false)}
+          className="text-gray-500 hover:text-gray-800 text-xl font-bold"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* User List */}
+      <div className="px-6 py-4 overflow-y-auto flex-1">
+        {nonMemberUsers.length === 0 ? (
+          <div className="text-gray-500 text-center mt-10">
+            No users available to add.
           </div>
-        </div>
-      )}
+        ) : (
+          nonMemberUsers.map((user) => (
+            <label
+              key={user._id}
+              className="flex items-center gap-3 border p-2 rounded-md cursor-pointer hover:bg-gray-50 mb-2"
+            >
+              <input
+                type="radio"
+                checked={checkedUser.userId === user._id}
+                onChange={() => handleRadioChange(user._id)}
+                className="w-4 h-4"
+              />
+              <img
+                src={user.profileImage}
+                alt={user.name}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <div>
+                <p className="font-medium text-[#0c2443]">{user.name}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
+              </div>
+            </label>
+          ))
+        )}
+      </div>
+
+      {/* Footer */}
+      <div className="px-6 py-4 border-t flex justify-end gap-3">
+        <button
+          onClick={() => setShowModal(false)}
+          className="border border-gray-500 text-gray-500 px-4 py-2 rounded-md"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={() => handleAddUser(organization._id)}
+          className="bg-[#0c2443] text-white px-4 py-2 rounded-md hover:bg-[#143b6b]"
+          disabled={nonMemberUsers.length === 0}
+        >
+          Add
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* View Organization Modal */}
       {/* {viewModalOpen && organizationToView && (
