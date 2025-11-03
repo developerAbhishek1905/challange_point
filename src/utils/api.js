@@ -175,3 +175,15 @@ export const getAllMembers = async (orgId) => {
     throw error;
   }
 }
+
+export const approve_reject = async (orgId, status) => {
+  console.log(orgId,status)
+  try {
+    const response = await axios.post(`${BASE_URL}api/organizations/${orgId}/approve-deny`, status, { headers: headers });
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error("Error adding member:", error);
+    throw error;
+  }
+}

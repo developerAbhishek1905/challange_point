@@ -16,6 +16,7 @@ import { useDispatch } from "react-redux";
 import { dashboard } from "../Redux/API/API";
 import { useEffect, useState } from "react";
 import { getAllChallangeList,getAllUsers,getLeaderboard,getAllOrganizationsList } from "../utils/api";
+import CreateOrganization from "../components/Organizations/CreateOrganization";
 
 const OverviewPage = () => {
      //stats
@@ -100,10 +101,11 @@ const OverviewPage = () => {
 
 				<div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
 					<UpcomingRacesTable data = {Challange}/>
-					<QuickActionsTable/>
+					{/* <QuickActionsTable/> */}
+					<OrganizationViewChart data={organizationsList}/>
 										<RecentResultTable data = {leaderBoard} />
 
-					<OrganizationViewChart data={organizationsList}/>
+					<CreateOrganization></CreateOrganization>
 
 				</div>
 			</main>

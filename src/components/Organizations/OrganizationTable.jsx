@@ -10,6 +10,7 @@ import {
   updateOrganization,
   deleteOrganization,
   getAllUsers,
+  approve_reject 
 } from "../../utils/api";
 import OrganizationDetails from "./OrganizationDetails";
 
@@ -40,6 +41,7 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
   const [organizationToView, setOrganizationToView] = useState(null);
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [memberAdded, setMemberAdded] = useState(false);
+  const [ status , setStatus] = useState({})
 
   console.log(JSON.stringify(selectedUserId), "selectedUserId");
   // ✅ Fetch organizations once & on demand
@@ -151,6 +153,18 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
       toast.error("Failed to delete organization");
     }
   };
+
+  const apporoveOrganization = async (orgId, status)=>{
+    try {
+      await approve_reject(orgId,status);
+      toast.success(status?.status==="approved" ? "Organization approved": "Organization Rejected");
+      
+      fetchOrganizations(); // ✅ refresh
+    } catch (error) {
+      toast.error("Failed to delete organization");
+    }
+
+  }
 
   // If you have user data, map it for Select options
   // const UsersOptions = allUsers.map((user) => ({
@@ -316,60 +330,115 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
       )}
 
       {/* Table */}
-      <motion.div className="bg-white rounded-xl border border-gray-200 pb-2">
-        <div className="overflow-x-auto rounded-xl">
-          <table className="min-w-full">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Organization Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {pagedOrganisations && pagedOrganisations.length > 0 ? (
-                pagedOrganisations.map((org) => (
-                  <motion.tr key={org._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
-                      {org.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
-                      {org.description || "N/A"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 relative">
-                      <Dropdown overlay={eventMenu(org)} trigger={["click"]} placement="bottomRight">
-                        <button>
-                          <Ellipsis className="text-gray-600 hover:text-gray-800" />
-                        </button>
-                      </Dropdown>
-                    </td>
-                  </motion.tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="text-center py-8">
-                    <Empty description="No organizations found" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        <Pagination
-          align="end"
-          current={currentPage}
-          total={totalItems}
-          pageSize={pageSize}
-          showSizeChanger={false}
-          onChange={setCurrentPage}
-        />
-      </motion.div>
+      <motion.div
+  className="bg-white rounded-xl border border-gray-200 pb-2"
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ duration: 0.3 }}
+>
+  {/* Table container */}
+  <div className="overflow-x-auto rounded-xl">
+    <table className="min-w-full border-collapse">
+      <thead className="bg-gray-100 hidden md:table-header-group">
+        <tr>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+            Organization Name
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+            Created By
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+            Total Members
+          </th>
+          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+            Actions
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {pagedOrganisations && pagedOrganisations.length > 0 ? (
+          pagedOrganisations.map((org) => (
+            <motion.tr
+              key={org._id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              className="hover:bg-gray-50 border-b md:table-row block mb-4 md:mb-0 rounded-lg md:rounded-none shadow-sm md:shadow-none"
+            >
+              {/* Organization Name */}
+              <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Organization:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
+                {org.name}
+              </td>
+
+              {/* Created By */}
+              <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Created By:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
+                {org.organizationEmail || "N/A"}
+              </td>
+
+              {/* Total Members */}
+              <td
+                className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 cursor-pointer block md:table-cell before:content-['Total Members:'] md:before:content-none before:block before:text-gray-500 before:text-xs"
+                onClick={() => {
+                  setOrganizationToView(org);
+                  setViewModalOpen(true);
+                }}
+                title="View members"
+              >
+                
+                {org.members?.length<=1 ? org.draftMembers?.length:org.members?.length}
+              </td>
+
+              {/* Actions */}
+              <td className="px-6 py-3 text-right block md:table-cell before:content-['Actions:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
+                <div className="flex md:justify-end gap-2">
+                  <button
+                    onClick={() =>
+                      apporoveOrganization(org._id, {status:"approved"})
+                    }
+                    className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700"
+                  >
+                    {org.orgStatus === "approved" ? "Approved" : "Approve"}
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      apporoveOrganization(org._id, {status:"denied"})
+                    }
+                    className="bg-red-600 text-white px-3 py-1 rounded-md text-xs hover:bg-red-700"
+                  >
+                    {org.orgStatus === "denied" ? "Rejected" : "Reject"}
+                  </button>
+                </div>
+              </td>
+            </motion.tr>
+          ))
+        ) : (
+          <tr>
+            <td colSpan={4} className="text-center py-8">
+              <Empty
+                description="No organizations found"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              />
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  </div>
+
+  {/* Pagination */}
+  <div className="flex justify-end mt-3 pr-4">
+    <Pagination
+      current={currentPage}
+      total={totalItems}
+      pageSize={pageSize}
+      showSizeChanger={false}
+      onChange={setCurrentPage}
+    />
+  </div>
+</motion.div>
+
 
       {/* Confirmation Modal */}
       <ConfirmationModal
