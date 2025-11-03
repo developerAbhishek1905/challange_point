@@ -105,7 +105,7 @@ const OverviewPage = () => {
 					<OrganizationViewChart data={organizationsList}/>
 										<RecentResultTable data = {leaderBoard} />
 
-					<CreateOrganization></CreateOrganization>
+					{/* <CreateOrganization></CreateOrganization> */}
 
 				</div>
 			</main>

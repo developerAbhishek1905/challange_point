@@ -27,7 +27,7 @@ const OrganizationPage = () => {
       />
 
       <main className="max-w-7xl mx-auto py-2 px-4 lg:px-8">
-        <button
+        {/* <button
           onClick={() => {
             setShowModal(true);
             setModalMode("create");
@@ -37,7 +37,7 @@ const OrganizationPage = () => {
           {" "}
           <Plus />
           Add Organization{" "}
-        </button>
+        </button> */}
 
         <OrganizationTable
           showModal={showModal}
