@@ -96,7 +96,7 @@ export const deleteChallange = async (id) => {
 
 export const getLeaderboard = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}api/challenges/leader-boards`,{ headers: headers });
+    const response = await axios.get(`${BASE_URL}api/organizations/list/stats`,{ headers: headers });
     console.log("Leaderboard data:", response.data); // Log the response data
     return response.data;
     

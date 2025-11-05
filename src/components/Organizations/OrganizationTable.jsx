@@ -35,7 +35,7 @@ const OrganizationTable = ({
   const [organisationStatus, setOrganisationStatus] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const pageSize = 10;
   const [totalItems, setTotalItems] = useState(0);
 
   const [organizationToDelete, setOrganizationToDelete] = useState(null);
@@ -230,6 +230,40 @@ const OrganizationTable = ({
     </Menu>
   );
 
+
+  const ActionMenu = (org) => (
+  <Menu>
+    <Menu.Item
+      key="view"
+      icon={<Eye size={16} />}
+      onClick={() => {
+        setOrganizationToView(org);
+                        setViewModalOpen(true);
+      }}
+    >
+      View
+    </Menu.Item>
+    {/* <Menu.Item key="edit" icon={<Edit size={16} />} onClick={() => handleEditClick(Organisation)}>
+      Edit
+    </Menu.Item> */}
+    <Menu.Item
+      key="delete"
+      icon={<Trash2 size={16} />}
+      danger
+      onClick={() => {
+        setOrganizationToDelete(org._id);
+        setConfirmModalOpen(true);
+        setModalType("delete");
+        setOpenMenuId(null);
+      }}
+    >
+      Delete
+    </Menu.Item>
+  </Menu>
+);
+
+
+
   const clearError = (field) => {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
@@ -392,6 +426,9 @@ const OrganizationTable = ({
                   Total Members
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -472,6 +509,14 @@ const OrganizationTable = ({
                           </Dropdown>
                         )}
                       </div>
+                    </td>
+
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 relative">
+                      <Dropdown overlay={ActionMenu(org)} trigger={['click']} placement="bottomRight">
+                        <button>
+                          <Ellipsis className="text-gray-600 hover:text-gray-800" />
+                        </button>
+                      </Dropdown>
                     </td>
                   </motion.tr>
                 ))

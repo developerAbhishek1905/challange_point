@@ -56,8 +56,8 @@ export default function OrganizationDetails({ organization, Users, memberAdded, 
             <tr>
               <th className="px-6 py-3">Name</th>
               <th className="px-6 py-3">Email</th>
-              <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3 text-right">Actions</th>
+              {/* <th className="px-6 py-3">Status</th>
+              <th className="px-6 py-3 text-right">Actions</th> */}
             </tr>
           </thead>
           <tbody>
@@ -68,11 +68,11 @@ export default function OrganizationDetails({ organization, Users, memberAdded, 
                   <span className="font-medium text-gray-800">{member?.user?.name}</span>
                 </td>
                 <td className="px-6 py-4 text-gray-600">{member?.user?.email}</td>
-                <td className="px-6 py-4">
+                {/* <td className="px-6 py-4">
                   <span className={`px-2 py-1 text-xs font-medium rounded-full ${member?.status === "approved" ? "bg-green-100 text-green-700" : member?.status === "active" ? "bg-yellow-100 text-yellow-700" : "bg-red-100 text-red-700"}`}>
                     {member?.status}
                   </span>
-                </td>
+                </td> */}
                 {/* <td className="px-6 py-4 text-right"> */}
                   {/* Approve button */}
                   {/* {member?.status !== "approved" && (
