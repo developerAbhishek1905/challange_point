@@ -157,7 +157,7 @@ export const userUpdate = async (email, userData) => {
 
 export const deleteUser = async (id) => {
   try {
-    const response = await axios.delete(`${BASE_URL}api/users/${id}`, { headers: headers });
+    const response = await axios.delete(`${BASE_URL}api/user/users/${id}`, { headers: headers });
     return response.data;
   } catch (error) {
     console.error("Error deleting user:", error);
@@ -184,6 +184,28 @@ export const approve_reject = async (orgId, status) => {
     return response.data;
   } catch (error) {
     console.error("Error adding member:", error);
+    throw error;
+  }
+}
+
+
+export const postPullNotification = async (formData) => {
+  try {
+    const response = await axios.post(`${BASE_URL}api/user/push-notification/all`, formData, { headers: headers });
+    return response.data;
+  } catch (error) {
+    console.error("Error creating organization:", error);
+    throw error;
+  }
+};
+
+
+export const adminLogin = async (formData)=>{
+   try {
+    const response = await axios.post(`${BASE_URL}api/user/admin-login`, formData, {'Content-Type': 'application/json',});
+    return response.data;
+  } catch (error) {
+    console.error("Error creating organization:", error);
     throw error;
   }
 }

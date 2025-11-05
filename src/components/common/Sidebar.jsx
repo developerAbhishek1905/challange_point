@@ -27,15 +27,15 @@ const SIDEBAR_ITEMS = [
     roles: ["admin"],
   },
   {
-    name: "Challenge Management",
+    name: "Challenge Manage",
     icon: EventIcon,
     color: "#8B5CF6",
     href: "/events",
     roles: ["admin", "user"],
   },
-  { name: "User Management", icon: UserIcon, color: "#10B981", href: "/users", roles: ["admin"], },
+  { name: "User Manage", icon: UserIcon, color: "#10B981", href: "/users", roles: ["admin"], },
   {
-    name: "Organization",
+    name: "Organization Manage",
     icon: OrganizationIcon,
     color: "#F59E0B",
     href: "/organization",
@@ -87,8 +87,8 @@ const Sidebar = () => {
         {/* Top Section */}
         <div className="mt-6 mb-4">
           <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-100">
-            <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center text-white font-bold text-lg">
-              <img src="/WhatsApp Image 2025-10-06 at 22.17.14.jpeg" alt="" />
+            <div className="w-10 h-10  rounded-lg flex items-center justify-center text-white font-bold text-lg">
+              <img src="/WhatsApp Image 2025-10-06 at 22.17.14.jpeg" alt="" className="rounded-full" />
             </div>
             <AnimatePresence>
               {isSidebarOpen && (
@@ -122,7 +122,7 @@ const Sidebar = () => {
                   <img
                     src={item.icon}
                     alt={item.name}
-                    className="w-5 h-5 min-w-[20px]"
+                    className="w-5 h-5 min-w-[20px] rounded-full"
                   />
                   <AnimatePresence>
                     {isSidebarOpen && (

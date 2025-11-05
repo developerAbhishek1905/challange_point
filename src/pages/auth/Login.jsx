@@ -1,17 +1,33 @@
 import React, { useState } from 'react';
 import loginImg from '/Art.png';
 import { useNavigate } from 'react-router-dom';
+import { adminLogin } from '../../utils/api';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('user@123');
-  const [password, setPassword] = useState('user@123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [formError, setFormError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setFormError('');
-    navigate('/dashboard');
+
+    try {
+      const response = await adminLogin({ email, password });
+
+      // if using fetch:
+      if (response.success) {
+        navigate('/dashboard');
+      } 
+      
+      else {
+        setFormError('Invalid email or Password');
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setFormError('Invalid email or Password');
+    }
   };
 
   return (
@@ -33,17 +49,13 @@ const Login = () => {
           Sign in to start managing your projects.
         </p>
 
-        <form
-          onSubmit={handleSubmit}              
-          className="w-full max-w-sm space-y-4"
-        >
-          {/* Show form error */}
+        <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
           {formError && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
               {formError}
             </div>
           )}
-          
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
@@ -61,12 +73,12 @@ const Login = () => {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              Password
+              FCM Token
             </label>
             <input
               id="password"
-              type="password"
-              placeholder="At least 8 characters"
+              type="text"
+              placeholder="Password"
               className="mt-1 block w-full rounded-md text-gray-700 border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -78,14 +90,14 @@ const Login = () => {
             <button
               type="button"
               className="text-sm text-blue-600 hover:underline"
-              onClick={() => navigate('/forgetPassword')}
+              onClick={() => navigate('/forgetpassword')}
             >
               Forgot Password?
             </button>
           </div>
 
           <button
-            type="submit"                     
+            type="submit"
             className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded-md flex justify-center"
           >
             Sign in

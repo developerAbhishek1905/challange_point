@@ -124,21 +124,6 @@ const CreateOrganization = () => {
         <h2 className="text-4xl font-semibold mb-16 text-gray-900">Add Organization</h2>
 
         <div className="space-y-10">
-          {/* Name */}
-          <div>
-            <label className="text-xl font-medium text-gray-900">Name</label>
-            <input
-              type="text"
-              placeholder="Name"
-              className="w-full mt-4 p-2 border text-lg rounded-md text-gray-600"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                setErrors((prev) => ({ ...prev, name: "" }));
-              }}
-            />
-            {errors.name && <div className="text-red-500 text-xs mt-1">{errors.name}</div>}
-          </div>
 
           {/* Organization Name */}
           <div>
@@ -170,6 +155,23 @@ const CreateOrganization = () => {
               }}
             />
             {errors.organizationEmail && <div className="text-red-500 text-xs mt-1">{errors.organizationEmail}</div>}
+          </div>
+
+          
+          {/* Name */}
+          <div>
+            <label className="text-xl font-medium text-gray-900">Website</label>
+            <input
+              type="text"
+              placeholder="Organization Website"
+              className="w-full mt-4 p-2 border text-lg rounded-md text-gray-600"
+              value={name}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrors((prev) => ({ ...prev, name: "" }));
+              }}
+            />
+            {errors.name && <div className="text-red-500 text-xs mt-1">{errors.name}</div>}
           </div>
 
           {/* Description */}

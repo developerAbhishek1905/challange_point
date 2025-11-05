@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Ellipsis, Edit, Trash2,Eye } from "lucide-react";
+import { Ellipsis, Edit, Trash2, Eye } from "lucide-react";
 import ConfirmationModal from "../ConfirmationModal";
 import { Dropdown, Empty, Pagination, Select, Menu } from "antd";
 import { toast } from "react-toastify";
@@ -10,11 +10,16 @@ import {
   updateOrganization,
   deleteOrganization,
   getAllUsers,
-  approve_reject 
+  approve_reject,
 } from "../../utils/api";
 import OrganizationDetails from "./OrganizationDetails";
 
-const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode }) => {
+const OrganizationTable = ({
+  showModal,
+  setShowModal,
+  modalMode,
+  setModalMode,
+}) => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // 'delete' | 'cancel'
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -36,12 +41,12 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
   const [organizationToDelete, setOrganizationToDelete] = useState(null);
   const [selectedOrganization, setSelectedOrganization] = useState(null);
 
-    // 🆕 New state for "View" popup
+  // 🆕 New state for "View" popup
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [organizationToView, setOrganizationToView] = useState(null);
   const [addPopupOpen, setAddPopupOpen] = useState(false);
   const [memberAdded, setMemberAdded] = useState(false);
-  const [ status , setStatus] = useState({})
+  const [status, setStatus] = useState({});
 
   console.log(JSON.stringify(selectedUserId), "selectedUserId");
   // ✅ Fetch organizations once & on demand
@@ -51,8 +56,8 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
       setAllOrganisation(orgs.organizations || []);
       const allusers = await getAllUsers();
       setUsers(allusers.users || []);
-      console.log(allusers.users)
-      console.log(orgs)
+      console.log(allusers.users);
+      console.log(orgs);
       setTotalItems((orgs.organizations || []).length);
     } catch (error) {
       toast.error("Failed to fetch organizations");
@@ -61,7 +66,7 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
 
   useEffect(() => {
     fetchOrganizations();
-  }, [currentPage,memberAdded]);
+  }, [currentPage, memberAdded]);
 
   // Pagination
   const pagedOrganisations = allOrganisation.slice(
@@ -84,7 +89,8 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
     if (!organisationName.trim())
       newErrors.organisationName = "Organization name is required";
     if (!organizationDescription.trim())
-      newErrors.organizationDescription = "Organization description is required";
+      newErrors.organizationDescription =
+        "Organization description is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -154,17 +160,20 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
     }
   };
 
-  const apporoveOrganization = async (orgId, status)=>{
+  const apporoveOrganization = async (orgId, status) => {
     try {
-      await approve_reject(orgId,status);
-      toast.success(status?.status==="approved" ? "Organization approved": "Organization Rejected");
-      
+      await approve_reject(orgId, status);
+      toast.success(
+        status?.status === "approved"
+          ? "Organization approved"
+          : "Organization Rejected"
+      );
+
       fetchOrganizations(); // ✅ refresh
     } catch (error) {
-      toast.error("Failed to delete organization");
+      toast.error("Failed");
     }
-
-  }
+  };
 
   // If you have user data, map it for Select options
   // const UsersOptions = allUsers.map((user) => ({
@@ -172,10 +181,10 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
   //   value: user._id,
   // }));
 
-  const eventMenu = (Organisation) => (
+  const eventMenu = (org) => (
     <Menu>
       {/* 🆕 View Option */}
-      <Menu.Item
+      {/* <Menu.Item
         key="view"
         icon={<Eye size={16} />}
         onClick={() => {
@@ -200,6 +209,23 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
         }}
       >
         Delete
+      </Menu.Item> */}
+      <Menu.Item key="approve">
+        <div
+          onClick={() => apporoveOrganization(org._id, { status: "approved" })}
+          className="text-green-600 px-3 py-1 rounded-md text-xs text:bg-green-700"
+        >
+          Approve
+        </div>
+      </Menu.Item>
+
+      <Menu.Item key="reject">
+        <div
+          onClick={() => apporoveOrganization(org._id, { status: "denied" })}
+          className="text-red-600  px-3 py-1 rounded-md text-xs text:bg-red-700"
+        >
+          Reject
+        </div>
       </Menu.Item>
     </Menu>
   );
@@ -220,7 +246,9 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
             <div className="space-y-4">
               {/* Organization name */}
               <div>
-                <label className="text-sm font-medium text-gray-900">Organization name</label>
+                <label className="text-sm font-medium text-gray-900">
+                  Organization name
+                </label>
                 <input
                   type="text"
                   placeholder="Organization name"
@@ -232,13 +260,17 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
                   }}
                 />
                 {errors.organisationName && (
-                  <div className="text-red-500 text-xs mt-1">{errors.organisationName}</div>
+                  <div className="text-red-500 text-xs mt-1">
+                    {errors.organisationName}
+                  </div>
                 )}
               </div>
 
               {/* Description */}
               <div>
-                <label className="text-sm font-medium text-gray-900">Organization Description</label>
+                <label className="text-sm font-medium text-gray-900">
+                  Organization Description
+                </label>
                 <input
                   type="text"
                   placeholder="Organization Code"
@@ -250,7 +282,9 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
                   }}
                 />
                 {errors.organizationDescription && (
-                  <div className="text-red-500 text-xs mt-1">{errors.organizationDescription}</div>
+                  <div className="text-red-500 text-xs mt-1">
+                    {errors.organizationDescription}
+                  </div>
                 )}
               </div>
 
@@ -319,9 +353,13 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
                 </button>
                 <button
                   className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-                  onClick={modalMode === "Edit" ? handleEditSubmit : addOrganisation}
+                  onClick={
+                    modalMode === "Edit" ? handleEditSubmit : addOrganisation
+                  }
                 >
-                  {modalMode === "Edit" ? "Edit Organization" : "Add Organization"}
+                  {modalMode === "Edit"
+                    ? "Edit Organization"
+                    : "Add Organization"}
                 </button>
               </div>
             </div>
@@ -331,114 +369,137 @@ const OrganizationTable = ({ showModal, setShowModal, modalMode, setModalMode })
 
       {/* Table */}
       <motion.div
-  className="bg-white rounded-xl border border-gray-200 pb-2"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ duration: 0.3 }}
->
-  {/* Table container */}
-  <div className="overflow-x-auto rounded-xl">
-    <table className="min-w-full border-collapse">
-      <thead className="bg-gray-100 hidden md:table-header-group">
-        <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-            Organization Name
-          </th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-            Created By
-          </th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-            Total Members
-          </th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-            Actions
-          </th>
-        </tr>
-      </thead>
+        className="bg-white rounded-xl border border-gray-200 pb-2"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+      >
+        {/* Table container */}
+        <div className="overflow-x-auto rounded-xl">
+          <table className="min-w-full border-collapse">
+            <thead className="bg-gray-100 hidden md:table-header-group">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Organization Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Created By
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Website
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Total Members
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
 
-      <tbody>
-        {pagedOrganisations && pagedOrganisations.length > 0 ? (
-          pagedOrganisations.map((org) => (
-            <motion.tr
-              key={org._id}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="hover:bg-gray-50 border-b md:table-row block mb-4 md:mb-0 rounded-lg md:rounded-none shadow-sm md:shadow-none"
-            >
-              {/* Organization Name */}
-              <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Organization:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
-                {org.name}
-              </td>
-
-              {/* Created By */}
-              <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Created By:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
-                {org.organizationEmail || "N/A"}
-              </td>
-
-              {/* Total Members */}
-              <td
-                className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 cursor-pointer block md:table-cell before:content-['Total Members:'] md:before:content-none before:block before:text-gray-500 before:text-xs"
-                onClick={() => {
-                  setOrganizationToView(org);
-                  setViewModalOpen(true);
-                }}
-                title="View members"
-              >
-                
-                {org.members?.length<=1 ? org.draftMembers?.length:org.members?.length}
-              </td>
-
-              {/* Actions */}
-              <td className="px-6 py-3 text-right block md:table-cell before:content-['Actions:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
-                <div className="flex md:justify-end gap-2">
-                  <button
-                    onClick={() =>
-                      apporoveOrganization(org._id, {status:"approved"})
-                    }
-                    className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700"
+            <tbody>
+              {pagedOrganisations && pagedOrganisations.length > 0 ? (
+                pagedOrganisations.map((org) => (
+                  <motion.tr
+                    key={org._id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="hover:bg-gray-50 border-b md:table-row block mb-4 md:mb-0 rounded-lg md:rounded-none shadow-sm md:shadow-none"
                   >
-                    {org.orgStatus === "approved" ? "Approved" : "Approve"}
-                  </button>
+                    {/* Organization Name */}
+                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Organization:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
+                      {org.companyName}
+                    </td>
 
-                  <button
-                    onClick={() =>
-                      apporoveOrganization(org._id, {status:"denied"})
-                    }
-                    className="bg-red-600 text-white px-3 py-1 rounded-md text-xs hover:bg-red-700"
-                  >
-                    {org.orgStatus === "denied" ? "Rejected" : "Reject"}
-                  </button>
-                </div>
-              </td>
-            </motion.tr>
-          ))
-        ) : (
-          <tr>
-            <td colSpan={4} className="text-center py-8">
-              <Empty
-                description="No organizations found"
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-              />
-            </td>
-          </tr>
-        )}
-      </tbody>
-    </table>
-  </div>
+                    {/* Created By */}
+                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Created By:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
+                      {org.organizationEmail || "N/A"}
+                    </td>
 
-  {/* Pagination */}
-  <div className="flex justify-end mt-3 pr-4">
-    <Pagination
-      current={currentPage}
-      total={totalItems}
-      pageSize={pageSize}
-      showSizeChanger={false}
-      onChange={setCurrentPage}
-    />
-  </div>
-</motion.div>
+                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Organization:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
+                      {org.name}
+                    </td>
 
+                    {/* Total Members */}
+                    <td
+                      className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 cursor-pointer block md:table-cell before:content-['Total Members:'] md:before:content-none before:block before:text-gray-500 before:text-xs"
+                      onClick={() => {
+                        setOrganizationToView(org);
+                        setViewModalOpen(true);
+                      }}
+                      title="View members"
+                    >
+                      {org.members?.length <= 1
+                        ? org.draftMembers?.length
+                        : org.members?.length}
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-3 text-right block md:table-cell before:content-['Actions:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
+                      <div className="flex md:justify-center gap-2">
+                        {org.orgStatus === "pending" && (
+                          <Dropdown
+                            overlay={eventMenu(org)}
+                            trigger={["click"]}
+                            placement="bottomRight"
+                          >
+                            <button className="bg-gray-400 text-white px-3 py-1 rounded-md text-xs hover:bg-gray-500">
+                              Pending
+                            </button>
+                          </Dropdown>
+                        )}
+                        {org.orgStatus === "approved" && (
+                          <Dropdown
+                            overlay={eventMenu(org)}
+                            trigger={["click"]}
+                            placement="bottomRight"
+                          >
+                          <button className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700">
+                            Approved
+                          </button>
+                          </Dropdown>
+                        )}
+                        {org.orgStatus === "denied" && (
+                          <Dropdown
+                            overlay={eventMenu(org)}
+                            trigger={["click"]}
+                            placement="bottomRight"
+                          >
+                          <button className="bg-red-600 text-white px-3 py-1 rounded-md text-xs hover:bg-red-700">
+                            Rejected
+                          </button>
+                          </Dropdown>
+                        )}
+                      </div>
+                    </td>
+                  </motion.tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="text-center py-8">
+                    <Empty
+                      description="No organizations found"
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    />
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex justify-end mt-3 pr-4">
+          <Pagination
+            current={currentPage}
+            total={totalItems}
+            pageSize={pageSize}
+            showSizeChanger={false}
+            onChange={setCurrentPage}
+          />
+        </div>
+      </motion.div>
 
       {/* Confirmation Modal */}
       <ConfirmationModal
