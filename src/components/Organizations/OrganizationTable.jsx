@@ -534,6 +534,8 @@ const OrganizationTable = ({
             </button>
             <OrganizationDetails
               organization={organizationToView}
+              
+              setViewModalOpen={setViewModalOpen}
               Users={Users}
               onMemberAdded={async () => {
                 await fetchOrganizations();

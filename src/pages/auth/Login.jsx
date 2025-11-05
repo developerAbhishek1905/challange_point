@@ -73,7 +73,7 @@ const Login = () => {
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-              FCM Token
+             Password
             </label>
             <input
               id="password"
@@ -86,7 +86,7 @@ const Login = () => {
             />
           </div>
 
-          <div className="text-right">
+          {/* <div className="text-right">
             <button
               type="button"
               className="text-sm text-blue-600 hover:underline"
@@ -94,7 +94,7 @@ const Login = () => {
             >
               Forgot Password?
             </button>
-          </div>
+          </div> */}
 
           <button
             type="submit"

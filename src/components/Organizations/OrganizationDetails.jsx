@@ -3,7 +3,7 @@ import { Plus, MoreVertical } from "lucide-react";
 import { toast } from "react-toastify";
 import { addMember } from "../../utils/api";
 
-export default function OrganizationDetails({ organization, Users, memberAdded, seMemberAdded, onMemberAdded, onApproveMember, onRejectOrganization }) {
+export default function OrganizationDetails({ organization, Users, memberAdded, seMemberAdded, onMemberAdded, onApproveMember, onRejectOrganization, setViewModalOpen}) {
   const [showModal, setShowModal] = useState(false);
   const [checkedUser, setCheckedUser] = useState({}); // Only one user at a time
 
@@ -14,6 +14,7 @@ export default function OrganizationDetails({ organization, Users, memberAdded, 
   const nonMemberUsers = Users.filter((u) => !memberIds.includes(u._id));
 
   const handleRadioChange = (id) => {
+    console.log(id)
     setCheckedUser({ userId: id });
   };
 
@@ -23,10 +24,11 @@ export default function OrganizationDetails({ organization, Users, memberAdded, 
       return;
     }
     try {
-      await addMember(orgId, checkedUser.userId); // send only userId
+      await addMember(orgId, checkedUser); // send only userId
       toast.success("Member added successfully");
       setCheckedUser({});
       setShowModal(false);
+      setViewModalOpen(false);
       if (onMemberAdded) await onMemberAdded();
     } catch (error) {
       console.error(error);
