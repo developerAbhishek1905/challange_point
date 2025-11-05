@@ -9,9 +9,11 @@ const headers={
 }
 
 
-export const getAllOrganizationsList = async () => {
+export const getAllOrganizationsList = async (page,limit) => {
   try {
-    const response = await axios.get(`${BASE_URL}api/organizations`,{ headers: headers });
+    const response = await axios.get(`${BASE_URL}api/organizations`,{ 
+      params:{page,limit},
+      headers: headers });
     return response.data;
     
   } catch (error) {
@@ -65,10 +67,10 @@ export const addMember = async (orgId, userId) => {
 
 //get all challange list 
 
-export const getAllChallangeList = async (page) => {
+export const getAllChallangeList = async (page,limit=10) => {
   try {
     const response = await axios.get(`${BASE_URL}api/challenges/allglobalchallenges`,{
-        params: { page: page, },
+        params: { page: page,limit },
         headers: headers });
     console.log("Challenges data:", response.data); // Log the response data
     return response.data;

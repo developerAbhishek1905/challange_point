@@ -51,13 +51,13 @@ const EventsTable = ({
 
 
   console.log(challengeDetailsData)
-  const pageSize = 5;
+  const pageSize = 10;
 
   // Fetch events from API
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const data = await getAllChallangeList(currentPage);
+        const data = await getAllChallangeList(currentPage,pageSize);
         setAllEvents(data.challenges || []);
         setTotalItems(data.totalCount || (data.challenges ? data.challenges.length : 0));
       } catch (error) {
@@ -457,7 +457,7 @@ const EventsTable = ({
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Event Name
+                  Challange Name
                 </th>
                 <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Date
@@ -469,9 +469,9 @@ const EventsTable = ({
                   Description
                 </th>
                 
-                <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                {/* <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Status
-                </th>
+                </th> */}
                 <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Actions
                 </th>
@@ -513,10 +513,10 @@ const EventsTable = ({
                     </td>
                     
                     
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                      {product
                      .status || 'N/A'}
-                    </td>
+                    </td> */}
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 relative">
                       <Dropdown overlay={eventMenu(product)} trigger={['click']} placement="bottomRight">
                         <button>
