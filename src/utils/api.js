@@ -1,30 +1,23 @@
-import axios from "axios";
-import { updateUser } from "../Redux/API/API";
-const BASE_URL ="http://65.0.93.117/"
-// const BASE_URL ="http://localhost:5001/"
+import axiosInstance from "./axiosInstance";
 
-const headers={
-    'Content-Type': 'application/json',
-    'x-user-email': 'shubhampalpal832@gmail.com',
-}
+// ---------------------- ORGANIZATIONS ----------------------
 
-
-export const getAllOrganizationsList = async (page,limit) => {
+export const getAllOrganizationsList = async (search="" ) => {
+  // console.log(limit)
   try {
-    const response = await axios.get(`${BASE_URL}api/organizations`,{ 
-      params:{page,limit},
-      headers: headers });
+    const response = await axiosInstance.get("api/organizations", {
+      params: {search, },
+    });
     return response.data;
-    
   } catch (error) {
     console.error("Error fetching organizations:", error);
     throw error;
   }
-}
+};
 
 export const createOrganization = async (organizationData) => {
   try {
-    const response = await axios.post(`${BASE_URL}api/organizations`, organizationData, { headers: headers });
+    const response = await axiosInstance.post("api/organizations", organizationData);
     return response.data;
   } catch (error) {
     console.error("Error creating organization:", error);
@@ -34,7 +27,7 @@ export const createOrganization = async (organizationData) => {
 
 export const updateOrganization = async (id, organizationData) => {
   try {
-    const response = await axios.put(`${BASE_URL}api/organizations/${id}`,organizationData, { headers: headers });
+    const response = await axiosInstance.put(`api/organizations/${id}`, organizationData);
     return response.data;
   } catch (error) {
     console.error("Error updating organization:", error);
@@ -44,7 +37,7 @@ export const updateOrganization = async (id, organizationData) => {
 
 export const deleteOrganization = async (id) => {
   try {
-    const response = await axios.delete(`${BASE_URL}api/organizations/${id}`, { headers: headers });
+    const response = await axiosInstance.delete(`api/organizations/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting organization:", error);
@@ -53,103 +46,99 @@ export const deleteOrganization = async (id) => {
 };
 
 export const addMember = async (orgId, userId) => {
-  console.log(orgId,userId)
   try {
-    const response = await axios.post(`${BASE_URL}api/organizations/${orgId}/members`, userId, { headers: headers });
-    console.log(response)
+    const response = await axiosInstance.post(`api/organizations/${orgId}/members`, userId);
     return response.data;
   } catch (error) {
     console.error("Error adding member:", error);
     throw error;
   }
-}
+};
 
-
-//get all challange list 
-
-export const getAllChallangeList = async (page,limit=10) => {
+export const approve_reject = async (orgId, status) => {
   try {
-    const response = await axios.get(`${BASE_URL}api/challenges/allglobalchallenges`,{
-        params: { page: page,limit },
-        headers: headers });
-    console.log("Challenges data:", response.data); // Log the response data
+    const response = await axiosInstance.post(`api/organizations/${orgId}/approve-deny`, status);
     return response.data;
-    
+  } catch (error) {
+    console.error("Error approving/rejecting org:", error);
+    throw error;
+  }
+};
+
+// ---------------------- CHALLENGES ----------------------
+
+export const getAllChallangeList = async (search) => {
+  try {
+    const response = await axiosInstance.get("api/challenges/allglobalchallenges", {
+      params: { search},
+    });
+    return response.data;
   } catch (error) {
     console.error("Error fetching challenges:", error);
     throw error;
   }
-}
+};
+
 
 export const deleteChallange = async (id) => {
   try {
-    const response = await axios.delete(`${BASE_URL}api/challenges/${id}`, { headers: headers });
+    const response = await axiosInstance.delete(`api/challenges/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting challenge:", error);
     throw error;
   }
-}
+};
 
-//get leaderboard
-
+// ---------------------- LEADERBOARD ----------------------
 
 export const getLeaderboard = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}api/organizations/list/stats`,{ headers: headers });
-    console.log("Leaderboard data:", response.data); // Log the response data
+    const response = await axiosInstance.get("api/organizations/list/stats",{});
     return response.data;
-    
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
     throw error;
   }
-}
+};
 
-export const getAllUsers = async () => {
+// ---------------------- USERS ----------------------
+
+export const getAllUsers = async (search="") => {
   try {
-    const response = await axios.get(`${BASE_URL}api/user/users`,{ headers: headers });
+    const response = await axiosInstance.get("api/user/users",{params:{search}});
     return response.data;
-    
   } catch (error) {
     console.error("Error fetching users:", error);
     throw error;
   }
-}
+};
 
-export const getUserById = async (id,user) => {
+export const getUserById = async (id) => {
   try {
-    const response = await axios.get(`${BASE_URL}api/users/${id}`,{ headers: headers });
+    const response = await axiosInstance.get(`api/users/${id}`);
     return response.data;
-    
   } catch (error) {
     console.error("Error fetching user by ID:", error);
     throw error;
   }
-} 
+};
 
 export const signUp = async (userData) => {
   try {
-    const response = await axios.post(`${BASE_URL}api/user/sign-up`,userData,{ headers: headers });
+    const response = await axiosInstance.post("api/user/sign-up", userData);
     return response.data;
-    
   } catch (error) {
-    console.error("Error fetching users:", error);
+    console.error("Error signing up:", error);
     throw error;
   }
-}
+};
 
-export const userUpdate = async (email, userData) => { 
+export const userUpdate = async (email, userData) => {
   try {
-    const response = await axios.put(`${BASE_URL}api/user/update`,userData, { 
-      
-      headers: {
-        'Content-Type': 'application/json',
-        'x-user-email': email,
-      } 
-    }
-    
-    );
+    const response = await axiosInstance.put("api/user/update", userData, {
+      headers: { "x-user-email": email },
+    });
     return response.data;
   } catch (error) {
     console.error("Error updating user:", error);
@@ -159,55 +148,92 @@ export const userUpdate = async (email, userData) => {
 
 export const deleteUser = async (id) => {
   try {
-    const response = await axios.delete(`${BASE_URL}api/user/users/${id}`, { headers: headers });
+    const response = await axiosInstance.delete(`api/user/users/${id}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting user:", error);
     throw error;
   }
-}
+};
 
 export const getAllMembers = async (orgId) => {
   try {
-    const response = await axios.get(`${BASE_URL}api/challenges/${orgId}/members`,{ headers: headers });
+    const response = await axiosInstance.get(`api/challenges/${orgId}/members`);
     return response.data;
-    
   } catch (error) {
     console.error("Error fetching members:", error);
     throw error;
   }
-}
+};
 
-export const approve_reject = async (orgId, status) => {
-  console.log(orgId,status)
-  try {
-    const response = await axios.post(`${BASE_URL}api/organizations/${orgId}/approve-deny`, status, { headers: headers });
-    console.log(response)
-    return response.data;
-  } catch (error) {
-    console.error("Error adding member:", error);
-    throw error;
-  }
-}
-
+// ---------------------- NOTIFICATIONS ----------------------
 
 export const postPullNotification = async (formData) => {
   try {
-    const response = await axios.post(`${BASE_URL}api/user/push-notification/all`, formData, { headers: headers });
+    const response = await axiosInstance.post("api/user/push-notification/all", formData);
+    if (response.data?.token) {
+      localStorage.setItem("token", response.data.token); // ✅ Save token
+    }
     return response.data;
   } catch (error) {
-    console.error("Error creating organization:", error);
+    console.error("Error sending push notification:", error);
     throw error;
   }
 };
 
+// ---------------------- ADMIN LOGIN ----------------------
 
-export const adminLogin = async (formData)=>{
-   try {
-    const response = await axios.post(`${BASE_URL}api/user/admin-login`, formData, {'Content-Type': 'application/json',});
+export const adminLogin = async (formData) => {
+  try {
+    const response = await axiosInstance.post("api/user/admin-login", formData);
+    if (response.data?.token) {
+      localStorage.setItem("token", response.data.token); // ✅ Save token
+    }
     return response.data;
   } catch (error) {
-    console.error("Error creating organization:", error);
+    console.error("Error in admin login:", error);
     throw error;
   }
-}
+};
+
+// ---------------------- FEEDS ----------------------
+
+export const getAllFeeds = async (search="") => {
+  try {
+    const response = await axiosInstance.get("api/challenges/get-feed",{params:{search}});
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching feeds:", error);
+    throw error;
+  }
+};
+
+export const getFeedById = async (feedId) => {
+  try {
+    const response = await axiosInstance.get(`api/challenges/get-single-feed/${feedId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching feed by ID:", error);
+    throw error;
+  }
+};
+
+export const createFeed = async (feedData) => {
+  try {
+    const response = await axiosInstance.post("api/challenges/create-feed", feedData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating feed:", error);
+    throw error;
+  }
+};
+
+export const deleteFeed = async (feedId) => {
+  try {
+    const response = await axiosInstance.delete(`api/challenges/feed/${feedId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting feed:", error);
+    throw error;
+  }
+};

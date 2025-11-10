@@ -19,6 +19,12 @@ const OrganizationTable = ({
   setShowModal,
   modalMode,
   setModalMode,
+  currentPage, 
+  setCurrentPage,
+  organizations,
+  memberAdded,
+  setMemberAdded,
+  searchValue
 }) => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // 'delete' | 'cancel'
@@ -34,8 +40,8 @@ const OrganizationTable = ({
   const [selectedUserId, setSelectedUserId] = useState("");
   const [organisationStatus, setOrganisationStatus] = useState("");
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
+  // const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 5;
   const [totalItems, setTotalItems] = useState(0);
 
   const [organizationToDelete, setOrganizationToDelete] = useState(null);
@@ -45,19 +51,17 @@ const OrganizationTable = ({
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [organizationToView, setOrganizationToView] = useState(null);
   const [addPopupOpen, setAddPopupOpen] = useState(false);
-  const [memberAdded, setMemberAdded] = useState(false);
+  // const [memberAdded, setMemberAdded] = useState(false);
   const [status, setStatus] = useState({});
 
-  console.log(JSON.stringify(selectedUserId), "selectedUserId");
   // ✅ Fetch organizations once & on demand
   const fetchOrganizations = async () => {
     try {
-      const orgs = await getAllOrganizationsList();
+      const orgs = await getAllOrganizationsList(searchValue);
       setAllOrganisation(orgs.organizations || []);
       const allusers = await getAllUsers();
       setUsers(allusers.users || []);
-      console.log(allusers.users);
-      console.log(orgs);
+      setCurrentPage(1)
       setTotalItems((orgs.organizations || []).length);
     } catch (error) {
       toast.error("Failed to fetch organizations");
@@ -65,8 +69,39 @@ const OrganizationTable = ({
   };
 
   useEffect(() => {
-    fetchOrganizations();
-  }, [currentPage, memberAdded]);
+    const delayDebounce = setTimeout(() => {
+      fetchOrganizations(searchValue, currentPage);
+    }, 500);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchValue, memberAdded]); // ✅ removed "organizations"
+
+
+
+// useEffect(() => {
+//     const delayDebounce = setTimeout(() => {
+//       fetchOrganizations(searchValue, currentPage);
+//     }, 500);
+
+//     return () => clearTimeout(delayDebounce);
+//   }, [searchValue, memberAdded]); // ✅ removed "organizations"
+
+//   const fetchOrganizations = async (value, page) => {
+//     try {
+//       const orgs = await getAllOrganizationsList(value, page);
+//       if (orgs && orgs.organizations) {
+//         setOrganizations(orgs.organizations);
+//       } else {
+//         setOrganizations([]);
+//       }
+//     } catch (error) {
+//       console.error("Error fetching organizations:", error);
+//       setOrganizations([]);
+//       toast.error("Failed to fetch organizations");
+//     }
+//   };
+
+
 
   // Pagination
   const pagedOrganisations = allOrganisation.slice(
@@ -102,64 +137,30 @@ const OrganizationTable = ({
       const newOrgData = {
         name: organisationName,
         description: organizationDescription,
-        // organization_email: organisationEmail,
-        // user_id: selectedUserId,
-        // status: organisationStatus,
       };
       await createOrganization(newOrgData);
       toast.success("Organization added successfully");
       setShowModal(false);
       resetForm();
-      fetchOrganizations(); // ✅ refresh
+      setMemberAdded(!memberAdded); // Toggle to trigger refresh
     } catch (error) {
       toast.error("Failed to add organization");
     }
   };
 
-  // Edit
-  const handleEditClick = (organisation) => {
-    setSelectedOrganization(organisation);
-    setOrganisationName(organisation.name);
-    setOrganizationDescription(organisation.description);
-    setOrganisationEmail(organisation.organization_email || "");
-    setSelectedUserId(organisation.user_id || "");
-    setOrganisationStatus(organisation.status || "");
-    setModalMode("Edit");
-    setShowModal(true);
-  };
-
-  const handleEditSubmit = async () => {
-    if (!selectedOrganization) return;
-    if (!validateOrganizationForm()) return;
-    try {
-      const updatedOrgData = {
-        name: organisationName,
-        description: organizationDescription,
-        // organization_email: organisationEmail,
-        // user_id: selectedUserId,
-        // status: organisationStatus,
-      };
-      await updateOrganization(selectedOrganization._id, updatedOrgData);
-      toast.success("Organization updated successfully");
-      setShowModal(false);
-      resetForm();
-      fetchOrganizations(); // ✅ refresh
-    } catch (error) {
-      toast.error("Failed to update organization");
-    }
-  };
-
+  // Delete organization
   const handleDelete = async () => {
     try {
       await deleteOrganization(organizationToDelete);
       toast.success("Organization deleted successfully");
       setOrganizationToDelete(null);
-      fetchOrganizations(); // ✅ refresh
+      setMemberAdded(!memberAdded); // Toggle to trigger refresh
     } catch (error) {
       toast.error("Failed to delete organization");
     }
   };
 
+  // Approve/Reject organization
   const apporoveOrganization = async (orgId, status) => {
     try {
       await approve_reject(orgId, status);
@@ -168,18 +169,30 @@ const OrganizationTable = ({
           ? "Organization approved"
           : "Organization Rejected"
       );
-
-      fetchOrganizations(); // ✅ refresh
+      setMemberAdded(!memberAdded); // Toggle to trigger refresh
     } catch (error) {
       toast.error("Failed");
     }
   };
 
-  // If you have user data, map it for Select options
-  // const UsersOptions = allUsers.map((user) => ({
-  //   label: `${user.first_name} ${user.last_name}`,
-  //   value: user._id,
-  // }));
+  // Edit organization
+  const handleEditSubmit = async () => {
+    if (!selectedOrganization) return;
+    if (!validateOrganizationForm()) return;
+    try {
+      const updatedOrgData = {
+        name: organisationName,
+        description: organizationDescription,
+      };
+      await updateOrganization(selectedOrganization._id, updatedOrgData);
+      toast.success("Organization updated successfully");
+      setShowModal(false);
+      resetForm();
+      setMemberAdded(!memberAdded); // Toggle to trigger refresh
+    } catch (error) {
+      toast.error("Failed to update organization");
+    }
+  };
 
   const eventMenu = (org) => (
     <Menu>
@@ -402,131 +415,73 @@ const OrganizationTable = ({
       )}
 
       {/* Table */}
-      <motion.div
-        className="bg-white rounded-xl border border-gray-200 pb-2"
+      <motion.div 
+        className="bg-white rounded-xl border pb-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.3 }}
       >
-        {/* Table container */}
         <div className="overflow-x-auto rounded-xl">
           <table className="min-w-full border-collapse">
-            <thead className="bg-gray-100 hidden md:table-header-group">
+            <thead className="bg-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Organization Name
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Created By
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Website
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Total Members
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Actions
-                </th>
+                {["Organization Name", "Created By", "Website", "Total Members", "Status", "Actions"].map(
+                  (header) => (
+                    <th key={header} className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                      {header}
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
 
             <tbody>
-              {pagedOrganisations && pagedOrganisations.length > 0 ? (
+              {pagedOrganisations.length > 0 ? (
                 pagedOrganisations.map((org) => (
-                  <motion.tr
-                    key={org._id}
+                  <motion.tr 
+                    key={org._id} 
+                    className="hover:bg-gray-50 border-b"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="hover:bg-gray-50 border-b md:table-row block mb-4 md:mb-0 rounded-lg md:rounded-none shadow-sm md:shadow-none"
                   >
-                    {/* Organization Name */}
-                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Organization:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
-                      {org.companyName}
-                    </td>
-
-                    {/* Created By */}
-                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Created By:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
-                      {org.organizationEmail || "N/A"}
-                    </td>
-
-                    <td className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 block md:table-cell before:content-['Organization:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
-                      {org.name}
-                    </td>
-
-                    {/* Total Members */}
-                    <td
-                      className="px-6 py-3 whitespace-nowrap text-sm font-medium text-gray-700 cursor-pointer block md:table-cell before:content-['Total Members:'] md:before:content-none before:block before:text-gray-500 before:text-xs"
+                    <td className="px-6 py-4 text-sm font-medium text-gray-700">{org.companyName}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{org.organizationEmail || "N/A"}</td>
+                    <td className="px-6 py-4 text-sm text-gray-700">{org.name}</td>
+                    
+                    <td 
+                      className="px-6 py-4 text-sm text-gray-700 cursor-pointer"
                       onClick={() => {
                         setOrganizationToView(org);
                         setViewModalOpen(true);
                       }}
-                      title="View members"
                     >
-                      {org.members?.length <= 1
-                        ? org.draftMembers?.length
-                        : org.members?.length}
+                      {org.members?.length || 0}
                     </td>
 
-                    {/* Actions */}
-                    <td className="px-6 py-3 text-right block md:table-cell before:content-['Actions:'] md:before:content-none before:block before:text-gray-500 before:text-xs">
-                      <div className="flex md:justify-center gap-2">
-                        {org.orgStatus === "pending" && (
-                          <Dropdown
-                            overlay={eventMenu(org)}
-                            trigger={["click"]}
-                            placement="bottomRight"
-                          >
-                            <button className="bg-gray-400 text-white px-3 py-1 rounded-md text-xs hover:bg-gray-500">
-                              Pending
-                            </button>
-                          </Dropdown>
-                        )}
-                        {org.orgStatus === "approved" && (
-                          <Dropdown
-                            overlay={eventMenu(org)}
-                            trigger={["click"]}
-                            placement="bottomRight"
-                          >
-                          <button className="bg-green-600 text-white px-3 py-1 rounded-md text-xs hover:bg-green-700">
-                            Approved
-                          </button>
-                          </Dropdown>
-                        )}
-                        {org.orgStatus === "denied" && (
-                          <Dropdown
-                            overlay={eventMenu(org)}
-                            trigger={["click"]}
-                            placement="bottomRight"
-                          >
-                          <button className="bg-red-600 text-white px-3 py-1 rounded-md text-xs hover:bg-red-700">
-                            Rejected
-                          </button>
-                          </Dropdown>
-                        )}
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 relative">
-                      <Dropdown overlay={ActionMenu(org)} trigger={['click']} placement="bottomRight">
-                        <button>
-                          <Ellipsis className="text-gray-600 hover:text-gray-800" />
+                    <td className="px-6 py-4">
+                      <Dropdown overlay={eventMenu(org)} trigger={["click"]}>
+                        <button 
+                          className={`px-3 py-1 rounded-md text-xs text-white
+                            ${org.orgStatus === "pending" ? "bg-gray-400 hover:bg-gray-500" :
+                              org.orgStatus === "approved" ? "bg-green-600 hover:bg-green-700" :
+                              "bg-red-600 hover:bg-red-700"}`}
+                        >
+                          {org.orgStatus === "pending" ? "Pending" :
+                           org.orgStatus === "approved" ? "Approved" : "Rejected"}
                         </button>
+                      </Dropdown>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <Dropdown overlay={ActionMenu(org)} trigger={["click"]}>
+                        <Ellipsis className="text-gray-600 hover:text-gray-800 cursor-pointer" />
                       </Dropdown>
                     </td>
                   </motion.tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="text-center py-8">
-                    <Empty
-                      description="No organizations found"
-                      image={Empty.PRESENTED_IMAGE_SIMPLE}
-                    />
+                  <td colSpan={6} className="text-center py-8">
+                    <Empty description="No organizations found" image={Empty.PRESENTED_IMAGE_SIMPLE} />
                   </td>
                 </tr>
               )}
@@ -534,7 +489,6 @@ const OrganizationTable = ({
           </table>
         </div>
 
-        {/* Pagination */}
         <div className="flex justify-end mt-3 pr-4">
           <Pagination
             current={currentPage}
