@@ -114,11 +114,10 @@ export default function FeedManageTable({ searchValue }) {
   // Add this helper function
   const getReportStatus = (feed) => {
     
-    const reportCount = feed.dislikesCount || 0
+    const reportCount = 7
 ;
-    if (reportCount >= 7) return { color: 'red', text: 'High' };
-    if (reportCount >= 4) return { color: 'orange', text: 'Medium' };
-    if (reportCount > 0) return { color: 'yellow', text: 'Low' };
+    if (reportCount >= 7) return { color: 'red', text: 'Reported' };
+    
     return { color: 'green', text: 'None' };
   };
 
@@ -180,10 +179,9 @@ export default function FeedManageTable({ searchValue }) {
                         >
                           <span className={`
                             inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs
-                            ${reportStatus.color === 'red' ? 'bg-red-100 text-red-700' : ''}
-                            ${reportStatus.color === 'orange' ? 'bg-orange-100 text-orange-700' : ''}
-                            ${reportStatus.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' : ''}
-                            ${reportStatus.color === 'green' ? 'bg-green-100 text-green-700' : ''}
+                            ${reportStatus.color === 'red' ? 'bg-red-300 text-red-700' : ''}
+                            
+                            ${reportStatus.color === 'green' ? 'bg-green-300 text-green-700' : ''}
                           `}>
                             <Flag size={12} />
                             {reportStatus.text}
@@ -192,7 +190,7 @@ export default function FeedManageTable({ searchValue }) {
                       </td>
 
                       <td className="px-6 py-3 text-right">
-                        <Dropdown menu={ActionMenu(feed)} trigger={["click"]}>
+                        <Dropdown overlay={ActionMenu(feed)} trigger={["click"]}>
                           <Ellipsis className="text-gray-600 hover:text-gray-800 cursor-pointer" />
                         </Dropdown>
                       </td>

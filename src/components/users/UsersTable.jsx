@@ -13,7 +13,7 @@ const UsersTable = ({ searchValue }) => {
   const [viewUser, setViewUser] = useState(null);
   const [allUsers, setAllUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const pageSize = 8;
   const [userToDelete, setUserToDelete] = useState(null);
 
   // ✅ Fetch users from API
@@ -305,7 +305,7 @@ useEffect(() => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 relative">
                         <Dropdown
-                          menu={eventMenu(user)}
+                          overlay={eventMenu(user)}
                           trigger={["click"]}
                           placement="bottomRight"
                         >

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Edit, Ellipsis, Eye, Trash2 } from "lucide-react";
+import { Edit, Ellipsis, Eye, Trash2, Flag } from "lucide-react";
 import { DatePicker, Dropdown, Empty, Input, Menu, Pagination, Select, TimePicker, Popover, Modal } from "antd";
 import dayjs from "dayjs";
 import ConfirmationModal from "../ConfirmationModal";
@@ -275,6 +275,14 @@ const EventsTable = ({
       : text;
   };
 
+  // --- new: report status helper ---
+  const getReportStatus = (item) => {
+    const count = item.dislikesCount || 0;
+    if (count >= 7) return { level: "Reported", color: "bg-red-300 text-red-700" };
+   
+    return { level: "None", color: "bg-green-300 text-green-700" };
+  };
+
   return (
     <>
       {/* Category Modal */}
@@ -484,10 +492,12 @@ const EventsTable = ({
                 <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Description
                 </th>
-                
-                {/* <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Status
-                </th> */}
+
+                {/* new Reported column */}
+                <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                  Reported
+                </th>
+
                 <th className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Actions
                 </th>
@@ -528,14 +538,35 @@ const EventsTable = ({
                         {truncateWords(product.description, 4)}
                       </Popover>
                     </td>
-                    
-                    
-                    {/* <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                     {product
-                     .status || 'N/A'}
-                    </td> */}
+
+                    {/* --- new Reported cell --- */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                      {(() => {
+                        const r = getReportStatus(product);
+                        return (
+                          <Popover
+                            content={
+                              <div className="text-sm">
+                                <div>Reports: {product.reportCount ?? 0}</div>
+                                {product.lastReportDate && (
+                                  <div>Last: {new Date(product.lastReportDate).toLocaleString()}</div>
+                                )}
+                              </div>
+                            }
+                            title="Report Details"
+                            trigger="hover"
+                          >
+                            <span className={`inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs ${r.color}`}>
+                              <Flag size={14} />
+                              {r.level}
+                            </span>
+                          </Popover>
+                        );
+                      })()}
+                    </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 relative">
-                      <Dropdown menu={eventMenu(product)} trigger={['click']} placement="bottomRight">
+                      <Dropdown overlay={eventMenu(product)} trigger={['click']} placement="bottomRight">
                         <button>
                           <Ellipsis className="text-gray-600 hover:text-gray-800" />
                         </button>
@@ -545,7 +576,8 @@ const EventsTable = ({
                 ))
               ) : (
                 <tr>
-                  <td colSpan="8" className="text-center py-8">
+                  {/* update colspan to match new column count */}
+                  <td colSpan="6" className="text-center py-8">
                     <Empty
                       description="No events found"
                       image={Empty.PRESENTED_IMAGE_SIMPLE}

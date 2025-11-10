@@ -41,7 +41,7 @@ const OrganizationTable = ({
   const [organisationStatus, setOrganisationStatus] = useState("");
 
   // const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 5;
+  const pageSize = 8;
   const [totalItems, setTotalItems] = useState(0);
 
   const [organizationToDelete, setOrganizationToDelete] = useState(null);
@@ -285,7 +285,7 @@ const OrganizationTable = ({
     <>
       {/* Modal */}
       {showModal && (
-        <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+        <motion.div className="fixed inset-0 text-black z-50 flex items-center justify-center bg-black bg-opacity-40">
           <motion.div className="bg-white p-6 rounded-xl w-full max-w-xl shadow-xl">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">
               {modalMode === "Edit" ? "Edit Organization" : "Add Organization"}
@@ -293,7 +293,7 @@ const OrganizationTable = ({
             <div className="space-y-4">
               {/* Organization name */}
               <div>
-                <label className="text-sm font-medium text-gray-900">
+                <label className="text-sm font-medium ">
                   Organization name
                 </label>
                 <input
@@ -523,7 +523,7 @@ const OrganizationTable = ({
 
       {/* 🆕 View Modal */}
       {viewModalOpen && organizationToView && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 text-black ">
           <div className="bg-white rounded-2xl shadow-lg w-full max-w-6xl h-[90vh] overflow-y-auto relative">
             <button
               onClick={() => setViewModalOpen(false)}
