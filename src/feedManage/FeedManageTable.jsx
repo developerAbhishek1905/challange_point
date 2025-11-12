@@ -15,18 +15,20 @@ export default function FeedManageTable({ searchValue }) {
 
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [feedToView, setFeedToView] = useState(null);
+  const [pagination, setPagination] = useState(null)
 
   const pageSize = 8;
   const isMounted = useRef(false);
   const debounceRef = useRef(null);
 
   // ✅ Fetch Feeds (supports search + pagination)
-  const fetchFeeds = async (search = "", page = 1) => {
+  const fetchFeeds = async (search = "", ) => {
     try {
-      const response = await getAllFeeds(search, page, pageSize);
+      const response = await getAllFeeds(search, currentPage, pageSize);
       const feeds = response.feeds || [];
+      setPagination(response)
       setAllFeed(feeds);
-      setCurrentPage(1)
+      
       // prefer a totalCount from API; fallback to feeds.length
       setTotalItems(response.totalCount ?? feeds.length);
     } catch (err) {
@@ -37,6 +39,8 @@ export default function FeedManageTable({ searchValue }) {
       setTotalItems(0);
     }
   };
+
+  
 
   // Debounced effect: runs on searchValue or currentPage change
   useEffect(() => {
@@ -140,8 +144,8 @@ export default function FeedManageTable({ searchValue }) {
             </thead>
 
             <tbody>
-              {pagedFeeds.length > 0 ? (
-                pagedFeeds.map((feed) => {
+              {allFeed.length > 0 ? (
+                allFeed.map((feed) => {
                   const address = feed.address || "N/A";
                   const words = address.split(" ");
                   const shortAddress = words.slice(0, 4).join(" ") + (words.length > 4 ? "..." : "");
@@ -209,7 +213,12 @@ export default function FeedManageTable({ searchValue }) {
         </div>
 
         <div className="flex justify-end mt-2 pr-4">
-          <Pagination current={currentPage} total={totalItems} pageSize={pageSize} showSizeChanger={false} onChange={setCurrentPage} />
+          <Pagination 
+          current={currentPage} 
+          total={pagination?.totalFeeds || 0} 
+          pageSize={pageSize} 
+          showSizeChanger={false} 
+          onChange={setCurrentPage} />
         </div>
       </motion.div>
 
