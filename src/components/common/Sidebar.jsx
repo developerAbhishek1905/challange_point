@@ -19,7 +19,7 @@ const SIDEBAR_ITEMS = [
   { name: "User Manage", icon: UserIcon, href: "/users", roles: ["admin"] },
   { name: "Feed Manage", icon: FeedIcon, href: "/feed", roles: ["admin"] },
   { name: "Organization Manage", icon: OrganizationIcon, href: "/organization", roles: ["admin"] },
-  { name: "Settings", icon: SettingIcon, href: "/settings", roles: ["admin"] },
+  { name: "Settings & Notifications", icon: SettingIcon, href: "/settings", roles: ["admin"] },
 ];
 
 const Sidebar = () => {
@@ -56,7 +56,7 @@ const Sidebar = () => {
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="p-2 rounded-full hover:bg-gray-200 transition-colors self-center lg:self-auto"
+        className={`p-2 rounded-full hover:bg-gray-200 transition-colors ${isOpen === false ?"self-center":"self-auto"} lg:self-auto`}
       >
         <Menu size={22} />
       </button>
@@ -85,7 +85,7 @@ const Sidebar = () => {
           <Link
             key={item.href}
             to={item.href}
-            className={`flex items-center gap-3 p-3 mb-1 rounded-lg text-sm font-medium transition-colors justify-center lg:justify-start
+            className={`flex items-center gap-3 p-3 mb-1 rounded-lg text-sm font-medium transition-colors  ${isOpen === false ?"justify-center":"justify-start"} lg:justify-start
               ${isActiveRoute(item.href) 
                 ? 'bg-gray-100 text-blue-600' 
                 : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
@@ -103,7 +103,7 @@ const Sidebar = () => {
 
       {/* Footer Section */}
       <div className="mt-auto">
-        <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition justify-center lg:justify-start">
+        <div className={`flex items-center gap-3 p-3 rounded-lg hover:bg-gray-100 transition ${isOpen === false ?"justify-center":"justify-start"} lg:justify-start`}>
           <GraduationCap className="text-black" size={20} />
           {isOpen && (
             <a

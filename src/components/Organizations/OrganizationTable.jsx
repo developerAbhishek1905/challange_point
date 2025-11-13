@@ -43,7 +43,7 @@ const OrganizationTable = ({
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [organizationToView, setOrganizationToView] = useState(null);
   const [status, setStatus] = useState({});
-  const pageSize = 6;
+  const pageSize = 8;
 
   // ✅ Fetch organizations & users
   const fetchOrganizations = async () => {
@@ -332,7 +332,7 @@ const OrganizationTable = ({
                       {org.organizationEmail || "N/A"}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-700">
-                      {org.name}
+                      {org.organizationWebsite}
                     </td>
                     <td
                       className="px-6 py-4 text-sm text-gray-700 cursor-pointer"

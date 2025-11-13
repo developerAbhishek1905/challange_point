@@ -10,10 +10,105 @@ import {
 } from "lucide-react";
 import { getAllMembers } from "../utils/api";
 
+const reportCount = [
+  {
+    profile: "https://randomuser.me/api/portraits/men/1.jpg",
+    name: "Amit Sharma",
+    email: "amit.sharma@example.com",
+    comment: "Inappropriate content found in the post. ",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/2.jpg",
+    name: "Priya Mehta",
+    email: "priya.mehta@example.com",
+    comment: "Spam links shared repeatedly.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/3.jpg",
+    name: "Rahul Verma",
+    email: "rahul.verma@example.com",
+    comment: "Harassment reported in chat.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/4.jpg",
+    name: "Sneha Kapoor",
+    email: "sneha.kapoor@example.com",
+    comment: "False information being shared.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/5.jpg",
+    name: "Vikram Singh",
+    email: "vikram.singh@example.com",
+    comment: "User using offensive language.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/6.jpg",
+    name: "Anjali Gupta",
+    email: "anjali.gupta@example.com",
+    comment: "Duplicate posts cluttering the feed.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/7.jpg",
+    name: "Rohit Malhotra",
+    email: "rohit.malhotra@example.com",
+    comment: "Fake profile suspected.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/8.jpg",
+    name: "Kritika Jain",
+    email: "kritika.jain@example.com",
+    comment: "Scam attempts through messages.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/9.jpg",
+    name: "Aditya Khanna",
+    email: "aditya.khanna@example.com",
+    comment: "Unauthorized promotional content.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/10.jpg",
+    name: "Nisha Yadav",
+    email: "nisha.yadav@example.com",
+    comment: "Plagiarized content detected.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/11.jpg",
+    name: "Saurabh Chauhan",
+    email: "saurabh.chauhan@example.com",
+    comment: "Misleading profile information.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/12.jpg",
+    name: "Tanya Bhatia",
+    email: "tanya.bhatia@example.com",
+    comment: "Offensive memes shared publicly.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/13.jpg",
+    name: "Karan Joshi",
+    email: "karan.joshi@example.com",
+    comment: "Fake giveaways being promoted.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/14.jpg",
+    name: "Neha Reddy",
+    email: "neha.reddy@example.com",
+    comment: "User spreading hate speech.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/15.jpg",
+    name: "Arjun Nair",
+    email: "arjun.nair@example.com",
+    comment: "Suspicious login activities detected.",
+  },
+];
+
+
 const ChallengeDetails = ({ data }) => {
   const [members, setMembers] = useState([]);
   const [showMembers, setShowMembers] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showReportCount, setShowReportCount] = useState(false)
 
   if (!data)
     return (
@@ -38,6 +133,22 @@ const ChallengeDetails = ({ data }) => {
     }
   };
 
+  const handleViewReportCount = () => {
+    setLoading(true);
+    setShowReportCount(true);
+    // try {
+    //   const res = await getAllMembers(data._id); // assuming data._id is challenge id
+    //   setMembers(res.data || []);
+    //   setShowMembers(true);
+    // } catch (err) {
+    //   console.error("Failed to load members", err);
+    //   setMembers([]);
+    //   setShowMembers(true);
+    // } finally {
+    //   setLoading(false);
+    // }
+  };
+
   // Open video when thumbnail or button clicked
   const handleVideoClick = () => {
     if (data.video) {
@@ -59,9 +170,9 @@ const ChallengeDetails = ({ data }) => {
               alt={data.title}
               className="w-full h-60 sm:h-72 md:h-80 object-cover group-hover:scale-105 transition-transform duration-300"
             />
-            <div className="absolute top-3 left-3 bg-black/60 px-3 py-1 rounded-md text-white text-xs uppercase tracking-wide">
+            {/* <div className="absolute top-3 left-3 bg-black/60 px-3 py-1 rounded-md text-white text-xs uppercase tracking-wide">
               {data.status || "unknown"}
-            </div>
+            </div> */}
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-black/50 rounded-full p-3 group-hover:bg-black/70 transition">
                 <PlayCircle className="text-white w-10 h-10" />
@@ -70,7 +181,7 @@ const ChallengeDetails = ({ data }) => {
           </div>
 
           {/* YouTube Info */}
-          <div className="flex items-center gap-3 mt-4">
+          {/* <div className="flex items-center gap-3 mt-4">
             <img
               src={data.youtubeUserImage}
               alt={data.youtubeUserName}
@@ -84,7 +195,7 @@ const ChallengeDetails = ({ data }) => {
                 {data.youtubeViews?.toLocaleString()} views
               </p>
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* RIGHT SIDE - Challenge Info */}
@@ -120,13 +231,29 @@ const ChallengeDetails = ({ data }) => {
             <span className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
               Points: {data.points}
             </span>
+            <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
+              {/* <Heart className="w-4 h-4 text-red-500" /> {data.likesCount}  */}
+                  Approve: {data.likesCount}
+            </div>
+               <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
+              {/* <Heart className="w-4 h-4 text-red-500" /> {data.likesCount}  */}
+                 Deny: {data.dislikesCount}
+            </div>
             <span className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
-              <Heart className="w-4 h-4 text-red-500" /> {data.likesCount}
+              {/* <Eye className="w-4 h-4 text-blue-500" />{" "} */}
+              Count: {data.viewCount}
             </span>
-            <span className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
-              <Eye className="w-4 h-4 text-blue-500" />{" "}
-              {data.youtubeViews?.toLocaleString()}
-            </span>
+            <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
+  Report Count: {reportCount.length}
+  <button
+    onClick={() => setShowReportCount(true)}
+    className="text-blue-600 hover:underline ml-1"
+  >
+    View Reports
+  </button>
+</div>
+
+            
           </div>
 
           {/* Action Buttons */}
@@ -147,7 +274,7 @@ const ChallengeDetails = ({ data }) => {
       </div>
 
       {/* MEMBERS MODAL */}
-      {showMembers && (
+      {showMembers  && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
             <button
@@ -196,6 +323,63 @@ const ChallengeDetails = ({ data }) => {
           </div>
         </div>
       )}
+
+      {/* REPORT MODEL */}
+      {showReportCount && (
+  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
+      {/* ❌ Close Button */}
+      <button
+        onClick={() => setShowReportCount(false)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* 🧾 Title */}
+      <h3 className="text-xl font-bold text-gray-800 mb-4">
+        Reported Users
+      </h3>
+
+      {/* 🌀 Loader or No Data */}
+      {loading ? (
+        <p className="text-center text-gray-500">Loading reports...</p>
+      ) : reportCount.length === 0 ? (
+        <p className="text-center text-gray-500">
+          No reports found.
+        </p>
+      ) : (
+        <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+          {reportCount.map((report, index) => (
+            <li
+              key={index}
+              className="py-3 flex items-start gap-3"
+            >
+              {/* 👤 Profile Image */}
+              <img
+                src={report.profile || "/default-user.png"}
+                alt={report.name}
+                className="w-10 h-10 rounded-full border object-cover"
+              />
+
+              {/* 🧍‍♂️ User Info */}
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800">
+                  {report.name}
+                </p>
+                <p className="text-xs text-gray-500">{report.email}</p>
+                <p className="text-base text-gray-600 mt-1">
+                  {report.comment}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

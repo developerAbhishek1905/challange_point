@@ -1,7 +1,106 @@
 
-import { Play, MapPin, Calendar, Eye } from "lucide-react";
+import {X, Play, MapPin, Calendar, Eye } from "lucide-react";
+import { useState } from "react";
+
+const reportCount = [
+  {
+    profile: "https://randomuser.me/api/portraits/men/1.jpg",
+    name: "Amit Sharma",
+    email: "amit.sharma@example.com",
+    comment: "Inappropriate content found in the post. ",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/2.jpg",
+    name: "Priya Mehta",
+    email: "priya.mehta@example.com",
+    comment: "Spam links shared repeatedly.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/3.jpg",
+    name: "Rahul Verma",
+    email: "rahul.verma@example.com",
+    comment: "Harassment reported in chat.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/4.jpg",
+    name: "Sneha Kapoor",
+    email: "sneha.kapoor@example.com",
+    comment: "False information being shared.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/5.jpg",
+    name: "Vikram Singh",
+    email: "vikram.singh@example.com",
+    comment: "User using offensive language.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/6.jpg",
+    name: "Anjali Gupta",
+    email: "anjali.gupta@example.com",
+    comment: "Duplicate posts cluttering the feed.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/7.jpg",
+    name: "Rohit Malhotra",
+    email: "rohit.malhotra@example.com",
+    comment: "Fake profile suspected.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/8.jpg",
+    name: "Kritika Jain",
+    email: "kritika.jain@example.com",
+    comment: "Scam attempts through messages.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/9.jpg",
+    name: "Aditya Khanna",
+    email: "aditya.khanna@example.com",
+    comment: "Unauthorized promotional content.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/10.jpg",
+    name: "Nisha Yadav",
+    email: "nisha.yadav@example.com",
+    comment: "Plagiarized content detected.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/11.jpg",
+    name: "Saurabh Chauhan",
+    email: "saurabh.chauhan@example.com",
+    comment: "Misleading profile information.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/12.jpg",
+    name: "Tanya Bhatia",
+    email: "tanya.bhatia@example.com",
+    comment: "Offensive memes shared publicly.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/13.jpg",
+    name: "Karan Joshi",
+    email: "karan.joshi@example.com",
+    comment: "Fake giveaways being promoted.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/14.jpg",
+    name: "Neha Reddy",
+    email: "neha.reddy@example.com",
+    comment: "User spreading hate speech.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/15.jpg",
+    name: "Arjun Nair",
+    email: "arjun.nair@example.com",
+    comment: "Suspicious login activities detected.",
+  },
+];
 
 export default function FeedDetails({ feed }) {
+
+      const [showReportCount, setShowReportCount] = useState(false)
+        const [loading, setLoading] = useState(false);
+      
+    
   if (!feed) {
     return (
       <div className="p-6 text-center text-gray-500">
@@ -74,19 +173,19 @@ export default function FeedDetails({ feed }) {
                 <MapPin size={16} />
                 <span>{feed.address}</span>
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <Eye size={16} />
                 <span>{feed.youtubeViews.toLocaleString()} views</span>
-              </div>
+              </div> */}
               <div className="flex items-center gap-2">
-                <Calendar size={16} />
-                <span>
+                {/* <Calendar size={16} /> */}
+                {/* <span>
                   {new Date(feed.youtubeDate).toLocaleDateString("en-GB", {
                     year: "numeric",
                     month: "short",
                     day: "numeric",
                   })}
-                </span>
+                </span> */}
               </div>
             </div>
           </div>
@@ -101,12 +200,26 @@ export default function FeedDetails({ feed }) {
             <strong>Feed ID:</strong> {feed._id}
           </li> */}
           <li>
-            <strong>Likes:</strong> {feed.likesCount}
+            <strong>Approved:</strong> {feed.likesCount}
           </li>
           <li>
+            <strong>Denied:</strong> {feed.dislikesCount}
+          </li>
+          <li>
+            <strong>Report Count: </strong>{" "}
+            {reportCount.length}
+             
+  <button
+    onClick={() => setShowReportCount(true)}
+    className="text-blue-600 hover:underline ml-1"
+  >
+    View Reports
+  </button>
+          </li>
+          {/* <li>
             <strong>Points Awarded:</strong>{" "}
             {feed.likesPointsAwarded ? "Yes" : "No"}
-          </li>
+          </li> */}
           <li>
             <strong>Created At:</strong>{" "}
             {new Date(feed.createdAt).toLocaleString()}
@@ -120,7 +233,62 @@ export default function FeedDetails({ feed }) {
             {feed.location.lng}
           </li> */}
         </ul>
+ 
       </div>
+      {showReportCount && (
+  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
+      {/* ❌ Close Button */}
+      <button
+        onClick={() => setShowReportCount(false)}
+        className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
+      {/* 🧾 Title */}
+      <h3 className="text-xl font-bold text-gray-800 mb-4">
+        Reported Users
+      </h3>
+
+      {/* 🌀 Loader or No Data */}
+      {loading ? (
+        <p className="text-center text-gray-500">Loading reports...</p>
+      ) : reportCount.length === 0 ? (
+        <p className="text-center text-gray-500">
+          No reports found.
+        </p>
+      ) : (
+        <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+          {reportCount.map((report, index) => (
+            <li
+              key={index}
+              className="py-3 flex items-start gap-3"
+            >
+              {/* 👤 Profile Image */}
+              <img
+                src={report.profile || "/default-user.png"}
+                alt={report.name}
+                className="w-10 h-10 rounded-full border object-cover"
+              />
+
+              {/* 🧍‍♂️ User Info */}
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800">
+                  {report.name}
+                </p>
+                <p className="text-xs text-gray-500">{report.email}</p>
+                <p className="text-base text-gray-600 mt-1">
+                  {report.comment}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 }

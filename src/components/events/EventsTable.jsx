@@ -18,7 +18,7 @@ import { toast } from "react-toastify";
 import ConfirmationModal from "../ConfirmationModal";
 import AddCategoryModal from "./AddCategoryModal";
 import ChallengeDetails from "../ChallengeDetails";
-import { getAllChallangeList, deleteChallange } from "../../utils/api";
+import { getAllChallangeList, deleteChallange,getChallangeById } from "../../utils/api";
 
 const initialCategories = [
   { _id: "cat1", category_name: "Track" },
@@ -30,6 +30,7 @@ const initialOrganisations = [
   { _id: "org1", organization_name: "Checkpoint Org" },
   { _id: "org2", organization_name: "Tech Society" },
 ];
+
 
 const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchValue }) => {
   const [allEvents, setAllEvents] = useState([]);
@@ -54,8 +55,50 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
   const [showCategoryModal, setShowCategoryModal] = useState(false);
   const [errors, setErrors] = useState({});
   const [challengeDetailsData, setChallengeDetailsData] = useState(null);
+  const [challangeId, setChallangeId] =useState(null)
+  const [getChallangeData ,setGetChallangeData] =useState(null)
 
   const pageSize = 8;
+
+  const reportCount = [
+  {
+    profile: "https://randomuser.me/api/portraits/men/1.jpg",
+    name: "Amit Sharma",
+    email: "amit.sharma@example.com",
+    comment: "Inappropriate content found in the post. ",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/2.jpg",
+    name: "Priya Mehta",
+    email: "priya.mehta@example.com",
+    comment: "Spam links shared repeatedly.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/3.jpg",
+    name: "Rahul Verma",
+    email: "rahul.verma@example.com",
+    comment: "Harassment reported in chat.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/4.jpg",
+    name: "Sneha Kapoor",
+    email: "sneha.kapoor@example.com",
+    comment: "False information being shared.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/men/5.jpg",
+    name: "Vikram Singh",
+    email: "vikram.singh@example.com",
+    comment: "User using offensive language.",
+  },
+  {
+    profile: "https://randomuser.me/api/portraits/women/6.jpg",
+    name: "Anjali Gupta",
+    email: "anjali.gupta@example.com",
+    comment: "Duplicate posts cluttering the feed.",
+  },
+  
+];
 
   // 🔹 Fetch events
   const fetchEvents = async () => {
@@ -90,6 +133,9 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
     setSelectedEvent(null);
     setErrors({});
   };
+ 
+
+
 
   const clearError = (field) => {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
@@ -194,9 +240,24 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
     clearError("selectedOrganisationId");
   };
 
-  const handleViewChallenge = (product) => {
-    setChallengeDetailsData(product);
-    setShowDetailModal(true);
+  const handleViewChallenge = async (challangeID) => {
+    console.log(challangeID)
+    try {
+      const aChallangeData= await getChallangeById(challangeID);
+      console.log(aChallangeData.challenge
+)
+      setGetChallangeData(aChallangeData.challenge
+)
+      // toast.success("Challenge deleted successfully");
+      setShowDetailModal(true);
+    } catch (error) {
+      console.error("Error get challenge:", error);
+      toast.error("Failed to get challenge");
+    } 
+
+
+    // setChallengeDetailsData(product);
+    
   };
 
   const truncateWords = (text, numWords = 4) =>
@@ -214,7 +275,7 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
 
   const eventMenu = (product) => (
     <Menu>
-      <Menu.Item key="view" icon={<Eye size={16} />} onClick={() => handleViewChallenge(product)}>
+      <Menu.Item key="view" icon={<Eye size={16} />} onClick={() => handleViewChallenge(product._id)}>
         View
       </Menu.Item>
       <Menu.Item
@@ -260,7 +321,7 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
           <table className="min-w-full">
             <thead className="bg-gray-100">
               <tr>
-                {["Challenge Name", "Date", "Venue", "Description", "Reported", "Actions"].map((head) => (
+                {["Challenge Name", "Date", "Venue", "Description", "Actions"].map((head) => (
                   <th key={head} className="px-6 py-5 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                     {head}
                   </th>
@@ -277,6 +338,12 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
                         <Popover content={product.title} title="Title">
                           {truncateWords(product.title, 4)}
                         </Popover>
+                        {(product.dislikesCount >= 7 || reportCount.length >= 7) && (
+  <span className="inline-flex items-center gap-1 px-2 py-1 ml-2 rounded-full text-xs bg-red-500 text-white">
+    {/* <Flag size={12} /> */}
+    Reported
+  </span>
+)}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
                         <Popover content={product.expireAt} title="Date">
@@ -296,7 +363,7 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
                           {truncateWords(product.description, 4)}
                         </Popover>
                       </td>
-                      <td className="px-6 py-4 text-sm text-gray-700">
+                      {/* <td className="px-6 py-4 text-sm text-gray-700">
                         <Popover
                           content={
                             <div className="text-sm">
@@ -312,7 +379,7 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
                             <Flag size={14} /> {report.level}
                           </span>
                         </Popover>
-                      </td>
+                      </td> */}
                       <td className="px-6 py-4 text-sm text-gray-700">
                         <Dropdown overlay={eventMenu(product)} trigger={["click"]} placement="bottomRight">
                           <button>
@@ -357,7 +424,7 @@ const EventsTable = ({ showModal, setShowModal, modalMode, setModalMode, searchV
       />
 
       <Modal open={showDetailModal} onCancel={() => setShowDetailModal(false)} footer={null} width={900} destroyOnHidden>
-        <ChallengeDetails data={challengeDetailsData} />
+        <ChallengeDetails data={getChallangeData} />
       </Modal>
     </>
   );

@@ -84,6 +84,17 @@ export const getAllChallangeList = async (search="",page,limit) => {
   }
 };
 
+export const getChallangeById = async (id) => {
+  try {
+    const response =  await axiosInstance.get(`api/challenges/by-challenge/${id}`)
+    console.log(response)
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching challenges:", error);
+    throw error;
+  }
+};
+
 
 export const deleteChallange = async (id) => {
   try {
@@ -171,6 +182,15 @@ export const getAllMembers = async (orgId) => {
   }
 };
 
+export const getUserTraitSummery = async(userId)=>{
+  try {
+    const response = await axiosInstance.get(`api/profileRating/${userId}/summary`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching members:", error);
+    throw error;
+  }
+}
 // ---------------------- NOTIFICATIONS ----------------------
 
 export const postPullNotification = async (formData) => {
