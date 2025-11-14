@@ -99,7 +99,7 @@ const SocialToolKitLeaderboard = () => {
                 onClick={() => handleNavClick("createOrg")}
                 className="hover:text-green-200 transition-colors cursor-pointer"
               >
-                Create Organization
+                Register Organization
               </div>
             </div>
 

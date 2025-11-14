@@ -2,6 +2,7 @@
 import {X, Play, MapPin, Calendar, Eye } from "lucide-react";
 import { useState } from "react";
 
+
 const reportCount = [
   {
     profile: "https://randomuser.me/api/portraits/men/1.jpg",
@@ -95,7 +96,9 @@ const reportCount = [
   },
 ];
 
-export default function FeedDetails({ feed }) {
+
+
+export default function FeedDetails({ feed, report }) {
 
       const [showReportCount, setShowReportCount] = useState(false)
         const [loading, setLoading] = useState(false);
@@ -108,6 +111,8 @@ export default function FeedDetails({ feed }) {
       </div>
     );
   }
+
+  console.log(report)
 
   return (
     <div className="p-6 space-y-6">
@@ -153,11 +158,15 @@ export default function FeedDetails({ feed }) {
             </p>
 
             <div className="flex items-center gap-3 mb-4">
-              <img
+              {/* <img
                 src={feed.youtubeUserImage}
                 alt={feed.youtubeUserName}
                 className="w-12 h-12 rounded-full object-cover"
-              />
+              /> */}
+              <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-gray-700 font-semibold">
+  {feed?.uploadedBy?.name?.charAt(0)?.toUpperCase() || "?"}
+</div>
+
               <div>
                 <p className="font-medium text-gray-800">
                   {feed.uploadedBy?.name}
@@ -207,7 +216,7 @@ export default function FeedDetails({ feed }) {
           </li>
           <li>
             <strong>Report Count: </strong>{" "}
-            {reportCount.length}
+            {report?.length}
              
   <button
     onClick={() => setShowReportCount(true)}
@@ -254,37 +263,40 @@ export default function FeedDetails({ feed }) {
       {/* 🌀 Loader or No Data */}
       {loading ? (
         <p className="text-center text-gray-500">Loading reports...</p>
-      ) : reportCount.length === 0 ? (
+      ) : report?.length === 0 ? (
         <p className="text-center text-gray-500">
           No reports found.
         </p>
       ) : (
         <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
-          {reportCount.map((report, index) => (
-            <li
-              key={index}
-              className="py-3 flex items-start gap-3"
-            >
-              {/* 👤 Profile Image */}
-              <img
-                src={report.profile || "/default-user.png"}
-                alt={report.name}
-                className="w-10 h-10 rounded-full border object-cover"
-              />
+  {report?.map((report, index) => {
+    const formattedDate = new Date(report.updatedAt
+).toLocaleString("en-IN", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
 
-              {/* 🧍‍♂️ User Info */}
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800">
-                  {report.name}
-                </p>
-                <p className="text-xs text-gray-500">{report.email}</p>
-                <p className="text-base text-gray-600 mt-1">
-                  {report.comment}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+    return (
+      <li key={index} className="py-3 flex items-start gap-3">
+        
+        {/* Profile Initial */}
+        <div className="w-10 h-10 flex items-center justify-center bg-gray-300 text-xl font-bold text-gray-700 rounded-full">
+          {report?.reportedBy?.name?.charAt(0)?.toUpperCase()}
+        </div>
+
+        {/* User Info */}
+        <div className="flex-1">
+          <p className="font-semibold text-gray-800">{report.reportedBy.name}</p>
+          <p className=" text-sm text-gray-500">{report.reportedBy.email}</p>
+          <p className="text-base text-gray-800 mt-1">{report.reason}</p>
+
+          {/* Date + Time */}
+          <p className="text-xs text-gray-500">{formattedDate}</p>
+        </div>
+      </li>
+    );
+  })}
+</ul>
       )}
     </div>
   </div>

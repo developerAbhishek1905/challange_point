@@ -341,7 +341,7 @@ const OrganizationTable = ({
                         setViewModalOpen(true);
                       }}
                     >
-                      {org.members?.length || 0}
+                      {org.members?.length+org.draftMembers.length || 0}
                     </td>
                     <td className="px-6 py-4">
                       <Dropdown overlay={eventMenu(org)} trigger={["click"]}>

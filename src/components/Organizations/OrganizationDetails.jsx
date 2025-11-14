@@ -71,7 +71,11 @@ export default function OrganizationDetails({ organization, Users, memberAdded, 
             {organization.members.map((member, i) => (
               <tr key={i} className="border-t hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 flex items-center gap-3">
-                  <img src={member?.user?.profileImage} alt={member?.user?.name} className="w-10 h-10 rounded-full" />
+                  <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-gray-700 font-semibold">
+  {member?.user?.name?.charAt(0)?.toUpperCase() || "?"}
+</div>
+
+                  {/* <img src={member?.user?.profileImage} alt={member?.user?.name} className="w-10 h-10 rounded-full" /> */}
                   <span className="font-medium text-gray-800">{member?.user?.name}</span>
                 </td>
                 <td className="px-6 py-4 text-gray-600">{member?.user?.email}</td>
@@ -185,7 +189,11 @@ export default function OrganizationDetails({ organization, Users, memberAdded, 
                 nonMemberUsers.map((user) => (
                   <label key={user._id} className="flex items-center gap-3 border p-2 rounded-md cursor-pointer hover:bg-gray-50 mb-2">
                     <input type="radio" checked={checkedUser.userId === user._id} onChange={() => handleRadioChange(user._id)} className="w-4 h-4" />
-                    <img src={user.profileImage} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
+                    <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-gray-700 font-semibold">
+  {user?.name?.charAt(0)?.toUpperCase() || "?"}
+</div>
+
+                    {/* <img src={user.profileImage} alt={user.name} className="w-10 h-10 rounded-full object-cover" /> */}
                     <div>
                       <p className="font-medium text-[#0c2443]">{user.name}</p>
                       <p className="text-sm text-gray-500">{user.email}</p>

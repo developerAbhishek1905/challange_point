@@ -19,6 +19,49 @@ const UsersTable = ({ searchValue }) => {
 
   const pageSize = 8;
 
+
+  const TraitItem = ({ label, values }) => {
+  return (
+    <div className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md">
+      <span className="font-medium">{label}</span>
+      <span className="text-sm text-gray-600">
+        + {values?.plusOne ?? 0}
+      </span>
+    </div>
+  );
+};
+
+  const summary = {
+  CivicCharacteristics: {
+    Responsibility: { plusOne: 0, minusOne: 0 },
+    Leadership: { plusOne: 0, minusOne: 0 },
+    Empathy: { plusOne: 0, minusOne: 0 },
+    ActiveParticipation: { plusOne: 0, minusOne: 0 }
+  },
+
+  QualitiesToCareGardens: {
+    Compassion: { plusOne: 0, minusOne: 0 },
+    EnvironmentalCare: { plusOne: 0, minusOne: 0 },
+    Teamwork: { plusOne: 0, minusOne: 0 },
+    Teamwork123: { plusOne: 0, minusOne: 0 }
+  },
+
+  GoodBusinessPerson: {
+    Innovation: { plusOne: 0, minusOne: 0 },
+    Fairness: { plusOne: 0, minusOne: 0 },
+    Entrepreneurship: { plusOne: 0, minusOne: 0 },
+    Entrepreneurship123: { plusOne: 0, minusOne: 0 }
+  },
+
+  BeingAGoodStudent: {
+    Discipline: { plusOne: 0, minusOne: 0 },
+    Curiosity: { plusOne: 0, minusOne: 0 },
+    Punctuality: { plusOne: 0, minusOne: 0 },
+    Punctuality123: { plusOne: 0, minusOne: 0 }
+  }
+};
+
+
   /** ✅ Fetch users */
   const fetchUsers = useCallback(async () => {
     try {
@@ -118,13 +161,13 @@ const UsersTable = ({ searchValue }) => {
             {/* Profile Section (simplified border) */}
             <div className="flex flex-col items-center justify-center rounded-lg py-6 mb-6 shadow-sm">
               <div className="h-24 w-24 rounded-full overflow-hidden bg-gray-200 border-4 border-gray-300 shadow-md">
-                {viewUser?.profileImage ? (
+                {/* {viewUser?.profileImage ? (
                   <img src={viewUser.profileImage} alt="User Avatar" className="h-full w-full object-cover" />
-                ) : (
+                ) : ( */}
                   <div className="h-full w-full flex items-center justify-center bg-gray-300 text-3xl font-bold text-gray-700">
                     {viewUser?.name?.charAt(0)?.toUpperCase()}
                   </div>
-                )}
+                {/* )} */}
               </div>
 
               <h3 className="text-lg font-semibold text-gray-900 mt-3">{viewUser?.name}</h3>
@@ -149,10 +192,10 @@ const UsersTable = ({ searchValue }) => {
                 <strong className="block text-gray-800">Created Challenges:</strong>
                 <span>{viewUser?.createdChallenges ?? 0}</span>
               </div>
-              <div>
+              {/* <div>
                 <strong className="block text-gray-800">Average Rating:</strong>
                 <span>{viewUser?.avgRating ?? "N/A"}</span>
-              </div>
+              </div> */}
               <div>
                 <strong className="block text-gray-800">Created At:</strong>
                 <span>{viewUser?.createdAt ? new Date(viewUser.createdAt).toLocaleString() : "N/A"}</span>
@@ -192,7 +235,9 @@ const UsersTable = ({ searchValue }) => {
                           {Object.entries(traits).map(([trait, values]) => (
                             <div key={trait} className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md">
                               <span className="font-medium">{trait}</span>
-                              <span className="text-sm text-gray-600">👍 {values.plusOne ?? 0} | 👎 {values.minusOne ?? 0}</span>
+                              <span className="text-sm text-gray-600">+ {values.plusOne ?? 0} 
+                                {/* |  {values.minusOne ?? 0} */}
+                                </span>
                             </div>
                           ))}
                         </motion.div>
@@ -201,8 +246,138 @@ const UsersTable = ({ searchValue }) => {
                   </div>
                 ))
               ) : (
-                <div className="text-sm text-gray-500 py-4">No trait summary available.</div>
-              )}
+                <div className="bg-white rounded-lg text-gray-800 shadow-sm  space-y-4">
+      
+
+      {/* ================== 1. CivicCharacteristics ================== */}
+      <div className="border rounded-lg overflow-hidden">
+        <button
+          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+          onClick={() => toggleSection("CivicCharacteristics")}
+        >
+          <span>Civic Characteristics</span>
+          {openSection === "CivicCharacteristics" ? (
+            <ChevronUp size={18} />
+          ) : (
+            <ChevronDown size={18} />
+          )}
+        </button>
+
+        <AnimatePresence>
+          {openSection === "CivicCharacteristics" && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+            >
+              <TraitItem label="Responsibility" values={summary.CivicCharacteristics.Responsibility} />
+              <TraitItem label="Leadership" values={summary.CivicCharacteristics.Leadership} />
+              <TraitItem label="Empathy" values={summary.CivicCharacteristics.Empathy} />
+              <TraitItem label="Active Participation" values={summary.CivicCharacteristics.ActiveParticipation} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ================== 2. QualitiesToCareGardens ================== */}
+      <div className="border rounded-lg overflow-hidden">
+        <button
+          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+          onClick={() => toggleSection("QualitiesToCareGardens")}
+        >
+          <span>Qualities To Care Gardens</span>
+          {openSection === "QualitiesToCareGardens" ? (
+            <ChevronUp size={18} />
+          ) : (
+            <ChevronDown size={18} />
+          )}
+        </button>
+
+        <AnimatePresence>
+          {openSection === "QualitiesToCareGardens" && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+            >
+              <TraitItem label="Compassion" values={summary.QualitiesToCareGardens.Compassion} />
+              <TraitItem label="Environmental Care" values={summary.QualitiesToCareGardens.EnvironmentalCare} />
+              <TraitItem label="Teamwork" values={summary.QualitiesToCareGardens.Teamwork} />
+              <TraitItem label="Teamwork123" values={summary.QualitiesToCareGardens.Teamwork123} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ================== 3. GoodBusinessPerson ================== */}
+      <div className="border rounded-lg overflow-hidden">
+        <button
+          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+          onClick={() => toggleSection("GoodBusinessPerson")}
+        >
+          <span>Good Business Person</span>
+          {openSection === "GoodBusinessPerson" ? (
+            <ChevronUp size={18} />
+          ) : (
+            <ChevronDown size={18} />
+          )}
+        </button>
+
+        <AnimatePresence>
+          {openSection === "GoodBusinessPerson" && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+            >
+              <TraitItem label="Innovation" values={summary.GoodBusinessPerson.Innovation} />
+              <TraitItem label="Fairness" values={summary.GoodBusinessPerson.Fairness} />
+              <TraitItem label="Entrepreneurship" values={summary.GoodBusinessPerson.Entrepreneurship} />
+              <TraitItem label="Entrepreneurship123" values={summary.GoodBusinessPerson.Entrepreneurship123} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* ================== 4. BeingAGoodStudent ================== */}
+      <div className="border rounded-lg overflow-hidden">
+        <button
+          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+          onClick={() => toggleSection("BeingAGoodStudent")}
+        >
+          <span>Being A Good Student</span>
+          {openSection === "BeingAGoodStudent" ? (
+            <ChevronUp size={18} />
+          ) : (
+            <ChevronDown size={18} />
+          )}
+        </button>
+
+        <AnimatePresence>
+          {openSection === "BeingAGoodStudent" && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+            >
+              <TraitItem label="Discipline" values={summary.BeingAGoodStudent.Discipline} />
+              <TraitItem label="Curiosity" values={summary.BeingAGoodStudent.Curiosity} />
+              <TraitItem label="Punctuality" values={summary.BeingAGoodStudent.Punctuality} />
+              <TraitItem label="Punctuality123" values={summary.BeingAGoodStudent.Punctuality123} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+       )}
             </div>
 
             <div className="flex justify-end mt-6">
@@ -229,7 +404,9 @@ const UsersTable = ({ searchValue }) => {
                   <motion.tr key={user._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="hover:bg-gray-50 border-b">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
-                        {user.profileImage ? <img src={user.profileImage} alt="Avatar" className="h-full w-full object-cover" /> : <span className="text-gray-600 font-semibold">{user.name?.charAt(0)?.toUpperCase()}</span>}
+                        {/* {user.profileImage ? <img src={user.profileImage} alt="Avatar" className="h-full w-full object-cover" /> :  */}
+                        <span className="text-gray-600 font-semibold">{user.name?.charAt(0)?.toUpperCase()}</span>
+                        {/* } */}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-700">{user.name}</td>

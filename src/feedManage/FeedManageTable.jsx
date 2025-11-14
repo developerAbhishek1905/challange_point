@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Ellipsis, Trash2, Eye, Flag } from "lucide-react";
 import { Dropdown, Empty, Pagination, Menu, Popover } from "antd";
 import { toast } from "react-toastify";
-import { getAllFeeds, deleteFeed } from "../utils/api";
+import { getAllFeeds, deleteFeed,getFeedById,getreportById } from "../utils/api";
 import FeedDetails from "./FeedDetails";
 const reportCount = [
   {
@@ -56,6 +56,8 @@ export default function FeedManageTable({ searchValue }) {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [feedToView, setFeedToView] = useState(null);
   const [pagination, setPagination] = useState(null);
+  const [feedDetails, setFeedDetails] = useState(null);
+  const [report, setReport] = useState(null);
 
   const pageSize = 8;
   const isMounted = useRef(false);
@@ -127,6 +129,19 @@ export default function FeedManageTable({ searchValue }) {
     }
   };
 
+  const fetchFeedDetails = async (feedId) => {
+    try {
+      const feedDetails = await getFeedById(feedId);
+      const getReport = await getreportById(feedId);
+      setReport(getReport)
+        setFeedDetails(feedDetails);
+        ;
+    } catch (error) {
+      console.error("Error fetching feed details:", error);
+      toast.error("Failed to fetch feed details");
+      return null;
+    }
+  }
   // ✅ Action Menu
   const ActionMenu = (feed) => (
     <Menu>
@@ -136,6 +151,7 @@ export default function FeedManageTable({ searchValue }) {
         onClick={() => {
           setFeedToView(feed);
           setViewModalOpen(true);
+          fetchFeedDetails(feed._id);
         }}
       >
         View
@@ -204,7 +220,7 @@ export default function FeedManageTable({ searchValue }) {
                        
                         
                          {feed.title}
-                         {(feed.dislikesCount >= 7 || reportCount.length >= 7) && (
+                         {(feed.dislikesCount >= 7 || feed?.reports?.length >= 7) && (
   <span className="inline-flex items-center gap-1 px-2 py-1 ml-2 rounded-full text-xs bg-red-500 text-white">
     {/* <Flag size={12} /> */}
     Reported
@@ -307,7 +323,7 @@ export default function FeedManageTable({ searchValue }) {
               ✕
             </button>
 
-            <FeedDetails feed={feedToView} />
+            <FeedDetails feed={feedToView} report={report}/>
           </div>
         </div>
       )}

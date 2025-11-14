@@ -41,7 +41,7 @@ const NotificationForm = () => {
   return (
     <div className="w-full bg-white shadow-lg rounded-xl p-6 border border-gray-200">
       <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
-        Send Notification
+        Send Notification To Globle Users
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4">

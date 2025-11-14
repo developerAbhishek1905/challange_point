@@ -103,12 +103,11 @@ const reportCount = [
   },
 ];
 
-
-const ChallengeDetails = ({ data }) => {
+const ChallengeDetails = ({ data, report }) => {
   const [members, setMembers] = useState([]);
   const [showMembers, setShowMembers] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [showReportCount, setShowReportCount] = useState(false)
+  const [showReportCount, setShowReportCount] = useState(false);
 
   if (!data)
     return (
@@ -233,33 +232,29 @@ const ChallengeDetails = ({ data }) => {
             </span>
             <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
               {/* <Heart className="w-4 h-4 text-red-500" /> {data.likesCount}  */}
-                  Approve: {data.likesCount}
+              Approve: {data.likesCount}
             </div>
-               <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
+            <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
               {/* <Heart className="w-4 h-4 text-red-500" /> {data.likesCount}  */}
-                 Deny: {data.dislikesCount}
+              Deny: {data.dislikesCount}
             </div>
             <span className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
               {/* <Eye className="w-4 h-4 text-blue-500" />{" "} */}
               Count: {data.viewCount}
             </span>
             <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
-  Report Count: {reportCount.length}
-  <button
-    onClick={() => setShowReportCount(true)}
-    className="text-blue-600 hover:underline ml-1"
-  >
-    View Reports
-  </button>
-</div>
-
-            
+              Report Count: {report?.length || 0}
+              <button
+                onClick={() => setShowReportCount(true)}
+                className="text-blue-600 hover:underline ml-1"
+              >
+                View Reports
+              </button>
+            </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap gap-3 mt-4">
-            
-
             <button
               onClick={handleViewMembers}
               className="flex items-center gap-2 border border-gray-300 hover:bg-gray-100 text-gray-800 px-5 py-2.5 rounded-lg font-medium transition-all"
@@ -274,7 +269,7 @@ const ChallengeDetails = ({ data }) => {
       </div>
 
       {/* MEMBERS MODAL */}
-      {showMembers  && (
+      {showMembers && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
             <button
@@ -326,60 +321,67 @@ const ChallengeDetails = ({ data }) => {
 
       {/* REPORT MODEL */}
       {showReportCount && (
-  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
-      {/* ❌ Close Button */}
-      <button
-        onClick={() => setShowReportCount(false)}
-        className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
-      >
-        <X className="w-6 h-6" />
-      </button>
-
-      {/* 🧾 Title */}
-      <h3 className="text-xl font-bold text-gray-800 mb-4">
-        Reported Users
-      </h3>
-
-      {/* 🌀 Loader or No Data */}
-      {loading ? (
-        <p className="text-center text-gray-500">Loading reports...</p>
-      ) : reportCount.length === 0 ? (
-        <p className="text-center text-gray-500">
-          No reports found.
-        </p>
-      ) : (
-        <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
-          {reportCount.map((report, index) => (
-            <li
-              key={index}
-              className="py-3 flex items-start gap-3"
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
+            {/* ❌ Close Button */}
+            <button
+              onClick={() => setShowReportCount(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
             >
-              {/* 👤 Profile Image */}
-              <img
-                src={report.profile || "/default-user.png"}
-                alt={report.name}
-                className="w-10 h-10 rounded-full border object-cover"
-              />
+              <X className="w-6 h-6" />
+            </button>
 
-              {/* 🧍‍♂️ User Info */}
-              <div className="flex-1">
-                <p className="font-semibold text-gray-800">
-                  {report.name}
-                </p>
-                <p className="text-xs text-gray-500">{report.email}</p>
-                <p className="text-base text-gray-600 mt-1">
-                  {report.comment}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+            {/* 🧾 Title */}
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Reported Users
+            </h3>
+
+            {/* 🌀 Loader or No Data */}
+            {loading ? (
+              <p className="text-center text-gray-500">Loading reports...</p>
+            ) : report?.length === 0 ? (
+              <p className="text-center text-gray-500">No reports found.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                {
+                report.map((report, index) => {
+                  const formattedDate = new Date(
+                    report.updatedAt
+                  ).toLocaleString("en-IN", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  });
+
+                  return (
+                    <li key={index} className="py-3 flex items-start gap-3">
+                      {/* Profile Initial */}
+                      <div className="w-10 h-10 flex items-center justify-center bg-gray-300 text-xl font-bold text-gray-700 rounded-full">
+                        {report?.reportedBy?.name?.charAt(0)?.toUpperCase()}
+                      </div>
+
+                      {/* User Info */}
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-800">
+                          {report.reportedBy.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
+                          {report.reportedBy.email}
+                        </p>
+                        <p className="text-base text-gray-800 mt-1">
+                          {report.reason}
+                        </p>
+
+                        {/* Date + Time */}
+                        <p className="text-xs text-gray-500">{formattedDate}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </div>
       )}
-    </div>
-  </div>
-)}
-
     </div>
   );
 };

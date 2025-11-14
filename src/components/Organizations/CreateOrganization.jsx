@@ -14,27 +14,44 @@ const CreateOrganization = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [organizationWebsite, setOrganizationWebsite] = useState("");
+  const [memberDetailes, setMemberDetails] = useState(null);
+
+  // <-- added state for success popup
+  const [successModalVisible, setSuccessModalVisible] = useState(false);
 
   // ✅ Regex for validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const websiteRegex =
     /^(https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/i;
 
-  // ✅ Extract domain from email
+  // ✅ Extract domain from email (more robust)
   const extractDomain = (email) => {
-    const match = email.match(/@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/);
-    return match ? match[1].toLowerCase() : "";
+    if (!email) return "";
+    const e = String(email).trim().toLowerCase();
+    const atIndex = e.lastIndexOf("@");
+    if (atIndex === -1) return "";
+    // take chars after @ until first slash, space or query/hash
+    const domainPart = e.slice(atIndex + 1).split(/[\/?#\s]/)[0];
+    // remove leading www.
+    return domainPart.replace(/^www\./, "");
   };
 
-  // ✅ Auto-fill website from email
+  // ✅ Auto-fill website from email (only if user hasn't set custom website)
   const handleOrganizationEmailChange = (e) => {
     const value = e.target.value;
     setOrganizationEmail(value);
     setErrors((prev) => ({ ...prev, organizationEmail: "" }));
 
     const domain = extractDomain(value);
-    if (domain && !organizationWebsite.trim()) {
-      setOrganizationWebsite(`www.${domain}`);
+    if (!domain) return;
+
+    // If website is empty OR it currently matches previous auto value, update it.
+    const currentWebsite = String(organizationWebsite || "").trim().toLowerCase();
+    const previousAuto = `www.${extractDomain(organizationEmail || "")}`.toLowerCase();
+    const suggested = `www.${domain}`;
+
+    if (!currentWebsite || currentWebsite === previousAuto) {
+      setOrganizationWebsite(suggested);
     }
   };
 
@@ -95,16 +112,32 @@ const CreateOrganization = () => {
       newErrors.member = "At least one member is required";
 
     // ✅ Domain matching validation
-    const emailDomain = extractDomain(organizationEmail);
-    const websiteDomain = organizationWebsite
-      .replace(/^https?:\/\//, "")
-      .replace(/^www\./, "")
-      .split("/")[0]
-      .toLowerCase();
 
-    if (emailDomain && websiteDomain && !websiteDomain.includes(emailDomain)) {
-      newErrors.organizationWebsite =
-        "Website domain must match organization email domain";
+    // ❌ Problem in domain comparison logic (it fails when email domain = "openai.com" and website = "www.openai.com")
+// if (emailDomain && websiteDomain && !websiteDomain.includes(emailDomain)) {
+//   newErrors.organizationWebsite =
+//     "Website domain must match organization email domain";
+// }
+
+// ✅ FIX: Normalize both domains before comparison and allow subdomains
+const normalizeDomain = (domain) =>
+      String(domain || "")
+        .replace(/^https?:\/\//, "")
+        .replace(/^www\./, "")
+        .replace(/\/.*$/, "")
+        .toLowerCase();
+
+    const emailDomain = extractDomain(organizationEmail);
+    const websiteDomain = normalizeDomain(organizationWebsite);
+
+    if (emailDomain && websiteDomain) {
+      const domainMatches =
+        websiteDomain === emailDomain || websiteDomain.endsWith("." + emailDomain);
+
+      if (!domainMatches) {
+        newErrors.organizationWebsite =
+          "Website domain must match organization email domain (or be a subdomain)";
+      }
     }
 
     setErrors(newErrors);
@@ -130,8 +163,12 @@ const CreateOrganization = () => {
     try {
       setLoading(true);
       const res = await createOrganization(payload);
+      setMemberDetails(res?.membersStatus
+)
       toast.success("Organization created successfully!");
-      
+
+      // open success popup
+      setSuccessModalVisible(true);
 
       // Reset form
       setName("");
@@ -143,12 +180,13 @@ const CreateOrganization = () => {
       setMembers([]);
       setErrors({});
     } catch (error) {
-      
       toast.error(error?.response?.data?.message || "Failed to create organization");
     } finally {
       setLoading(false);
     }
   };
+
+  console.log(memberDetailes)
 
   return (
     <>
@@ -161,7 +199,7 @@ const CreateOrganization = () => {
   transition={{ duration: 0.4 }}
 >
   <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-gray-900 text-center">
-    Add Organization
+    Register Organization
   </h2>
 
   <form className="space-y-5 sm:space-y-6">
@@ -304,11 +342,86 @@ const CreateOrganization = () => {
             : "bg-blue-600 hover:bg-blue-700"
         }`}
       >
-        {loading ? "Creating..." : "Create Organization"}
+        {loading ? "Creating..." : "Register Organization"}
       </button>
     </div>
   </form>
 </motion.div>
+
+{/* Success Popup */}
+    {successModalVisible && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+    <motion.div
+      initial={{ scale: 0.95, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.95, opacity: 0 }}
+      className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4"
+    >
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+        Organization Registerd
+      </h3>
+
+      {/* Already in another organization */}
+      <div>
+        <p className="font-medium text-gray-800 mb-1">
+          These users are already members of another organization:
+        </p>
+        <ul className="list-disc list-inside text-gray-700">
+          {memberDetailes?.alreadyInOrganization?.length > 0 ? (
+            memberDetailes.alreadyInOrganization.map((member, i) => (
+              <li key={`already-${i}`}>{member}</li>
+            ))
+          ) : (
+            <li className="text-gray-500 italic">None</li>
+          )}
+        </ul>
+      </div>
+
+      {/* Auto-assigned members */}
+      {/* <div>
+        <p className="font-medium text-gray-800 mb-1">
+          These users are registered in your organization:
+        </p>
+        <ul className="list-disc list-inside text-gray-700">
+          {memberDetailes?.autoAssignedMembers?.length > 0 ? (
+            memberDetailes.autoAssignedMembers.map((member, i) => (
+              <li key={`auto-${i}`}>{member}</li>
+            ))
+          ) : (
+            <li className="text-gray-500 italic">None</li>
+          )}
+        </ul>
+      </div> */}
+
+      {/* Draft members */}
+      <div>
+        <p className="font-medium text-gray-800 mb-1">
+          These users are non-registered:
+        </p>
+        <ul className="list-disc list-inside text-gray-700">
+          {memberDetailes?.draftMembers?.length > 0 ? (
+            memberDetailes.draftMembers.map((member, i) => (
+              <li key={`draft-${i}`}>{member}</li>
+            ))
+          ) : (
+            <li className="text-gray-500 italic">None</li>
+          )}
+        </ul>
+      </div>
+
+      {/* OK Button */}
+      <div className="flex justify-end pt-4">
+        <button
+          onClick={() => setSuccessModalVisible(false)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+        >
+          OK
+        </button>
+      </div>
+    </motion.div>
+  </div>
+)}
+
 
     </>
   );
