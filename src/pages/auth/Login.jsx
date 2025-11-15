@@ -3,6 +3,7 @@ import loginImg from '/Art.png';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { adminLoginAsync } from '../../Redux/Slice/authSlice';
+import { Eye, EyeOff } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [formError, setFormError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,9 +19,7 @@ const Login = () => {
     try {
       const resultAction = await dispatch(adminLoginAsync({ email, password }));
       if (adminLoginAsync.fulfilled.match(resultAction)) {
-        // mark session so ProtectedRoute can use it
         localStorage.setItem("isLoggedIn", "true");
-        // token is already saved by api helper if provided
         navigate('/dashboard');
       } else {
         setFormError(resultAction.payload?.message || "Invalid email or Password");
@@ -31,9 +31,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen w-full flex flex-col md:flex-row">
       {/* Left Image */}
-      <div className="w-full md:w-1/2 h-64 md:h-auto">
+      <div className="w-full   h-64 md:h-auto">
         <img
           src={loginImg}
           alt="login"
@@ -42,20 +42,21 @@ const Login = () => {
       </div>
 
       {/* Right Form */}
-      <div className="w-full md:w-1/2 flex flex-col justify-center items-center px-6 md:px-20 pb-[15rem]">
+      <div className="w-full flex flex-col justify-center items-center px-6 md:px-20 ">
         <h2 className="text-3xl font-semibold mb-2 text-center text-black">Welcome!</h2>
         <p className="text-gray-500 mb-6 text-center text-sm">
           Today is a new day. It's your day. You shape it.<br />
           Sign in to start managing your projects.
         </p>
 
-        <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4">
+        <form onSubmit={handleSubmit} className="w-full  max-w-sm space-y-4">
           {formError && (
             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
               {formError}
             </div>
           )}
 
+          {/* Email */}
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
@@ -71,31 +72,34 @@ const Login = () => {
             />
           </div>
 
+          {/* Password with Eye Button */}
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-             Password 
+              Password
             </label>
-            <input
-              id="password"
-              type="text"
-              placeholder="Password"
-              className="mt-1 block w-full rounded-md text-gray-700 border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                className="mt-1 block w-full rounded-md text-gray-700 border border-gray-300 px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+              >
+                {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
+              </button>
+            </div>
           </div>
 
-          {/* <div className="text-right">
-            <button
-              type="button"
-              className="text-sm text-blue-600 hover:underline"
-              onClick={() => navigate('/forgetpassword')}
-            >
-              Forgot Password?
-            </button>
-          </div> */}
-
+          {/* Sign in Button */}
           <button
             type="submit"
             className="w-full bg-yellow-400 hover:bg-yellow-500 text-black font-semibold py-2 rounded-md flex justify-center"

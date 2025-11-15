@@ -261,7 +261,7 @@ const ChallengeDetails = ({ data, report }) => {
             >
               View Members{" "}
               <div className="bg-blue-500 w-6 aspect-square text-center text-sm leading-6 text-white rounded-full">
-                {data?.members?.length || 0}
+                {data?.organization?.members?.length || 0}
               </div>
             </button>
           </div>
@@ -284,33 +284,36 @@ const ChallengeDetails = ({ data, report }) => {
 
             {loading ? (
               <p className="text-center text-gray-500">Loading members...</p>
-            ) : members.length === 0 ? (
+            ) : data?.organization?.members?.length === 0 ? (
               <p className="text-center text-gray-500">
                 No members found for this challenge.
               </p>
             ) : (
               <ul className="divide-y divide-gray-200 max-h-72 overflow-y-auto">
-                {members.map((member) => (
+                {data?.organization?.members?.map((member) => (
                   <li
                     key={member._id}
                     className="py-3 flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
-                      <img
+                      {/* <img
                         src={member.avatar || "/default-user.png"}
-                        alt={member.name}
+                        alt={member.user.name}
                         className="w-10 h-10 rounded-full border"
-                      />
+                      /> */}
+                  <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gray-300 text-xl font-bold text-gray-700">
+                        {member?.user?.name?.charAt(0)?.toUpperCase()}
+                      </div>
                       <div>
                         <p className="font-semibold text-gray-800">
-                          {member.name}
+                          {member.user.name}
                         </p>
-                        <p className="text-sm text-gray-500">{member.email}</p>
+                        <p className="text-sm text-gray-500">{member.user.email}</p>
                       </div>
                     </div>
-                    <span className="text-sm text-gray-600">
+                    {/* <span className="text-sm text-gray-600">
                       {member.role || "Member"}
-                    </span>
+                    </span> */}
                   </li>
                 ))}
               </ul>

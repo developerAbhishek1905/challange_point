@@ -213,21 +213,28 @@ export default function FeedManageTable({ searchValue }) {
                     <motion.tr
                       key={feed._id}
                       className="hover:bg-gray-50 border-b text-gray-800 "
-                      
                     >
-                        
-                      <td className="px-6 py-3 text-sm font-medium flex ">
-                       
-                        
-                         {feed.title}
-                         {(feed.dislikesCount >= 7 || feed?.reports?.length >= 7) && (
-  <span className="inline-flex items-center gap-1 px-2 py-1 ml-2 rounded-full text-xs bg-red-500 text-white">
-    {/* <Flag size={12} /> */}
-    Reported
-  </span>
-)}
+                      <td className="px-6 py-3 text-sm font-medium flex items-center">
+  {/* Handle 4-word limit */}
+  <Popover
+    content={<span>{feed.title}</span>}
+    title="Full Title"
+    trigger="hover"
+  >
+    <span className="cursor-pointer">
+      {feed.title.split(" ").slice(0, 4).join(" ")}
+      {feed.title.split(" ").length > 4 ? "..." : ""}
+    </span>
+  </Popover>
 
-                      </td>
+  {/* Report Badge */}
+  {(feed.dislikesCount >= 7 || feed?.reports?.length >= 7) && (
+    <span className="inline-flex items-center gap-1 px-2 py-1 ml-2 rounded-full text-xs bg-red-500 text-white">
+      Reported
+    </span>
+  )}
+</td>
+
 
                       <td className="px-6 py-3 text-sm">
                         {feed.uploadedBy?.name || "N/A"}
@@ -245,36 +252,6 @@ export default function FeedManageTable({ searchValue }) {
                           <span className="cursor-pointer">{shortAddress}</span>
                         </Popover>
                       </td>
-
-                      {/* <td className="px-6 py-3 text-sm">{feed.youtubeViews?.toLocaleString() || 0}</td> */}
-
-                      {/* Add Report Status Column */}
-                      {/* <td className="px-6 py-3 text-sm">
-                        <Popover 
-                          content={
-                            <div className="p-2">
-                              <p>Report Count: {feed.reportCount || 0}</p>
-                              {feed.reportCount > 0 && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Last reported: {new Date(feed.lastReportDate).toLocaleDateString()}
-                                </p>
-                              )}
-                            </div>
-                          } 
-                          title="Report Details"
-                          trigger="hover"
-                        >
-                          <span className={`
-                            inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs
-                            ${reportStatus.color === 'red' ? 'bg-red-300 text-red-700' : ''}
-                            
-                            ${reportStatus.color === 'green' ? 'bg-green-300 text-green-700' : ''}
-                          `}>
-                            <Flag size={12} />
-                            {reportStatus.text}
-                          </span>
-                        </Popover>
-                      </td> */}
 
                       <td className="px-6 py-3 text-right">
                         <Dropdown

@@ -1,4 +1,4 @@
-import { Empty } from "antd";
+import { Empty,Popover } from "antd";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
@@ -55,9 +55,27 @@ const RecentResultTable = ({ data }) => {
                   transition={{ duration: 0.3, delay: idx * 0.05 }}
                   className="hover:bg-gray-50 border-b last:border-0 transition-colors"
                 >
-                  <td className="px-6 py-4 text-gray-800 font-medium">
-                    {result.title}
-                  </td>
+                  <td className="px-6 py-3 text-sm font-medium flex items-center">
+  {/* Handle 4-word limit */}
+  <Popover
+    content={<span>{result.title}</span>}
+    title="Full Title"
+    trigger="hover"
+  >
+    <span className="cursor-pointer">
+      {result.title.split(" ").slice(0, 4).join(" ")}
+      {result.title.split(" ").length > 4 ? "..." : ""}
+    </span>
+  </Popover>
+
+  {/* Report Badge */}
+  {(result.dislikesCount >= 7 || result?.reports?.length >= 7) && (
+    <span className="inline-flex items-center gap-1 px-2 py-1 ml-2 rounded-full text-xs bg-red-500 text-white">
+      Reported
+    </span>
+  )}
+</td>
+
                   <td className="px-6 py-4 text-gray-600">
                     {result.uploadedBy.name}
                   </td>

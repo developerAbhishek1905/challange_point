@@ -24,12 +24,21 @@ const UsersTable = ({ searchValue }) => {
   return (
     <div className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md">
       <span className="font-medium">{label}</span>
-      <span className="text-sm text-gray-600">
-        + {values?.plusOne ?? 0}
-      </span>
+      <div className="space-x-4">
+                              <span className="text-sm font-bold text-green-600">{values.plusOne <= 0 ? "0" : `+${values.plusOne}`}
+
+                                {/* |  {values.minusOne ?? 0} */}
+                                </span>
+                                
+                                <span className="text-sm font-bold text-red-600">
+                                  {/* + {values.plusOne ?? 0}  */}
+                                  {values.minusOne <= 0 ? "0" : `-${values.minusOne}`}
+                                </span>
+                                </div>
     </div>
   );
 };
+
 
   const summary = {
   CivicCharacteristics: {
@@ -176,34 +185,34 @@ const UsersTable = ({ searchValue }) => {
 
             {/* User Details Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-gray-700 bg-white p-6 rounded-lg shadow-sm mb-6">
-              <div>
+              {/* <div>
                 <strong className="block text-gray-800">Role:</strong>
                 <span>{viewUser?.role || "N/A"}</span>
-              </div>
-              <div>
-                <strong className="block text-gray-800">Points:</strong>
-                <div className="flex flex-wrap gap-4 mt-2 text-sm">
+              </div> */}
+              <div className="bg-gray-100 rounded-md text-center h-full flex p-4 flex-col justify-center">
+                <strong className="block text-gray-800">Points</strong>
+                <div className="flex flex-wrap gap-4 mt-2 text-sm justify-center ">
                   <p><strong>Human:</strong> {viewUser?.challengeTypeCounts?.human ?? 0}</p>
                   <p><strong>Nature:</strong> {viewUser?.challengeTypeCounts?.nature ?? 0}</p>
                   <p><strong>Animal:</strong> {viewUser?.challengeTypeCounts?.animal ?? 0}</p>
                 </div>
               </div>
-              <div>
-                <strong className="block text-gray-800">Created Challenges:</strong>
+              <div className="bg-gray-100 rounded-md text-center  h-full flex flex-col justify-center">
+                <strong className="block text-gray-800">Created Challenges</strong>
                 <span>{viewUser?.createdChallenges ?? 0}</span>
               </div>
               {/* <div>
                 <strong className="block text-gray-800">Average Rating:</strong>
                 <span>{viewUser?.avgRating ?? "N/A"}</span>
               </div> */}
-              <div>
-                <strong className="block text-gray-800">Created At:</strong>
+              <div className="bg-gray-100 rounded-md text-center  h-full flex flex-col justify-center">
+                <strong className="block text-gray-800">Created At</strong>
                 <span>{viewUser?.createdAt ? new Date(viewUser.createdAt).toLocaleString() : "N/A"}</span>
               </div>
-              <div>
+              {/* <div>
                 <strong className="block text-gray-800">Updated At:</strong>
                 <span>{viewUser?.updatedAt ? new Date(viewUser.updatedAt).toLocaleString() : "N/A"}</span>
-              </div>
+              </div> */}
             </div>
 
             {/* Traits Accordion */}
@@ -218,7 +227,7 @@ const UsersTable = ({ searchValue }) => {
                       onClick={() => toggleSection(category)}
                       type="button"
                     >
-                      <span>{category}</span>
+                      <span>{(category === "Good Business Person"?"Business Person":category)?(category === "Being a Good Student"?"Being a Student":category): category}</span>
                       {openSection === category ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                     </button>
 
@@ -235,9 +244,17 @@ const UsersTable = ({ searchValue }) => {
                           {Object.entries(traits).map(([trait, values]) => (
                             <div key={trait} className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md">
                               <span className="font-medium">{trait}</span>
-                              <span className="text-sm text-gray-600">+ {values.plusOne ?? 0} 
+                              <div className="space-x-4">
+                              <span className="text-sm font-bold text-green-600">{values.plusOne <= 0 ? "0" : `+${values.plusOne}`}
+
                                 {/* |  {values.minusOne ?? 0} */}
                                 </span>
+                                
+                                <span className="text-sm font-bold text-red-600">
+                                  {/* + {values.plusOne ?? 0}  */}
+                                  {values.minusOne <= 0 ? "0" : `-${values.minusOne}`}
+                                </span>
+                                </div>
                             </div>
                           ))}
                         </motion.div>
@@ -319,7 +336,7 @@ const UsersTable = ({ searchValue }) => {
           className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
           onClick={() => toggleSection("GoodBusinessPerson")}
         >
-          <span>Good Business Person</span>
+          <span>Business Person</span>
           {openSection === "GoodBusinessPerson" ? (
             <ChevronUp size={18} />
           ) : (
@@ -351,7 +368,7 @@ const UsersTable = ({ searchValue }) => {
           className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
           onClick={() => toggleSection("BeingAGoodStudent")}
         >
-          <span>Being A Good Student</span>
+          <span>Being A Student</span>
           {openSection === "BeingAGoodStudent" ? (
             <ChevronUp size={18} />
           ) : (
