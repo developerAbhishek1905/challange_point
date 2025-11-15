@@ -233,10 +233,7 @@ export default function FeedDetails({ feed, report }) {
             <strong>Created At:</strong>{" "}
             {new Date(feed.createdAt).toLocaleString()}
           </li>
-          <li>
-            <strong>Updated At:</strong>{" "}
-            {new Date(feed.updatedAt).toLocaleString()}
-          </li>
+          
           {/* <li>
             <strong>Coordinates:</strong> Lat {feed.location.lat}, Lng{" "}
             {feed.location.lng}

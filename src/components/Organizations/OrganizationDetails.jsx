@@ -46,7 +46,7 @@ export default function OrganizationDetails({ organization, Users, memberAdded, 
           <p className="text-sm text-gray-500">{organization.description}</p>
         </div>
         <div>
-          <button onClick={() => setShowModal(true)} className="bg-black text-white px-4 py-2 rounded-md">Add Member</button>
+          <button onClick={() => setShowModal(true)} className="bg-black text-white px-4 py-2 mr-10 mt-10 rounded-md">Add Member</button>
         </div>
       </header>
 

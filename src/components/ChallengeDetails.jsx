@@ -240,7 +240,7 @@ const ChallengeDetails = ({ data, report }) => {
             </div>
             <span className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
               {/* <Eye className="w-4 h-4 text-blue-500" />{" "} */}
-              Count: {data.viewCount}
+              View Count: {data.viewCount}
             </span>
             <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
               Report Count: {report?.length || 0}
