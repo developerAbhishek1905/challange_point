@@ -163,7 +163,7 @@ const RegisterOrganization = () => {
         transition={{ duration: 0.4 }}
       >
         <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-gray-900 text-center">
-          Register Your Group
+          Register New Group
         </h2>
 
         <form className="space-y-5 sm:space-y-6">

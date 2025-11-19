@@ -487,6 +487,7 @@ const OrganizationTable = ({
        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
   <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6">
     <h3 className="text-lg font-semibol text-black mb-2">Review Group</h3>
+  
 
     {/* <p className="text-sm text-gray-600 mb-4">
       {notifyOrganization.companyName} — {notifyOrganization.organizationEmail}
@@ -496,107 +497,122 @@ const OrganizationTable = ({
     {/* CALCULATE MEMBER COMPARISON */}
     {/* ----------------------------------------------------------- */}
     {(() => {
-  // Extract emails safely
-  const extractEmails = (arr = []) =>
-    arr
-      .map((item) => item?.user?.email || item?.email)
-      .filter(Boolean);
+      // Safe extraction of emails from nested structures
+      const extractEmails = (arr = []) => {
+        if (!arr || !Array.isArray(arr)) return [];
+        return arr
+          .map((item) => {
+            // Handle different data structures
+            if (typeof item === "string") return item; // direct email string
+            if (item?.user?.email) return item.user.email; // nested user object
+            if (item?.email) return item.email; // direct email property
+            return null;
+          })
+          .filter(Boolean);
+      };
 
-  const previousMembers = [
-    ...new Set([
-      ...extractEmails(notifyOrganization?.members),
-      ...extractEmails(notifyOrganization?.draftMembers || []),
-    ]),
-  ];
+      const previousMembers = [
+        ...new Set([
+          ...extractEmails(notifyOrganization?.members),
+          ...extractEmails(notifyOrganization?.draftMembers),
+        ]),
+      ];
 
-  const reviewedMembers = [
-    ...new Set([
-      ...extractEmails(notifyOrganization?.review?.members),
-      ...extractEmails(notifyOrganization?.review?.draftMembers || []),
-    ]),
-  ];
+      const reviewedMembers = [
+        ...new Set([
+          ...extractEmails(notifyOrganization?.review?.members),
+          ...extractEmails(notifyOrganization?.review?.draftMembers),
+        ]),
+      ];
 
-  // YOUR CUSTOM RULE:
-  // If reviewed list is EMPTY → show NO removed, NO added (force both to empty)
-  if (reviewedMembers.length === 0) {
-    var removedMembers = [];
-    var addedMembers = [];
-  } else {
-    // Normal logic only when reviewed list is NOT empty
-    var removedMembers = previousMembers.filter((email) => !reviewedMembers.includes(email));
-    var addedMembers = reviewedMembers.filter((email) => !previousMembers.includes(email));
-  }
+      // If reviewed list is EMPTY → show NO removed, NO added
+      let removedMembers = [];
+      let addedMembers = [];
 
-  return (
-    <div className="space-y-6">
-      {/* Previous Members */}
-      <div>
-        <h4 className="font-semibold text-gray-900 text-sm mb-2">
-          Previous Members ({previousMembers.length})
-        </h4>
-        {previousMembers.length > 0 ? (
-          <div className="max-h-40 overflow-y-auto border rounded">
-            <table className="w-full text-sm">
-              <tbody>
-                {previousMembers.map((email, i) => (
-                  <tr key={i} className="border-b">
-                    <td className="p-2 text-gray-700">{email}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      if (reviewedMembers.length > 0) {
+        removedMembers = previousMembers.filter(
+          (email) => !reviewedMembers.includes(email)
+        );
+        addedMembers = reviewedMembers.filter(
+          (email) => !previousMembers.includes(email)
+        );
+      }
+
+      console.log("Previous:", previousMembers);
+      console.log("Reviewed:", reviewedMembers);
+      console.log("Removed:", removedMembers);
+      console.log("Added:", addedMembers);
+
+      return (
+        <div className="space-y-6">
+          {/* Previous Members */}
+          {/* <div>
+            <h4 className="font-semibold text-gray-900 text-sm mb-2">
+              Previous Members ({previousMembers.length})
+            </h4>
+            {previousMembers.length > 0 ? (
+              <div className="max-h-40 overflow-y-auto border rounded">
+                <table className="w-full text-sm">
+                  <tbody>
+                    {previousMembers.map((email, i) => (
+                      <tr key={i} className="border-b hover:bg-gray-50">
+                        <td className="p-2 text-gray-700">{email}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 italic">No previous members</p>
+            )}
+          </div> */}
+
+          {/* Removed Members */}
+          <div>
+            <h4 className="font-semibold text-sm mb-2 text-red-700">
+              Removed Members ({removedMembers.length})
+            </h4>
+            {removedMembers.length > 0 ? (
+              <div className="max-h-40 overflow-y-auto border border-red-200 rounded bg-red-50">
+                <table className="w-full text-sm">
+                  <tbody>
+                    {removedMembers.map((email, i) => (
+                      <tr key={i} className="border-b bg-red-100">
+                        <td className="p-2 text-red-700 font-medium">- {email}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 italic">No members removed</p>
+            )}
           </div>
-        ) : (
-          <p className="text-xs text-gray-500 italic">No previous members</p>
-        )}
-      </div>
 
-      {/* Removed Members */}
-      <div>
-        <h4 className="font-semibold text-sm mb-2 text-red-700">
-          Removed Members ({removedMembers.length})
-        </h4>
-        {removedMembers.length > 0 ? (
-          <div className="max-h-40 overflow-y-auto border border-red-200 rounded bg-red-50">
-            <table className="w-full text-sm">
-              <tbody>
-                {removedMembers.map((email, i) => (
-                  <tr key={i} className="border-b">
-                    <td className="p-2 text-red-700 font-medium">{email}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          {/* Added Members */}
+          <div>
+            <h4 className="font-semibold text-sm mb-2 text-green-700">
+              Added Members ({addedMembers.length})
+            </h4>
+            {addedMembers.length > 0 ? (
+              <div className="max-h-40 overflow-y-auto border border-green-200 rounded bg-green-50">
+                <table className="w-full text-sm">
+                  <tbody>
+                    {addedMembers.map((email, i) => (
+                      <tr key={i} className="border-b bg-green-100">
+                        <td className="p-2 text-green-700 font-medium">+ {email}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 italic">No new members added</p>
+            )}
           </div>
-        ) : (
-          <p className="text-xs text-gray-500 italic">No members removed</p>
-        )}
-      </div>
-
-      {/* Added Members */}
-      <div>
-        <h4 className="font-semibold text-sm mb-2 text-green-700">
-          Added Members ({addedMembers.length})
-        </h4>
-        {addedMembers.length > 0 ? (
-          <div className="max-h-40 overflow-y-auto border border-green-200 rounded bg-green-50">
-            <table className="w-full text-sm">
-              <tbody>
-                {addedMembers.map((email, i) => (
-                  <tr key={i} className="border-b">
-                    <td className="p-2 text-green-700 font-medium">{email}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="text-xs text-gray-500 italic">No new members added</p>
-        )}
-      </div>
-    </div>
-  );
-})()}
+        </div>
+      );
+    })()}
 
     {/* ----------------------------------------------------------- */}
     {/* BUTTONS */}

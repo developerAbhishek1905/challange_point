@@ -54,6 +54,7 @@ const ChangeOrganizationMembers = () => {
         console.warn("Group has no members or draftMembers fields");
       }
 
+      console.log(org)
       setFoundOrg({
         companyName: org.companyName || org.name || org.organizationName || "Unknown Group",
         organizationEmail: org.organizationEmail || org.email || orgSearchEmail,
@@ -155,10 +156,16 @@ const ChangeOrganizationMembers = () => {
         addMembers: addedMembers,
         removeMembers: removedMembers,
       };
+      console.log("Sending payload:", payload);
+      console.log(foundOrg.organizationEmail)
+      console.log(orgSearchEmail)
       const res = await putOrganizationByEmail(
-        foundOrg.organizationEmail || orgSearchEmail,
-        payload
+         orgSearchEmail,
+        // payload
+        addedMembers
       );
+
+      console.log("already exist member",res)
 
       // Prepare detailed notification message
       let notificationMessage = "Group members updated successfully.";
@@ -170,7 +177,7 @@ const ChangeOrganizationMembers = () => {
       }
 
       // Option 1: Show detailed toast notification
-      toast.success(notificationMessage, {
+      toast.success("Changes Request Sent to Admin Successfully", {
         autoClose: 5000, // Keep toast visible longer to read details
         style: { whiteSpace: "pre-line" }, // Allow line breaks in toast
       });
@@ -204,13 +211,13 @@ const ChangeOrganizationMembers = () => {
 
  console.log(addedMembers)
  console.log(removedMembers)
+ console.log(orgMembersEmail)
 
-  const finalPreview = [
-    ...orgMembersEmail.filter((m) => !removedMembers.includes(m)),
-    ...orgDraftMembers.filter((m) => !removedMembers.includes(m)),
-    ...addedMembers,
-  ];
-  console.log(finalPreview)
+ const finalPreview = [...new Set([
+  ...orgMembersEmail.filter(m => !removedMembers.includes(m)),
+  ...orgDraftMembers.filter(m => !removedMembers.includes(m)),
+  ...addedMembers
+])];
 
   return (
     <>

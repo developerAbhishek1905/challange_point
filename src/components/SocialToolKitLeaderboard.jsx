@@ -270,7 +270,8 @@ const SocialToolKitLeaderboard = () => {
                               </td>
                               <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-800">
                                 {/* <a href={`mailto:${item.email}`}>{item.email}</a> */}
-                                
+                                {item.challengeCount
+}
                               </td>
                             </tr>
                           ))
