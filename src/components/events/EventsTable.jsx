@@ -119,8 +119,17 @@ const EventsTable = ({
         pageSize
       );
 
-      setAllEvents(data?.challenges || []);
-      setTotalItems(data?.totalCount || data?.challenges?.length || 0);
+      let events = data?.challenges || [];
+      
+      // Sort: reported challenges first, then others
+      events.sort((a, b) => {
+        const aReported = (a.dislikesCount >= 7 || a.reports?.length >= 7) ? 1 : 0;
+        const bReported = (b.dislikesCount >= 7 || b.reports?.length >= 7) ? 1 : 0;
+        return bReported - aReported; // reported first
+      });
+
+      setAllEvents(events);
+      setTotalItems(data?.totalCount || events?.length || 0);
       setPagination(data);
     } catch (error) {
       console.error("Failed to fetch challenges:", error);
@@ -398,41 +407,46 @@ const EventsTable = ({
             <tbody>
               {allEvents.length > 0 ? (
                 allEvents.map((product) => {
+                  const isReported = product.dislikesCount >= 7 || product.reports?.length >= 7;
                   const report = getReportStatus(product);
                   return (
                     <motion.tr
                       key={product._id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="border-b"
+                      className={`border-b ${isReported ? "bg-red-50" : ""}`}
                     >
                       <td className="px-6 py-4 text-sm font-medium text-gray-700 flex gap-2 items-center">
                         <Popover content={product.title} title="Title">
-                          {truncateWords(product.title, 4)}
+                          <span className="cursor-help truncate max-w-[150px]">
+                            {truncateWords(product.title, 4)}
+                          </span>
                         </Popover>
-                        {(product.dislikesCount >= 7 ||
-                          product.reports.length >= 7) && (
-                          <span className="inline-flex items-center gap-1 px-2 py-1 ml-2 rounded-full text-xs bg-red-500 text-white">
-                            {/* <Flag size={12} /> */}
+                        {isReported && (
+                          <span className="inline-flex items-center gap-1 px-2 py-1 ml-2 rounded-full text-xs bg-red-500 text-white whitespace-nowrap">
                             Reported
                           </span>
                         )}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
                         <Popover content={product.expireAt} title="Date">
-                          {truncateWords(
-                            product.expireAt
-                              ? new Date(product.expireAt)
-                                  .toISOString()
-                                  .split("T")[0]
-                              : "-",
-                            4
-                          )}
+                          <span className="cursor-help">
+                            {truncateWords(
+                              product.expireAt
+                                ? new Date(product.expireAt)
+                                    .toISOString()
+                                    .split("T")[0]
+                                : "-",
+                              4
+                            )}
+                          </span>
                         </Popover>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
                         <Popover content={product.address} title="Address">
-                          {truncateWords(product.address, 4)}
+                          <span className="cursor-help truncate max-w-[150px] block">
+                            {truncateWords(product.address, 4)}
+                          </span>
                         </Popover>
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
@@ -440,26 +454,11 @@ const EventsTable = ({
                           content={product.description || "N/A"}
                           title="Description"
                         >
-                          {truncateWords(product.description, 4)}
-                        </Popover>
-                      </td>
-                      {/* <td className="px-6 py-4 text-sm text-gray-700">
-                        <Popover
-                          content={
-                            <div className="text-sm">
-                              <div>Reports: {product.reportCount ?? 0}</div>
-                              {product.lastReportDate && (
-                                <div>Last: {new Date(product.lastReportDate).toLocaleString()}</div>
-                              )}
-                            </div>
-                          }
-                          title="Report Details"
-                        >
-                          <span className={`inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs ${report.color}`}>
-                            <Flag size={14} /> {report.level}
+                          <span className="cursor-help truncate max-w-[150px] block">
+                            {truncateWords(product.description, 4)}
                           </span>
                         </Popover>
-                      </td> */}
+                      </td>
                       <td className="px-6 py-4 text-sm text-gray-700">
                         <Dropdown
                           overlay={eventMenu(product)}
@@ -476,7 +475,7 @@ const EventsTable = ({
                 })
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center py-8">
+                  <td colSpan="5" className="text-center py-8">
                     <Empty
                       description="No events found"
                       image={Empty.PRESENTED_IMAGE_SIMPLE}

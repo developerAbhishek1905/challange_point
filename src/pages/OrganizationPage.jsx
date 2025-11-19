@@ -43,7 +43,7 @@ const OrganizationPage = () => {
       {/* 🔍 Search Input */}
       {/* ================= Header ================= */}
       <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8 gap-3">
-        <h1 className="text-2xl font-semibold text-gray-900">Organizations</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Group</h1>
 
         {/* 🔍 Search Box */}
         <div className="relative w-full sm:w-72">
@@ -53,7 +53,7 @@ const OrganizationPage = () => {
           />
           <input
             type="text"
-            placeholder="Search Organizations..."
+            placeholder="Search Group..."
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className="w-full bg-white text-gray-900 placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 shadow-sm"

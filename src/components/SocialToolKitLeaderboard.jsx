@@ -99,7 +99,7 @@ const SocialToolKitLeaderboard = () => {
                 onClick={() => handleNavClick("createOrg")}
                 className="hover:text-green-200 transition-colors cursor-pointer"
               >
-                Register Organization
+                Register Group
               </div>
             </div>
 
@@ -145,7 +145,7 @@ const SocialToolKitLeaderboard = () => {
                 }}
                 className="hover:text-green-200 transition-colors cursor-pointer"
               >
-                Create Organization
+                Register Group
               </div>
             </div>
           )}
@@ -232,13 +232,16 @@ const SocialToolKitLeaderboard = () => {
                           </th>
 
                           <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
-                            Organization Name
+                            Group Name
                           </th>
                           <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
-                            Points
+                            All Points
                           </th>
                           <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
-                            Member Count
+                           Number of Members
+                          </th>
+                          <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                           Approved Challanges
                           </th>
                         </tr>
                       </thead>
@@ -264,6 +267,10 @@ const SocialToolKitLeaderboard = () => {
                               <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-800">
                                 {/* <a href={`mailto:${item.email}`}>{item.email}</a> */}
                                 {item.memberCount}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-800">
+                                {/* <a href={`mailto:${item.email}`}>{item.email}</a> */}
+                                
                               </td>
                             </tr>
                           ))
@@ -313,7 +320,7 @@ const SocialToolKitLeaderboard = () => {
                   <div className=" h-[1px] w-full bg-white"></div>
                   <div className="flex justify-around mt-8">
                     <p className="text-sm opacity-75">
-                      © 2025 Company challenges
+                      © PresentYear STK - All rights reserved
                     </p>
                     {/* <div className="flex justify-center space-x-6 mb-6">
                     <a

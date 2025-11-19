@@ -228,7 +228,7 @@ const ChallengeDetails = ({ data, report }) => {
           {/* Points + Likes */}
           <div className="flex flex-wrap gap-4 text-sm">
             <span className="px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
-              Points: {data.points}
+              Actions: {data.points}
             </span>
             <div className="flex items-center gap-1 px-3 py-1 border border-gray-300 rounded-lg text-gray-700 font-medium">
               {/* <Heart className="w-4 h-4 text-red-500" /> {data.likesCount}  */}

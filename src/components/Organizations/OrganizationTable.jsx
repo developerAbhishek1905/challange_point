@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Ellipsis, Trash2, Eye } from "lucide-react";
-import { Dropdown, Empty, Pagination, Menu } from "antd";
+import { Ellipsis, Trash2, Eye,Bell } from "lucide-react";
+import { Dropdown, Empty, Pagination, Menu, Popover } from "antd";
 import { toast } from "react-toastify";
 import {
   getAllOrganizationsList,
@@ -10,6 +10,7 @@ import {
   deleteOrganization,
   getAllUsers,
   approve_reject,
+  actionApproveRejectByAdmin
 } from "../../utils/api";
 import ConfirmationModal from "../ConfirmationModal";
 import OrganizationDetails from "./OrganizationDetails";
@@ -45,6 +46,11 @@ const OrganizationTable = ({
   const [status, setStatus] = useState({});
   const pageSize = 8;
 
+  // new: notify modal state
+  const [notifyModalOpen, setNotifyModalOpen] = useState(false);
+  const [notifyOrganization, setNotifyOrganization] = useState(null);
+  const [notifyLoading, setNotifyLoading] = useState(false);
+
   // ✅ Fetch organizations & users
   const fetchOrganizations = async () => {
     try {
@@ -55,14 +61,14 @@ const OrganizationTable = ({
       setUsers(allusers.users || []);
       setPagination(orgs);
     } catch (error) {
-      toast.error("Failed to fetch organizations");
+      toast.error("Failed to fetch Group");
     }
   };
 
   useEffect(() => {
     const delay = setTimeout(() => fetchOrganizations(searchValue, currentPage), 500);
     return () => clearTimeout(delay);
-  }, [searchValue, memberAdded, currentPage]);
+  }, [searchValue, memberAdded, currentPage,]);
 
   // ✅ Pagination slice (only for UI, not backend-driven pagination)
   const pagedOrganisations = allOrganisation.slice(
@@ -85,9 +91,9 @@ const OrganizationTable = ({
   const validateOrganizationForm = () => {
     const newErrors = {};
     if (!organisationName.trim())
-      newErrors.organisationName = "Organization name is required";
+      newErrors.organisationName = "Group name is required";
     if (!organizationDescription.trim())
-      newErrors.organizationDescription = "Organization description is required";
+      newErrors.organizationDescription = "Group description is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -101,12 +107,12 @@ const OrganizationTable = ({
         description: organizationDescription,
       };
       await createOrganization(newOrgData);
-      toast.success("Organization added successfully");
+      toast.success("Group added successfully");
       setShowModal(false);
       resetForm();
       setMemberAdded(!memberAdded);
     } catch {
-      toast.error("Failed to add organization");
+      toast.error("Failed to add group");
     }
   };
 
@@ -114,26 +120,57 @@ const OrganizationTable = ({
   const handleDelete = async () => {
     try {
       await deleteOrganization(organizationToDelete);
-      toast.success("Organization deleted successfully");
+      toast.success("Group deleted successfully");
       setOrganizationToDelete(null);
       setMemberAdded(!memberAdded);
     } catch {
-      toast.error("Failed to delete organization");
+      toast.error("Failed to delete group");
     }
   };
 
   // ✅ Approve/Reject organization
-  const apporoveOrganization = async (orgId, status) => {
+  const apporoveOrganization = async (orgId, statusObj) => {
     try {
-      await approve_reject(orgId, status);
+      await approve_reject(orgId, statusObj);
       toast.success(
-        status?.status === "approved"
-          ? "Organization approved"
-          : "Organization rejected"
+        statusObj?.status === "approved"
+          ? "Group approved"
+          : "Group rejected"
       );
       setMemberAdded(!memberAdded);
     } catch {
       toast.error("Failed");
+    }
+  };
+
+  // helper: open notify modal
+  const handleBellClick = (org) => {
+    setNotifyOrganization(org);
+    setNotifyModalOpen(true);
+  };
+  console.log(notifyOrganization)
+
+  // updated: handle notify action -> prevent default, call API, refresh list
+  const handleNotifyAction = async (action, e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!notifyOrganization) return;
+    setNotifyLoading(true);
+    try {
+      const res = await actionApproveRejectByAdmin(
+        notifyOrganization._id,
+        { status: action === "approve" ? "approved" : "denied" }
+      );
+      toast.success(res?.message || (action === "approve" ? "Approved" : "Denied"));
+      setNotifyModalOpen(false);
+      setNotifyOrganization(null);
+      // refresh data in-place instead of reloading the page
+      await fetchOrganizations();
+      setMemberAdded((s) => !s);
+    } catch (err) {
+      console.error(err);
+      toast.error(err?.response?.data?.message || "Action failed");
+    } finally {
+      setNotifyLoading(false);
     }
   };
 
@@ -146,14 +183,27 @@ const OrganizationTable = ({
         description: organizationDescription,
       };
       await updateOrganization(selectedOrganization._id, updatedOrgData);
-      toast.success("Organization updated successfully");
+      toast.success("Group updated successfully");
       setShowModal(false);
       resetForm();
       setMemberAdded(!memberAdded);
     } catch {
-      toast.error("Failed to update organization");
+      toast.error("Failed to update group");
     }
   };
+
+
+  const handleMamberChange = async() => {
+    try{
+      await actionApproveRejectByAdmin(orgId, status)
+      toast.success("Group status updated successfully");
+
+    }
+    catch(error){
+      toast.error("Failed to update group status");
+    }
+  }
+
 
   // ✅ Menus
   const eventMenu = (org) => (
@@ -216,15 +266,15 @@ const OrganizationTable = ({
         <motion.div className="fixed inset-0 text-black z-50 flex items-center justify-center bg-black bg-opacity-40">
           <motion.div className="bg-white p-6 rounded-xl w-full max-w-xl shadow-xl">
             <h2 className="text-xl font-semibold mb-4 text-gray-900">
-              {modalMode === "Edit" ? "Edit Organization" : "Add Organization"}
+              {modalMode === "Edit" ? "Edit Group" : "Add Group"}
             </h2>
             <div className="space-y-4">
               {/* Organization name */}
               <div>
-                <label className="text-sm font-medium">Organization name</label>
+                <label className="text-sm font-medium">Group Name</label>
                 <input
                   type="text"
-                  placeholder="Organization name"
+                  placeholder="Group name"
                   className="w-full mt-1 p-2 border rounded-md text-gray-600"
                   value={organisationName}
                   onChange={(e) => {
@@ -242,11 +292,11 @@ const OrganizationTable = ({
               {/* Description */}
               <div>
                 <label className="text-sm font-medium text-gray-900">
-                  Organization Description
+                  Group Description
                 </label>
                 <input
                   type="text"
-                  placeholder="Organization Description"
+                  placeholder="Group Description"
                   className="w-full mt-1 p-2 border rounded-md text-gray-600"
                   value={organizationDescription}
                   onChange={(e) => {
@@ -279,8 +329,8 @@ const OrganizationTable = ({
                   }
                 >
                   {modalMode === "Edit"
-                    ? "Edit Organization"
-                    : "Add Organization"}
+                    ? "Edit Group"
+                    : "Add Group"}
                 </button>
               </div>
             </div>
@@ -294,21 +344,22 @@ const OrganizationTable = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div className="overflow-x-auto rounded-xl">
-          <table className="min-w-full border-collapse">
+        <div className="rounded-xl">
+          <table className="w-full border-collapse">
             <thead className="bg-gray-100">
               <tr>
-                {[
-                  "Organization Name",
+                {[ "",
+                  "Group Name",
                   "Created By",
                   "Website",
                   "Total Members",
+                  "Group Description",
                   "Status",
                   "Actions",
                 ].map((header) => (
                   <th
                     key={header}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase"
+                    className="px-3 py-3 text-left text-xs font-medium text-gray-600 uppercase whitespace-nowrap"
                   >
                     {header}
                   </th>
@@ -325,28 +376,63 @@ const OrganizationTable = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <td className="px-6 py-4 text-sm font-medium text-gray-700">
-                      {org.companyName}
+                    <td className="px-3 py-4 text-center">
+                      {org.review?.status === "pending" && (
+                        <button
+                          type="button"
+                          onClick={() => handleBellClick(org)}
+                          className="inline-flex items-center justify-center text-red-600 hover:text-red-800 cursor-pointer"
+                          aria-label="Open review actions"
+                        >
+                          <Bell size={18} />
+                        </button>
+                      )}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
+                    
+                    <td className="px-3 py-4 text-sm font-medium text-gray-700">
+                      <Popover 
+                        content={org.companyName}
+                        title="Group Name"
+                      >
+                        <span className="cursor-help truncate block max-w-[120px]">
+                          {org.companyName}
+                        </span>
+                      </Popover>
+                    </td>
+                    
+                    <td className="px-3 py-4 text-sm text-gray-700 truncate max-w-[120px]">
                       {org.organizationEmail || "N/A"}
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-700">
+                    
+                    <td className="px-3 py-4 text-sm text-gray-700 truncate max-w-[100px]">
                       {org.organizationWebsite}
                     </td>
+                    
                     <td
-                      className="px-6 py-4 text-sm text-gray-700 cursor-pointer"
+                      className="px-3 py-4 text-sm text-gray-700 cursor-pointer text-center"
                       onClick={() => {
                         setOrganizationToView(org);
                         setViewModalOpen(true);
                       }}
                     >
-                      {org.members?.length+org.draftMembers.length || 0}
+                      {(org.members?.length || 0) + (org.draftMembers?.length || 0)}
                     </td>
-                    <td className="px-6 py-4">
+                    
+                    <td className="px-3 py-4 text-sm font-medium text-gray-700">
+                      <Popover 
+                        content={org.description}
+                        title="Group Description"
+                      >
+                        <span className="cursor-help truncate block max-w-[120px]">
+                          {org.description}
+                        </span>
+                      </Popover>
+                    </td>
+                    
+                    <td className="px-3 py-4">
                       <Dropdown overlay={eventMenu(org)} trigger={["click"]}>
                         <button
-                          className={`px-3 py-1 rounded-md text-xs text-white ${
+                          className={`px-2 py-1 rounded-md text-xs text-white whitespace-nowrap ${
                             org.orgStatus === "pending"
                               ? "bg-gray-400 hover:bg-gray-500"
                               : org.orgStatus === "approved"
@@ -362,18 +448,19 @@ const OrganizationTable = ({
                         </button>
                       </Dropdown>
                     </td>
-                    <td className="px-6 py-4">
+                    
+                    <td className="px-3 py-4 text-center">
                       <Dropdown overlay={ActionMenu(org)} trigger={["click"]}>
-                        <Ellipsis className="text-gray-600 hover:text-gray-800 cursor-pointer" />
+                        <Ellipsis className="text-gray-600 hover:text-gray-800 cursor-pointer" size={18} />
                       </Dropdown>
                     </td>
                   </motion.tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6} className="text-center py-8">
+                  <td colSpan={8} className="text-center py-8">
                     <Empty
-                      description="No organizations found"
+                      description="No Groups found"
                       image={Empty.PRESENTED_IMAGE_SIMPLE}
                     />
                   </td>
@@ -394,6 +481,159 @@ const OrganizationTable = ({
           />
         </div>
       </motion.div>
+
+      {/* notify modal */}
+      {notifyModalOpen && notifyOrganization && (
+       <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+  <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6">
+    <h3 className="text-lg font-semibol text-black mb-2">Review Group</h3>
+
+    {/* <p className="text-sm text-gray-600 mb-4">
+      {notifyOrganization.companyName} — {notifyOrganization.organizationEmail}
+    </p> */}
+
+    {/* ----------------------------------------------------------- */}
+    {/* CALCULATE MEMBER COMPARISON */}
+    {/* ----------------------------------------------------------- */}
+    {(() => {
+  // Extract emails safely
+  const extractEmails = (arr = []) =>
+    arr
+      .map((item) => item?.user?.email || item?.email)
+      .filter(Boolean);
+
+  const previousMembers = [
+    ...new Set([
+      ...extractEmails(notifyOrganization?.members),
+      ...extractEmails(notifyOrganization?.draftMembers || []),
+    ]),
+  ];
+
+  const reviewedMembers = [
+    ...new Set([
+      ...extractEmails(notifyOrganization?.review?.members),
+      ...extractEmails(notifyOrganization?.review?.draftMembers || []),
+    ]),
+  ];
+
+  // YOUR CUSTOM RULE:
+  // If reviewed list is EMPTY → show NO removed, NO added (force both to empty)
+  if (reviewedMembers.length === 0) {
+    var removedMembers = [];
+    var addedMembers = [];
+  } else {
+    // Normal logic only when reviewed list is NOT empty
+    var removedMembers = previousMembers.filter((email) => !reviewedMembers.includes(email));
+    var addedMembers = reviewedMembers.filter((email) => !previousMembers.includes(email));
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Previous Members */}
+      <div>
+        <h4 className="font-semibold text-gray-900 text-sm mb-2">
+          Previous Members ({previousMembers.length})
+        </h4>
+        {previousMembers.length > 0 ? (
+          <div className="max-h-40 overflow-y-auto border rounded">
+            <table className="w-full text-sm">
+              <tbody>
+                {previousMembers.map((email, i) => (
+                  <tr key={i} className="border-b">
+                    <td className="p-2 text-gray-700">{email}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-xs text-gray-500 italic">No previous members</p>
+        )}
+      </div>
+
+      {/* Removed Members */}
+      <div>
+        <h4 className="font-semibold text-sm mb-2 text-red-700">
+          Removed Members ({removedMembers.length})
+        </h4>
+        {removedMembers.length > 0 ? (
+          <div className="max-h-40 overflow-y-auto border border-red-200 rounded bg-red-50">
+            <table className="w-full text-sm">
+              <tbody>
+                {removedMembers.map((email, i) => (
+                  <tr key={i} className="border-b">
+                    <td className="p-2 text-red-700 font-medium">{email}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-xs text-gray-500 italic">No members removed</p>
+        )}
+      </div>
+
+      {/* Added Members */}
+      <div>
+        <h4 className="font-semibold text-sm mb-2 text-green-700">
+          Added Members ({addedMembers.length})
+        </h4>
+        {addedMembers.length > 0 ? (
+          <div className="max-h-40 overflow-y-auto border border-green-200 rounded bg-green-50">
+            <table className="w-full text-sm">
+              <tbody>
+                {addedMembers.map((email, i) => (
+                  <tr key={i} className="border-b">
+                    <td className="p-2 text-green-700 font-medium">{email}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p className="text-xs text-gray-500 italic">No new members added</p>
+        )}
+      </div>
+    </div>
+  );
+})()}
+
+    {/* ----------------------------------------------------------- */}
+    {/* BUTTONS */}
+    {/* ----------------------------------------------------------- */}
+    <div className="flex gap-3 justify-end mt-6">
+      <button
+        type="button"
+        onClick={() => {
+          setNotifyModalOpen(false);
+          setNotifyOrganization(null);
+        }}
+        className="px-4 py-2 border rounded-md text-gray-700"
+      >
+        Close
+      </button>
+
+      <button
+        type="button"
+        onClick={(e) => handleNotifyAction("deny", e)}
+        disabled={notifyLoading}
+        className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+      >
+        {notifyLoading ? "Processing..." : "Deny"}
+      </button>
+
+      <button
+        type="button"
+        onClick={(e) => handleNotifyAction("approve", e)}
+        disabled={notifyLoading}
+        className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 disabled:opacity-60"
+      >
+        {notifyLoading ? "Processing..." : "Approve"}
+      </button>
+    </div>
+  </div>
+</div>
+      )}
 
       {/* ✅ Confirmation Modal */}
       <ConfirmationModal

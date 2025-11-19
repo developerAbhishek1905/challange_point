@@ -18,7 +18,7 @@ const SIDEBAR_ITEMS = [
   { name: "Challenge Manage", icon: EventIcon, href: "/challange", roles: ["admin", "user"] },
   { name: "User Manage", icon: UserIcon, href: "/users", roles: ["admin"] },
   { name: "Feed Manage", icon: FeedIcon, href: "/feed", roles: ["admin"] },
-  { name: "Organization Manage", icon: OrganizationIcon, href: "/organization", roles: ["admin"] },
+  { name: "Group Manage", icon: OrganizationIcon, href: "/group", roles: ["admin"] },
   { name: "Settings & Notifications", icon: SettingIcon, href: "/settings", roles: ["admin"] },
 ];
 

@@ -72,7 +72,7 @@ function App() {
           }
         />
         <Route
-          path="/organization"
+          path="/group"
           element={
             <ProtectedRoute>
               <OrganizationPage />

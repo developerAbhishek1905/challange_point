@@ -18,6 +18,38 @@ export const getAllOrganizationsList = async (search="",page,limit ) => {
   }
 };
 
+export const getOrganizationByEmail = async (email) => {
+  try {
+    const response = await axiosInstance.get(`api/organizations/email/${email}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching organization by email:", error);
+    throw error;
+  }
+};
+
+export const putOrganizationByEmail = async (email,members) => {
+  console.log(members)
+  try {
+    const response = await axiosInstance.put(`api/organizations/email/${email}`,{members : members});
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching organization by email:", error);
+    throw error;
+  }
+};
+
+
+export const actionApproveRejectByAdmin = async (orgId, status) => {
+  try {
+    const response = await axiosInstance.post(`api/organizations/${orgId}/admin-review`, status);
+    return response.data;
+  } catch (error) {
+    console.error("Error approving/rejecting org:", error);
+    throw error;
+  }
+};
+
 export const createOrganization = async (organizationData) => {
   try {
     const response = await axiosInstance.post("api/organizations", organizationData);
