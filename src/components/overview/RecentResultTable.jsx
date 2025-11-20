@@ -47,7 +47,7 @@ const RecentResultTable = ({ data }) => {
             </thead>
 
             <tbody>
-              {topResults.map((result, idx) => (
+              {topResults?.map((result, idx) => (
                 <motion.tr
                   key={result._id || idx}
                   initial={{ opacity: 0 }}
@@ -77,7 +77,7 @@ const RecentResultTable = ({ data }) => {
 </td>
 
                   <td className="px-6 py-4 text-gray-600">
-                    {result.uploadedBy.name}
+                    {result?.uploadedBy?.name}
                   </td>
                   <td className="px-6 py-4 text-gray-800 font-semibold">
                     {result.likesCount}
