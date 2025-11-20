@@ -25,15 +25,15 @@ const UsersTable = ({ searchValue }) => {
     <div className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md">
       <span className="font-medium">{label}</span>
       <div className="space-x-4">
-                              <span className="text-sm font-bold text-green-600">{values.plusOne <= 0 ? "0" : `+${values.plusOne}`}
+                              <span className="text-sm font-bold text-green-600">{values.plusOne <= 0 ? "+0" : `+${values.plusOne}`}
 
                                 {/* |  {values.minusOne ?? 0} */}
                                 </span>
                                 
-                                <span className="text-sm font-bold text-red-600">
+                                {/* <span className="text-sm font-bold text-red-600"> */}
                                   {/* + {values.plusOne ?? 0}  */}
-                                  {values.minusOne <= 0 ? "0" : `-${values.minusOne}`}
-                                </span>
+                                  {/* {values.minusOne <= 0 ? "+0" : `-${values.minusOne}`} */}
+                                {/* </span> */}
                                 </div>
     </div>
   );
