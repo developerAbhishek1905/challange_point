@@ -2,7 +2,8 @@ import { useState } from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import RegisterOrganization from "./RegisterOrganization";
-import ChangeOrganizationMembers from "./ChangeOrganizationMembers";
+import AddMembersToOrganization from "./AddMembersToOrganization";
+import RemoveMembersFromOrganization from "./RemoveMembersFromOrganization";
 
 const CreateOrganization = () => {
   const [activeTab, setActiveTab] = useState("register");
@@ -12,30 +13,39 @@ const CreateOrganization = () => {
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
       {/* Tabs */}
-      <div className="max-w-5xl md:w-1/3 mx-auto mt-6 px-4">
-        <div className="flex gap-2 bg-white rounded-xl shadow p-2">
+      <div className="max-w-5xl mx-auto mt-6 px-4">
+        <div className="flex gap-2 bg-white rounded-xl shadow p-2 flex-wrap">
           <button
-            className={`flex-1 py-2 rounded-md text-sm font-medium ${
-              activeTab === "register" ? "bg-blue-600 text-white" : "text-gray-700"
+            className={`flex-1 min-w-[140px] py-2 rounded-md text-sm font-medium ${
+              activeTab === "register" ? "bg-blue-600 text-white" : "text-gray-700 hover:bg-gray-50"
             }`}
             onClick={() => setActiveTab("register")}
           >
-           <div> Group </div> Registration
+            Group Registration
           </button>
           <button
-            className={`flex-1 py-2 rounded-md text-sm font-medium ${
-              activeTab === "change" ? "bg-blue-600 text-white" : "text-gray-700"
+            className={`flex-1 min-w-[120px] py-2 rounded-md text-sm font-medium ${
+              activeTab === "addMembers" ? "bg-green-600 text-white" : "text-gray-700 hover:bg-gray-50"
             }`}
-            onClick={() => setActiveTab("change")}
+            onClick={() => setActiveTab("addMembers")}
           >
-            <div> Add / Remove </div>Members
+            Add Members
+          </button>
+          <button
+            className={`flex-1 min-w-[140px] py-2 rounded-md text-sm font-medium ${
+              activeTab === "removeMembers" ? "bg-red-600 text-white" : "text-gray-700 hover:bg-gray-50"
+            }`}
+            onClick={() => setActiveTab("removeMembers")}
+          >
+            Remove Members
           </button>
         </div>
       </div>
 
       {/* Render Components */}
       {activeTab === "register" && <RegisterOrganization />}
-      {activeTab === "change" && <ChangeOrganizationMembers />}
+      {activeTab === "addMembers" && <AddMembersToOrganization />}
+      {activeTab === "removeMembers" && <RemoveMembersFromOrganization />}
     </>
   );
 };

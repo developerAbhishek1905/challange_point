@@ -19,8 +19,9 @@ export const getAllOrganizationsList = async (search="",page,limit ) => {
 };
 
 export const getOrganizationByEmail = async (email) => {
+  console.log(email)
   try {
-    const response = await axiosInstance.get(`api/organizations/email/${email}`);
+    const response = await axiosInstance.post(`api/organizations/get-organization-by-email`,{email:email});
     return response.data;
   } catch (error) {
     console.error("Error fetching organization by email:", error);
@@ -80,9 +81,9 @@ export const deleteOrganization = async (id) => {
   }
 };
 
-export const addMember = async (orgId, userId) => {
+export const addMember = async (orgId, emailArr) => {
   try {
-    const response = await axiosInstance.post(`api/organizations/${orgId}/members`, userId);
+    const response = await axiosInstance.post(`api/organizations/request/add-members/${orgId}`, { emails: emailArr });
     return response.data;
   } catch (error) {
     console.error("Error adding member:", error);
@@ -90,9 +91,55 @@ export const addMember = async (orgId, userId) => {
   }
 };
 
+export const removeMember = async (orgId,userObj) => {
+  console.log(userObj)
+  try {
+    const response = await axiosInstance.post(`api/organizations/request/remove-members/${orgId}`,userObj);
+    return response.data;
+  } catch (error) {
+    console.error("Error removing member:", error);
+    throw error;
+  }
+}
+
 export const approve_reject = async (orgId, status) => {
   try {
     const response = await axiosInstance.post(`api/organizations/${orgId}/approve-deny`, status);
+    return response.data;
+  } catch (error) {
+    console.error("Error approving/rejecting org:", error);
+    throw error;
+  }
+};
+
+export const approve_rejectByAdmin = async (orgId, status) => {
+  try {
+    const response = await axiosInstance.patch(`api/organizations/request/update/${orgId}`, status);
+    return response.data;
+  } catch (error) {
+    console.error("Error approving/rejecting org:", error);
+    throw error;
+  }
+};
+
+
+export const getApproveList = async (page=1,limit,search="") => {
+  try {
+    const response = await axiosInstance.get(`api/organizations/request/pending`, {
+      params: { page, limit, search }
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error approving/rejecting org:", error);
+    throw error;
+  }
+};
+
+export const getGroupApprovalList = async (page=1,limit,search="") => {
+  try {
+    const response = await axiosInstance.get(`api/organizations/requests`, {
+      params: { page, limit, search }
+    });
     return response.data;
   } catch (error) {
     console.error("Error approving/rejecting org:", error);
@@ -146,6 +193,16 @@ export const getLeaderboard = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching leaderboard:", error);
+    throw error;
+  }
+};
+
+export const getGroupChallangeCount = async (orgId) => {
+  try {
+    const response = await axiosInstance.get(`api/organizations/${orgId}/challenges`);
+    return response.data;
+  } catch (error) {
+    console.error("Error approving/rejecting org:", error);
     throw error;
   }
 };

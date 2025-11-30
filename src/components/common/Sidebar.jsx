@@ -20,6 +20,7 @@ const SIDEBAR_ITEMS = [
   { name: "Feed Manage", icon: FeedIcon, href: "/feed", roles: ["admin"] },
   { name: "Group Manage", icon: OrganizationIcon, href: "/group", roles: ["admin"] },
   { name: "Settings & Notifications", icon: SettingIcon, href: "/settings", roles: ["admin"] },
+  { name: "Group Approvals", icon: OrganizationIcon, href: "/group-approvals", roles: ["admin"] },
 ];
 
 const Sidebar = () => {

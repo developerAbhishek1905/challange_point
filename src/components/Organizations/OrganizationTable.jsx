@@ -344,11 +344,12 @@ const OrganizationTable = ({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <div className="rounded-xl">
+        <div className="rounded-xl overflow-scroll">
           <table className="w-full border-collapse">
             <thead className="bg-gray-100">
               <tr>
-                {[ "",
+                {[ 
+                  // "",
                   "Group Name",
                   "Created By",
                   "Website",
@@ -376,7 +377,7 @@ const OrganizationTable = ({
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                   >
-                    <td className="px-3 py-4 text-center">
+                    {/* <td className="px-3 py-4 text-center">
                       {org.review?.status === "pending" && (
                         <button
                           type="button"
@@ -387,7 +388,7 @@ const OrganizationTable = ({
                           <Bell size={18} />
                         </button>
                       )}
-                    </td>
+                    </td> */}
                     
                     <td className="px-3 py-4 text-sm font-medium text-gray-700">
                       <Popover 
@@ -415,7 +416,7 @@ const OrganizationTable = ({
                         setViewModalOpen(true);
                       }}
                     >
-                      {(org.members?.length || 0) + (org.draftMembers?.length || 0)}
+                      {(org.members?.length || 0) + (org.draftMembers?.length || 0)+(org.leaders?.length || 0)}
                     </td>
                     
                     <td className="px-3 py-4 text-sm font-medium text-gray-700">

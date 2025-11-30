@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import SocialToolKitLeaderboard from "./components/SocialToolKitLeaderboard";
 import FeedManage from "./pages/FeedManage";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
+import GroupApprovalPage from "./pages/GroupApprovalPage";
 
 function App() {
   const location = useLocation();
@@ -85,6 +86,14 @@ function App() {
           element={
             <ProtectedRoute>
               <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/group-approvals"
+          element={
+            <ProtectedRoute>
+              <GroupApprovalPage />
             </ProtectedRoute>
           }
         />

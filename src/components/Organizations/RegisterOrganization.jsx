@@ -2,115 +2,94 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { createOrganization } from "../../utils/api";
 import { toast } from "react-toastify";
+import { Modal } from "antd";
+import { Building2, Mail, Globe, Users, CheckCircle2, AlertCircle, Plus, X } from "lucide-react";
 
 const RegisterOrganization = () => {
-  const [name, setName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [organizationEmail, setOrganizationEmail] = useState("");
+  const [organizationWebsite, setOrganizationWebsite] = useState("");
   const [description, setDescription] = useState("");
   const [emailInput, setEmailInput] = useState("");
-  const [members, setMembers] = useState([]);
+  const [leaders, setLeaders] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [organizationWebsite, setOrganizationWebsite] = useState("");
-  const [memberDetailes, setMemberDetails] = useState(null);
+  const [memberDetails, setMemberDetails] = useState(null);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const websiteRegex =
-    /^(https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/i;
+  const websiteRegex = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/i;
 
   const extractDomain = (email) => {
     if (!email) return "";
-    const e = String(email).trim().toLowerCase();
-    const atIndex = e.lastIndexOf("@");
+    const atIndex = email.lastIndexOf("@");
     if (atIndex === -1) return "";
-    const domainPart = e.slice(atIndex + 1).split(/[\/?#\s]/)[0];
-    return domainPart.replace(/^www\./, "");
+    return email.slice(atIndex + 1).split(/[\/?#\s]/)[0].replace(/^www\./, "");
   };
 
   const handleOrganizationEmailChange = (e) => {
     const value = e.target.value;
     setOrganizationEmail(value);
-    setErrors((prev) => ({ ...prev, organizationEmail: "" }));
+    setErrors(prev => ({ ...prev, organizationEmail: "" }));
 
     const domain = extractDomain(value);
-    if (!domain) return;
-
-    const currentWebsite = String(organizationWebsite || "").trim().toLowerCase();
-    const previousAuto = `www.${extractDomain(organizationEmail || "")}`.toLowerCase();
-    const suggested = `www.${domain}`;
-
-    if (!currentWebsite || currentWebsite === previousAuto) {
+    if (domain && (!organizationWebsite || organizationWebsite.includes(domain))) {
+      const suggested = `https://www.${domain}`;
       setOrganizationWebsite(suggested);
     }
   };
 
   const addMember = () => {
     if (!emailInput.trim()) return;
-    const newEmails = emailInput
-      .trim()
-      .split(" ")
-      .map((e) => e.trim())
-      .filter((e) => e.length > 0);
 
-    const invalidEmails = [];
-    const duplicateEmails = [];
-    const validNewEmails = [];
+    const emails = emailInput.trim().split(/[\s,]+/).map(e => e.trim()).filter(Boolean);
+    const invalid = [];
+    const duplicates = [];
+    const validNew = [];
 
-    newEmails.forEach((em) => {
-      if (!emailRegex.test(em)) invalidEmails.push(em);
-      else if (members.includes(em)) duplicateEmails.push(em);
-      else validNewEmails.push(em);
+    emails.forEach(email => {
+      if (!emailRegex.test(email)) invalid.push(email);
+      else if (leaders.includes(email.toLowerCase())) duplicates.push(email);
+      else validNew.push(email.toLowerCase());
     });
 
-    if (invalidEmails.length > 0)
-      return setErrors({ member: `Invalid email(s): ${invalidEmails.join(", ")}` });
-    if (duplicateEmails.length > 0)
-      return setErrors({ member: "Member email already added" });
+    if (invalid.length > 0) {
+      setErrors({ member: `Invalid emails: ${invalid.join(", ")}` });
+      return;
+    }
+    if (duplicates.length > 0) {
+      toast.info(`Already added: ${duplicates.join(", ")}`);
+    }
 
-    if (validNewEmails.length > 0) {
-      setMembers((prev) => [...prev, ...validNewEmails]);
+    if (validNew.length > 0) {
+      setLeaders(prev => [...prev, ...validNew]);
       setEmailInput("");
-      setErrors((prev) => ({ ...prev, member: "" }));
+      setErrors(prev => ({ ...prev, member: "" }));
     }
   };
 
-  const removeMember = (index) => {
-    setMembers((prev) => prev.filter((_, i) => i !== index));
+  const removeMember = (email) => {
+    setLeaders(prev => prev.filter(e => e !== email));
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!companyName.trim()) newErrors.companyName = "Organization name is required";
-    if (!organizationEmail.trim()) newErrors.organizationEmail = "Organization email is required";
-    else if (!emailRegex.test(organizationEmail)) newErrors.organizationEmail = "Enter a valid email address";
+    if (!companyName.trim()) newErrors.companyName = "Group name is required";
+    if (!organizationEmail.trim()) newErrors.organizationEmail = "Group email is required";
+    else if (!emailRegex.test(organizationEmail)) newErrors.organizationEmail = "Invalid email format";
 
     if (!organizationWebsite.trim()) newErrors.organizationWebsite = "Website is required";
-    else if (!websiteRegex.test(organizationWebsite)) newErrors.organizationWebsite = "Enter a valid website (e.g., www.example.com)";
+    else if (!websiteRegex.test(organizationWebsite)) newErrors.organizationWebsite = "Invalid website URL";
 
-    if (!description.trim()) newErrors.description = "Organization description is required";
-    if (members.length === 0) newErrors.member = "At least one member is required";
-
-    const normalizeDomain = (domain) =>
-      String(domain || "")
-        .replace(/^https?:\/\//, "")
-        .replace(/^www\./, "")
-        .replace(/\/.*$/, "")
-        .toLowerCase();
+    if (!description.trim()) newErrors.description = "Description is required";
+    if (leaders.length === 0) newErrors.member = "Add at least one member";
 
     const emailDomain = extractDomain(organizationEmail);
-    const websiteDomain = normalizeDomain(organizationWebsite);
+    const websiteDomain = organizationWebsite.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
 
-    if (emailDomain && websiteDomain) {
-      const domainMatches =
-        websiteDomain === emailDomain || websiteDomain.endsWith("." + emailDomain);
-
-      if (!domainMatches) {
-        newErrors.organizationWebsite =
-          "Website domain must match organization email domain (or be a subdomain)";
-      }
+    if (emailDomain && websiteDomain && !websiteDomain.endsWith(emailDomain)) {
+      newErrors.organizationWebsite = "Website domain must match email domain";
     }
 
     setErrors(newErrors);
@@ -119,36 +98,26 @@ const RegisterOrganization = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error("Please fill all fields correctly before submitting.");
+      toast.error("Please fix all errors before submitting");
       return;
     }
 
     const payload = {
-      name: companyName,
       companyName,
-      organizationEmail,
+      organizationEmail: organizationEmail.toLowerCase(),
       organizationWebsite,
       description,
-      members,
+      leaders,
     };
 
     try {
       setLoading(true);
       const res = await createOrganization(payload);
-      setMemberDetails(res?.membersStatus);
-      toast.success("Organization created successfully!");
+      setMemberDetails(res?.membersStatus || res);
+      toast.success("Group registered successfully!");
       setSuccessModalVisible(true);
-
-      setName("");
-      setCompanyName("");
-      setOrganizationEmail("");
-      setOrganizationWebsite("");
-      setDescription("");
-      setEmailInput("");
-      setMembers([]);
-      setErrors({});
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to create organization");
+      toast.error(error?.response?.data?.message || "Failed to register group");
     } finally {
       setLoading(false);
     }
@@ -157,213 +126,216 @@ const RegisterOrganization = () => {
   return (
     <>
       <motion.div
-        className="bg-white p-4 sm:p-6 md:p-8 lg:p-10 rounded-xl w-[95%] sm:w-[90%] md:w-[80%] lg:w-[60%] xl:w-[50%] mx-auto shadow-xl mt-4 sm:mt-8 py-8"
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.6 }}
+        className="min-h-screen  py-12 px-4"
       >
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-6 sm:mb-8 text-gray-900 text-center">
-          Register New Group
-        </h2>
-
-        <form className="space-y-5 sm:space-y-6">
-          {/* Organization Name */}
-          <div>
-            <label className="block font-medium text-gray-900 mb-1">Group Name</label>
-            <input
-              type="text"
-              placeholder="Group name"
-              className="w-full p-2.5 sm:p-3 border rounded-md text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              value={companyName}
-              onChange={(e) => {
-                setCompanyName(e.target.value);
-                setErrors((prev) => ({ ...prev, companyName: "" }));
-              }}
-            />
-            {errors.companyName && (
-              <p className="text-red-500 text-sm mt-1">{errors.companyName}</p>
-            )}
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-10">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
+              Register New Group
+            </h1>
+            <p className="mt-4 text-xl text-gray-600">
+              Create your organization and invite team members
+            </p>
           </div>
 
-          {/* Organization Email */}
-          <div>
-            <label className="block font-medium text-gray-900 mb-1">Group Email</label>
-            <input
-              type="email"
-              placeholder="Group email"
-              className="w-full p-2.5 sm:p-3 border rounded-md text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              value={organizationEmail}
-              onChange={handleOrganizationEmailChange}
-            />
-            {errors.organizationEmail && (
-              <p className="text-red-500 text-sm mt-1">{errors.organizationEmail}</p>
-            )}
-          </div>
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
+            <div className="p-8 md:p-12">
+              <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+                {/* Group Name */}
+                <div>
+                  <label className="flex items-center gap-3 text-lg font-semibold text-gray-800 mb-3">
+                    <Building2 className="text-teal-600" size={24} />
+                    Group Name
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Green Earth Warriors"
+                    className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                  />
+                  {errors.companyName && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.companyName}</p>}
+                </div>
 
-          {/* Website */}
-          <div>
-            <label className="block font-medium text-gray-900 mb-1">Website</label>
-            <input
-              type="url"
-              placeholder="Website"
-              className="w-full p-2.5 sm:p-3 border rounded-md text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              value={organizationWebsite}
-              onChange={(e) => {
-                setOrganizationWebsite(e.target.value.trim());
-                setErrors((prev) => ({ ...prev, organizationWebsite: "" }));
-              }}
-            />
-            {errors.organizationWebsite && (
-              <p className="text-red-500 text-sm mt-1">{errors.organizationWebsite}</p>
-            )}
-          </div>
+                {/* Email */}
+                <div>
+                  <label className="flex items-center gap-3 text-lg font-semibold text-gray-800 mb-3">
+                    <Mail className="text-teal-600" size={24} />
+                    Group Email
+                  </label>
+                  <input
+                    type="email"
+                    placeholder="contact@greenerath.org"
+                    className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition"
+                    value={organizationEmail}
+                    onChange={handleOrganizationEmailChange}
+                  />
+                  {errors.organizationEmail && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.organizationEmail}</p>}
+                </div>
 
-          {/* Description */}
-          <div>
-            <label className="block font-medium text-gray-900 mb-1">Description</label>
-            <textarea
-              placeholder="Group description"
-              className="w-full p-2.5 sm:p-3 border rounded-md text-gray-700 resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              rows={3}
-              value={description}
-              onChange={(e) => {
-                setDescription(e.target.value);
-                setErrors((prev) => ({ ...prev, description: "" }));
-              }}
-            />
-            {errors.description && (
-              <p className="text-red-500 text-sm mt-1">{errors.description}</p>
-            )}
-          </div>
+                {/* Website */}
+                <div>
+                  <label className="flex items-center gap-3 text-lg font-semibold text-gray-800 mb-3">
+                    <Globe className="text-teal-600" size={24} />
+                    Website
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://www.greenerath.org"
+                    className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition"
+                    value={organizationWebsite}
+                    onChange={(e) => setOrganizationWebsite(e.target.value)}
+                  />
+                  {errors.organizationWebsite && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.organizationWebsite}</p>}
+                </div>
 
-          {/* Members Section */}
-          <div>
-            <label className="block font-medium text-gray-900 mb-1">Group Members</label>
+                {/* Description */}
+                <div>
+                  <label className="flex items-center gap-3 text-lg font-semibold text-gray-800 mb-3">
+                    Description
+                  </label>
+                  <textarea
+                    rows={4}
+                    placeholder="Tell us about your group's mission..."
+                    className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none resize-none transition"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
+                  {errors.description && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.description}</p>}
+                </div>
 
-            <div className="flex flex-wrap my-2 gap-2">
-              {members.map((member, i) => (
-                <div
-                  key={i}
-                  className="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs sm:text-sm"
-                >
-                  {member}
+                {/* Members */}
+                <div>
+                  <label className="flex items-center gap-3 text-lg font-semibold text-gray-800 mb-4">
+                    <Users className="text-teal-600" size={24} />
+                    Group Members ({leaders.length})
+                  </label>
+
+                  {leaders.length > 0 && (
+                    <div className="flex flex-wrap gap-3 mb-5">
+                      {leaders.map((email) => (
+                        <motion.div
+                          key={email}
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          className="flex items-center gap-2 bg-gradient-to-r from-teal-100 to-cyan-100 text-teal-800 px-4 py-2.5 rounded-full font-medium shadow-sm border border-teal-200"
+                        >
+                          {email}
+                          <button
+                            onClick={() => removeMember(email)}
+                            className="ml-2 hover:bg-white/50 rounded-full p-1 transition"
+                          >
+                            <X size={16} />
+                          </button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-3">
+                    <input
+                      type="email"
+                      placeholder="member@example.com (press Enter or click Add)"
+                      className="flex-1 px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition"
+                      value={emailInput}
+                      onChange={(e) => setEmailInput(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addMember())}
+                    />
+                    <button
+                      type="button"
+                      onClick={addMember}
+                      className="px-8 py-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-2xl hover:from-teal-700 hover:to-cyan-700 transition font-semibold shadow-lg flex items-center gap-3"
+                    >
+                      <Plus size={22} />
+                      Add
+                    </button>
+                  </div>
+                  {errors.member && <p className="mt-3 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.member}</p>}
+                </div>
+
+                {/* Submit */}
+                <div className="flex justify-end gap-4 pt-6 border-t border-gray-200">
                   <button
-                    onClick={() => removeMember(i)}
                     type="button"
-                    className="ml-2 text-red-500 hover:text-red-700"
+                    onClick={() => {
+                      setCompanyName(""); setOrganizationEmail(""); setOrganizationWebsite(""); setDescription(""); setLeaders([]); setEmailInput("");
+                    }}
+                    className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-2xl hover:bg-gray-50 transition font-semibold"
                   >
-                    ✕
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="px-10 py-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-2xl hover:from-teal-700 hover:to-cyan-700 disabled:opacity-70 transition font-bold text-lg shadow-xl flex items-center gap-3"
+                  >
+                    {loading ? "Creating Group..." : "Register Group"}
+                    <CheckCircle2 size={22} />
                   </button>
                 </div>
-              ))}
+              </form>
             </div>
-
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 mt-2">
-              <input
-                type="email"
-                placeholder="Enter member email"
-                className="flex-1 p-2.5 sm:p-3 border rounded-md text-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                value={emailInput}
-                onChange={(e) => setEmailInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    addMember();
-                  }
-                }}
-              />
-              <button
-                onClick={addMember}
-                type="button"
-                className="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 text-sm sm:text-base"
-              >
-                + Add
-              </button>
-            </div>
-
-            {errors.member && <p className="text-red-500 text-sm mt-1">{errors.member}</p>}
           </div>
-
-          {/* Buttons */}
-          <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3 mt-6">
-            <button
-              type="button"
-              onClick={() => {
-                setName("");
-                setCompanyName("");
-                setOrganizationEmail("");
-                setOrganizationWebsite("");
-                setDescription("");
-                setEmailInput("");
-                setMembers([]);
-                setErrors({});
-              }}
-              className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-100 text-sm sm:text-base"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              disabled={loading}
-              onClick={handleSubmit}
-              className={`px-4 py-2 rounded-md text-white text-sm sm:text-base transition ${
-                loading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-              }`}
-            >
-              {loading ? "Creating..." : "Register Group"}
-            </button>
-          </div>
-        </form>
+        </div>
       </motion.div>
 
-      {/* Success Popup */}
-      {successModalVisible && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="relative bg-white rounded-xl shadow-xl w-full max-w-md p-6 space-y-4"
-          >
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Group Registered</h3>
-
-            <div>
-              <p className="font-medium text-gray-800 mb-1">These users are already members of another Group:</p>
-              <ul className="list-disc list-inside text-gray-700">
-                {memberDetailes?.alreadyInOrganization?.length > 0 ? (
-                  memberDetailes.alreadyInOrganization.map((member, i) => (
-                    <li key={`already-${i}`}>{member}</li>
-                  ))
-                ) : (
-                  <li className="text-gray-500 italic">None</li>
-                )}
-              </ul>
+      {/* Success Modal */}
+      <Modal
+        open={successModalVisible}
+        onCancel={() => setSuccessModalVisible(false)}
+        footer={null}
+        width={600}
+        centered
+        title={
+          <div className="flex items-center gap-3 text-2xl font-bold text-teal-700">
+            <CheckCircle2 size={32} />
+            Group Created Successfully!
+          </div>
+        }
+      >
+        <div className="py-6 space-y-6">
+          {memberDetails?.alreadyInOrganization?.length > 0 && (
+            <div className="bg-orange-50 border border-orange-200 rounded-xl p-5">
+              <p className="font-semibold text-orange-900 mb-3">Already in another group:</p>
+              <div className="space-y-2">
+                {memberDetails.alreadyInOrganization.map((email, i) => (
+                  <div key={i} className="flex items-center gap-3 text-orange-800">
+                    <AlertCircle size={18} />
+                    <span className="font-medium">{email}</span>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
 
-            <div>
-              <p className="font-medium text-gray-800 mb-1">These users are non-registered:</p>
-              <ul className="list-disc list-inside text-gray-700">
-                {memberDetailes?.draftMembers?.length > 0 ? (
-                  memberDetailes.draftMembers.map((member, i) => (
-                    <li key={`draft-${i}`}>{member}</li>
-                  ))
-                ) : (
-                  <li className="text-gray-500 italic">None</li>
-                )}
-              </ul>
+          {memberDetails?.draftMembers?.length > 0 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
+              <p className="font-semibold text-blue-900 mb-3">Invited (new users):</p>
+              <div className="space-y-2">
+                {memberDetails.draftMembers.map((email, i) => (
+                  <div key={i} className="flex items-center gap-3 text-blue-800">
+                    <Mail size={18} />
+                    <span className="font-medium">{email}</span>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
 
-            <div className="flex justify-end pt-4">
-              <button
-                onClick={() => setSuccessModalVisible(false)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-              >
-                OK
-              </button>
-            </div>
-          </motion.div>
+          <div className="text-center pt-4">
+            <button
+              onClick={() => setSuccessModalVisible(false)}
+              className="px-10 py-4 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-2xl hover:from-teal-700 hover:to-cyan-700 transition font-bold text-lg shadow-lg"
+            >
+              Done
+            </button>
+          </div>
         </div>
-      )}
+      </Modal>
     </>
   );
 };

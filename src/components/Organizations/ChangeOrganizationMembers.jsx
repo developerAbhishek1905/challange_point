@@ -5,7 +5,7 @@ import {
   putOrganizationByEmail,
 } from "../../utils/api";
 import { toast } from "react-toastify";
-import { Modal } from "antd"; // Import Ant Design Modal for optional popup
+import { Modal, Tabs } from "antd";
 
 const ChangeOrganizationMembers = () => {
   const [orgSearchEmail, setOrgSearchEmail] = useState("");
@@ -15,9 +15,15 @@ const ChangeOrganizationMembers = () => {
   const [orgDraftMembers, setOrgDraftMembers] = useState([]);
   const [removedMembers, setRemovedMembers] = useState([]);
   const [addedMembers, setAddedMembers] = useState([]);
+  
+  // Separate inputs for add and remove tabs
   const [addMemberInput, setAddMemberInput] = useState("");
+  const [removeMemberInput, setRemoveMemberInput] = useState("");
+  const [activeTab, setActiveTab] = useState("add"); // 'add' | 'remove'
+  
   const [sendLoading, setSendLoading] = useState(false);
-  const [showNotificationModal, setShowNotificationModal] = useState(false); // State for modal popup
+  const [showNotificationModal, setShowNotificationModal] = useState(false);
+  
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const resetChangeTabState = () => {
@@ -27,7 +33,9 @@ const ChangeOrganizationMembers = () => {
     setRemovedMembers([]);
     setAddedMembers([]);
     setAddMemberInput("");
+    setRemoveMemberInput("");
     setOrgSearchEmail("");
+    setActiveTab("add");
   };
 
   const handleFindOrganization = async () => {
@@ -54,7 +62,6 @@ const ChangeOrganizationMembers = () => {
         console.warn("Group has no members or draftMembers fields");
       }
 
-      console.log(org)
       setFoundOrg({
         companyName: org.companyName || org.name || org.organizationName || "Unknown Group",
         organizationEmail: org.organizationEmail || org.email || orgSearchEmail,
@@ -76,14 +83,6 @@ const ChangeOrganizationMembers = () => {
     }
   };
 
-  console.log(foundOrg)
-
-  const toggleRemoveMember = (email) => {
-    setRemovedMembers((prev) =>
-      prev.includes(email) ? prev.filter((e) => e !== email) : [...prev, email]
-    );
-  };
-
   const parseEmails = (input) => {
     if (!input) return [];
     return input
@@ -92,20 +91,24 @@ const ChangeOrganizationMembers = () => {
       .filter((s) => s.length > 0);
   };
 
-  const handleAddMemberToChangeTab = () => {
+  // ✅ ADD MEMBERS TAB
+  const handleAddMember = () => {
     const raw = addMemberInput.trim();
     if (!raw) {
       toast.error("Enter at least one email address");
       return;
     }
+
     const candidates = parseEmails(raw);
     if (candidates.length === 0) {
       toast.error("No valid emails found");
       return;
     }
+
     const invalid = [];
     const duplicates = [];
     const toAdd = [];
+
     candidates.forEach((email) => {
       if (!emailRegex.test(email)) {
         invalid.push(email);
@@ -118,16 +121,21 @@ const ChangeOrganizationMembers = () => {
         else toAdd.push(email);
       }
     });
+
     if (invalid.length > 0) {
       toast.error(`Invalid email(s): ${invalid.join(", ")}`);
     }
+
     if (duplicates.length > 0) {
       toast.info(`Already present (skipped): ${duplicates.join(", ")}`);
     }
+
     if (toAdd.length > 0) {
       const uniqueToAdd = [...new Set(toAdd)];
       setAddedMembers((p) => [...p, ...uniqueToAdd]);
+      toast.success(`${uniqueToAdd.length} member(s) added to queue`);
     }
+
     setAddMemberInput("");
   };
 
@@ -135,69 +143,87 @@ const ChangeOrganizationMembers = () => {
     setAddedMembers((p) => p.filter((e) => e !== email));
   };
 
-  const handleRemoveFromPreview = (email) => {
-    if (addedMembers.includes(email)) {
-      removeAddedMember(email);
+  // ✅ REMOVE MEMBERS TAB
+  const handleRemoveMember = () => {
+    const raw = removeMemberInput.trim();
+    if (!raw) {
+      toast.error("Enter at least one email address");
       return;
     }
-    toggleRemoveMember(email);
+
+    const candidates = parseEmails(raw);
+    if (candidates.length === 0) {
+      toast.error("No valid emails found");
+      return;
+    }
+
+    const invalid = [];
+    const notFound = [];
+    const toRemove = [];
+    const allCurrentMembers = [...orgMembers, ...orgDraftMembers];
+
+    candidates.forEach((email) => {
+      if (!emailRegex.test(email)) {
+        invalid.push(email);
+      } else if (!allCurrentMembers.includes(email)) {
+        notFound.push(email);
+      } else if (!removedMembers.includes(email)) {
+        toRemove.push(email);
+      }
+    });
+
+    if (invalid.length > 0) {
+      toast.error(`Invalid email(s): ${invalid.join(", ")}`);
+    }
+
+    if (notFound.length > 0) {
+      toast.warning(`Not found in group: ${notFound.join(", ")}`);
+    }
+
+    if (toRemove.length > 0) {
+      setRemovedMembers((prev) => [...prev, ...toRemove]);
+      toast.success(`${toRemove.length} member(s) marked for removal`);
+    }
+
+    setRemoveMemberInput("");
   };
 
-  
+  const undoRemoveMember = (email) => {
+    setRemovedMembers((prev) => prev.filter((e) => e !== email));
+  };
 
   const sendChangeMembersRequest = async () => {
     if (!foundOrg) return toast.error("Find a group first");
     if (addedMembers.length === 0 && removedMembers.length === 0) {
       return toast.error("No changes to send");
     }
+
     try {
       setSendLoading(true);
       const payload = {
         addMembers: addedMembers,
         removeMembers: removedMembers,
       };
+
       console.log("Sending payload:", payload);
-      console.log(foundOrg.organizationEmail)
-      console.log(orgSearchEmail)
-      const res = await putOrganizationByEmail(
-         orgSearchEmail,
-        // payload
-        addedMembers
-      );
 
-      console.log("already exist member",res)
+      const res = await putOrganizationByEmail(orgSearchEmail, addedMembers);
 
-      // Prepare detailed notification message
-      let notificationMessage = "Group members updated successfully.";
-      if (addedMembers.length > 0) {
-        notificationMessage += `\nAdded: ${addedMembers.join(", ")}`;
-      }
-      if (removedMembers.length > 0) {
-        notificationMessage += `\nRemoved: ${removedMembers.join(", ")}`;
-      }
+      console.log("Response:", res);
 
-      // Option 1: Show detailed toast notification
       toast.success("Changes Request Sent to Admin Successfully", {
-        autoClose: 5000, // Keep toast visible longer to read details
-        style: { whiteSpace: "pre-line" }, // Allow line breaks in toast
+        autoClose: 5000,
+        style: { whiteSpace: "pre-line" },
       });
-
-      // Option 2: Show modal popup (uncomment to use instead of toast)
-      /*
-      setShowNotificationModal(true);
-      setTimeout(() => setShowNotificationModal(false), 5000); // Auto-close modal after 5 seconds
-      */
 
       const updated = res?.organization || res?.data || null;
       if (updated) {
         setOrgMembers(updated.members || []);
         setOrgDraftMembers(updated.draftMembers || []);
-        setAddedMembers([]);
-        setRemovedMembers([]);
-      } else {
-        setAddedMembers([]);
-        setRemovedMembers([]);
       }
+
+      setAddedMembers([]);
+      setRemovedMembers([]);
     } catch (err) {
       console.error("Error sending change request:", err);
       toast.error("Failed to send change request");
@@ -205,64 +231,23 @@ const ChangeOrganizationMembers = () => {
       setSendLoading(false);
     }
   };
- console.log(orgMembers)
- const orgMembersEmail = []
- orgMembers.map((member)=>orgDraftMembers.push(member.email))
 
- console.log(addedMembers)
- console.log(removedMembers)
- console.log(orgMembersEmail)
-
- const finalPreview = [...new Set([
-  ...orgMembersEmail.filter(m => !removedMembers.includes(m)),
-  ...orgDraftMembers.filter(m => !removedMembers.includes(m)),
-  ...addedMembers
-])];
+  const allCurrentMembers = [...orgMembers, ...orgDraftMembers];
+  const finalPreview = [
+    ...allCurrentMembers.filter((m) => !removedMembers.includes(m)),
+    ...addedMembers,
+  ];
 
   return (
     <>
-      {/* Optional Modal for Notification Popup */}
-      <Modal
-        open={showNotificationModal}
-        onCancel={() => setShowNotificationModal(false)}
-        footer={null}
-        title="Group Members Updated"
-        destroyOnClose
-      >
-        <div className="space-y-4">
-          <p className="text-gray-700">The following changes have been requested:</p>
-          {addedMembers.length > 0 && (
-            <div>
-              <p className="font-semibold text-green-700">Added Members:</p>
-              <ul className="list-disc pl-5">
-                {addedMembers.map((email) => (
-                  <li key={email} className="text-gray-600">{email}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {removedMembers.length > 0 && (
-            <div>
-              <p className="font-semibold text-red-700">Removed Members:</p>
-              <ul className="list-disc pl-5">
-                {removedMembers.map((email) => (
-                  <li key={email} className="text-gray-600">{email}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {(addedMembers.length === 0 && removedMembers.length === 0) && (
-            <p className="text-gray-500 italic">No changes were made.</p>
-          )}
-        </div>
-      </Modal>
-
       <motion.div
         className="bg-white p-6 rounded-xl w-[95%] md:w-[80%] lg:w-[60%] mx-auto shadow-xl mt-6 overflow-y-auto min-h-[75vh] mb-10"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
       >
-        <h3 className="text-lg font-semibold mb-4">Find Group by Email</h3>
+        <h3 className="text-lg font-semibold mb-4">Manage Group Members</h3>
+
+        {/* Search Bar */}
         <div className="flex gap-2 mb-6">
           <input
             type="email"
@@ -291,8 +276,10 @@ const ChangeOrganizationMembers = () => {
             Reset
           </button>
         </div>
+
         {foundOrg ? (
           <div className="space-y-6">
+            {/* Group Info */}
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
               <div>
                 <h4 className="font-semibold text-gray-900">
@@ -306,78 +293,184 @@ const ChangeOrganizationMembers = () => {
                 Members: {finalPreview.length}
               </div>
             </div>
-            <div>
+
+            {/* TABS */}
+            <Tabs
+              activeKey={activeTab}
+              onChange={setActiveTab}
+              items={[
+                {
+                  key: "add",
+                  label: `Add Members (${addedMembers.length})`,
+                  children: (
+                    <div className="space-y-4 mt-4">
+                      {/* Add Form */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">
+                          Add New Member(s)
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Enter one or multiple emails (comma/space/semicolon separated)"
+                            className="flex-1 p-2.5 border rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
+                            value={addMemberInput}
+                            onChange={(e) => setAddMemberInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleAddMember();
+                              }
+                            }}
+                          />
+                          <button
+                            onClick={handleAddMember}
+                            type="button"
+                            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 whitespace-nowrap"
+                          >
+                            Add
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Added Members List */}
+                      {addedMembers.length > 0 && (
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <span className="text-green-600 text-lg">+</span>
+                            Members to Add ({addedMembers.length})
+                          </p>
+                          <div className="flex flex-wrap gap-2 p-4 bg-green-50 rounded-lg border border-green-200">
+                            {addedMembers.map((m, index) => (
+                              <div
+                                key={`added-${m}-${index}`}
+                                className="flex items-center gap-2 px-3 py-1 rounded-full text-sm bg-green-100 text-green-800"
+                              >
+                                <span>+</span>
+                                <span className="max-w-xs truncate">{m}</span>
+                                <button
+                                  onClick={() => removeAddedMember(m)}
+                                  type="button"
+                                  className="ml-1 text-xs hover:text-red-600"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ),
+                },
+                {
+                  key: "remove",
+                  label: `Remove Members (${removedMembers.length})`,
+                  children: (
+                    <div className="space-y-4 mt-4">
+                      {/* Current Members Info */}
+                      <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <p className="text-sm font-semibold text-blue-900 mb-2">
+                          Current Members ({allCurrentMembers.length})
+                        </p>
+                        <div className="flex flex-wrap gap-2">
+                          {allCurrentMembers
+                            .filter((m) => !removedMembers.includes(m))
+                            .map((m, index) => (
+                              <span
+                                key={`current-${m}-${index}`}
+                                className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800"
+                              >
+                                {m}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* Remove Form */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-900 mb-2">
+                          Remove Member(s)
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            placeholder="Enter emails to remove (comma/space/semicolon separated)"
+                            className="flex-1 p-2.5 border rounded-md focus:ring-2 focus:ring-red-500 focus:outline-none"
+                            value={removeMemberInput}
+                            onChange={(e) => setRemoveMemberInput(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") {
+                                e.preventDefault();
+                                handleRemoveMember();
+                              }
+                            }}
+                          />
+                          <button
+                            onClick={handleRemoveMember}
+                            type="button"
+                            className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 whitespace-nowrap"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Removed Members List */}
+                      {removedMembers.length > 0 && (
+                        <div>
+                          <p className="text-sm font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                            <span className="text-red-600 text-lg">−</span>
+                            Members to Remove ({removedMembers.length})
+                          </p>
+                          <div className="flex flex-wrap gap-2 p-4 bg-red-50 rounded-lg border border-red-200">
+                            {removedMembers.map((m, index) => (
+                              <div
+                                key={`removed-${m}-${index}`}
+                                className="flex items-center gap-2 px-3 py-1 rounded-full text-sm bg-red-100 text-red-800 line-through"
+                              >
+                                <span>−</span>
+                                <span className="max-w-xs truncate">{m}</span>
+                                <button
+                                  onClick={() => undoRemoveMember(m)}
+                                  type="button"
+                                  className="ml-1 text-xs hover:text-green-600"
+                                >
+                                  ↻
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ),
+                },
+              ]}
+            />
+
+            {/* Preview Section */}
+            <div className="border-t pt-4 bg-gray-50 p-4 rounded-lg">
               <p className="text-sm font-semibold text-gray-900 mb-2">
-                Previewed Members ({finalPreview.length})
+                Final Members Preview ({finalPreview.length})
               </p>
               <div className="flex flex-wrap gap-2">
                 {finalPreview.length > 0 ? (
-                  finalPreview.map((m, index) => {
-                    const isAdded = addedMembers.includes(m);
-                    const isDraft = orgDraftMembers.includes(m);
-                    const flagged = !isAdded && removedMembers.includes(m);
-                    return (
-                      <div
-                        key={`${m}-${index}`}
-                        className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm transition ${
-                          isAdded
-                            ? "bg-green-50 text-green-800"
-                            : flagged
-                            ? "bg-red-100 text-red-700 line-through"
-                            : "bg-blue-50 text-blue-700"
-                        }`}
-                      >
-                        {isAdded ? (
-                          <span className="text-green-600">+</span>
-                        ) : isDraft ? (
-                          <span className="text-yellow-700">☆</span>
-                        ) : null}
-                        <span className="max-w-xs truncate">{m}</span>
-                        <button
-                          onClick={() => handleRemoveFromPreview(m)}
-                          type="button"
-                          className="ml-1 text-xs px-1 hover:text-red-600"
-                          aria-label={`Remove ${m}`}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    );
-                  })
+                  finalPreview.map((m, index) => (
+                    <span
+                      key={`preview-${m}-${index}`}
+                      className="px-3 py-1 rounded-full text-xs bg-gray-200 text-gray-800"
+                    >
+                      {m}
+                    </span>
+                  ))
                 ) : (
-                  <p className="text-xs text-gray-500 italic">
-                    No members in preview
-                  </p>
+                  <p className="text-xs text-gray-500 italic">No members</p>
                 )}
               </div>
             </div>
-            <div className="border-t pt-4">
-              <p className="text-sm font-semibold text-gray-900 mb-3">
-                Add New Member(s)
-              </p>
-              <div className="flex gap-2 mb-3">
-                <input
-                  type="text"
-                  placeholder="Enter one or multiple emails (comma/space/semicolon separated)"
-                  className="flex-1 p-2.5 border rounded-md focus:ring-2 focus:ring-green-500 focus:outline-none"
-                  value={addMemberInput}
-                  onChange={(e) => setAddMemberInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      handleAddMemberToChangeTab();
-                    }
-                  }}
-                />
-                <button
-                  onClick={handleAddMemberToChangeTab}
-                  type="button"
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                  Add
-                </button>
-              </div>
-            </div>
+
+            {/* Action Buttons */}
             <div className="flex justify-end gap-2 border-t pt-4">
               <button
                 onClick={resetChangeTabState}

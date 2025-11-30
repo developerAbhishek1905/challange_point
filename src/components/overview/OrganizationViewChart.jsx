@@ -18,7 +18,7 @@ const OrganizationViewChart = ({data}) => {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
-        <h2 className="text-base font-semibold text-gray-900">Organizations</h2>
+        <h2 className="text-base font-semibold text-gray-900">Groups</h2>
         <button className="text-sm text-blue-600 hover:underline font-medium"onClick={()=>navigate('/group')}>View All</button>
       </div>
 

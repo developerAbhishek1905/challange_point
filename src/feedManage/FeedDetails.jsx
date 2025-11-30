@@ -117,15 +117,15 @@ export default function FeedDetails({ feed, report }) {
   return (
     <div className="p-6 space-y-6">
       {/* Header */}
-      <header className="flex items-center justify-between mb-6">
+      {/* <header className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-semibold text-gray-800">{feed.title}</h2>
           <p className="text-sm text-gray-500">{feed.description}</p>
         </div>
-      </header>
+      </header> */}
 
       {/* Feed Overview */}
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+      <div className="bg-white rounded-xl mt-8 shadow-sm border overflow-hidden">
         <div className="flex flex-col md:flex-row">
           {/* Left: YouTube Thumbnail */}
           <div className="md:w-1/2 relative">
@@ -148,6 +148,8 @@ export default function FeedDetails({ feed, report }) {
           <div className="p-6 flex-1">
             <h3 className="text-lg font-semibold mb-2 text-gray-800">
               {feed.youtubeVideoTitle}
+                        <p className="text-sm text-gray-500">{feed.description}</p>
+
             </h3>
 
             <p className="text-sm text-gray-500 mb-4">

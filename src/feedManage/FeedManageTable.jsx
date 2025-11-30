@@ -5,46 +5,7 @@ import { Dropdown, Empty, Pagination, Menu, Popover } from "antd";
 import { toast } from "react-toastify";
 import { getAllFeeds, deleteFeed,getFeedById,getreportById } from "../utils/api";
 import FeedDetails from "./FeedDetails";
-const reportCount = [
-  {
-    profile: "https://randomuser.me/api/portraits/men/1.jpg",
-    name: "Amit Sharma",
-    email: "amit.sharma@example.com",
-    comment: "Inappropriate content found in the post. ",
-  },
-  {
-    profile: "https://randomuser.me/api/portraits/women/2.jpg",
-    name: "Priya Mehta",
-    email: "priya.mehta@example.com",
-    comment: "Spam links shared repeatedly.",
-  },
-  {
-    profile: "https://randomuser.me/api/portraits/men/3.jpg",
-    name: "Rahul Verma",
-    email: "rahul.verma@example.com",
-    comment: "Harassment reported in chat.",
-  },
-  {
-    profile: "https://randomuser.me/api/portraits/women/4.jpg",
-    name: "Sneha Kapoor",
-    email: "sneha.kapoor@example.com",
-    comment: "False information being shared.",
-  },
-  {
-    profile: "https://randomuser.me/api/portraits/men/5.jpg",
-    name: "Vikram Singh",
-    email: "vikram.singh@example.com",
-    comment: "User using offensive language.",
-  },
-  {
-    profile: "https://randomuser.me/api/portraits/women/6.jpg",
-    name: "Anjali Gupta",
-    email: "anjali.gupta@example.com",
-    comment: "Duplicate posts cluttering the feed.",
-  },
-  
 
-];
 
 export default function FeedManageTable({ searchValue }) {
   const [allFeed, setAllFeed] = useState([]);
@@ -212,7 +173,9 @@ export default function FeedManageTable({ searchValue }) {
                   return (
                     <motion.tr
                       key={feed._id}
-                      className="hover:bg-gray-50 border-b text-gray-800 "
+                      // className="hover:bg-gray-50 border-b text-gray-800 "
+                      className={`border-b ${(feed.dislikesCount >= 7 || feed?.totalReports >= 7) ? "bg-red-50" : ""} hover:bg-gray-50 border-b text-gray-800`}
+                      
                     >
                       <td className="px-6 py-3 text-sm font-medium flex items-center">
   {/* Handle 4-word limit */}
@@ -228,7 +191,7 @@ export default function FeedManageTable({ searchValue }) {
   </Popover>
 
   {/* Report Badge */}
-  {(feed.dislikesCount >= 7 || feed?.reports?.length >= 7) && (
+  {(feed.dislikesCount >= 7 || feed?.totalReports >= 7) && (
     <span className="inline-flex items-center gap-1 px-2 py-1 ml-2 rounded-full text-xs bg-red-500 text-white">
       Reported
     </span>
