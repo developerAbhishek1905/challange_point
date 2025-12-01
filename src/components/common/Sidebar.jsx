@@ -37,7 +37,8 @@ const Sidebar = () => {
   const [members, setMembers] = useState([]);
 
   // show red dot when both group requests and member requests exist
-  const hasApprovalRequests = (allGroups?.length ?? 0) > 0 && (members?.length ?? 0) > 0;
+const hasApprovalRequests = (allGroups?.length ?? 0) > 0 && (members?.length ?? 0) > 0;
+  console.log(hasApprovalRequests)
 
   // 🧠 Auto-collapse sidebar on small devices
 

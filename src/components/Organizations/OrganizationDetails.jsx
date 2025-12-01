@@ -64,10 +64,12 @@ export default function OrganizationDetails({
     }
   };
 const filteredMembers = organization.members.filter(
-  (memberEmail) => organization.leaders.includes(memberEmail)
+  (m) => !organization.leaders.some((l) => l.email === m.user?.email)
 );
-  // console.log(filteredMembers)
 
+// console.log("Members:", organization.members);
+// console.log("Leaders:", organization.leaders);
+// console.log("Filtered:", filteredMembers);
   return (
     <div className="p-6">
       {/* Header */}

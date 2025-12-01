@@ -207,6 +207,16 @@ export const getGroupChallangeCount = async (orgId) => {
   }
 };
 
+export const getGroupChallangeInfoById = async (organizationId) => {
+  try {
+    const response = await axiosInstance.get(`api/challenges/getRate-challenge/`,{params:{organizationId:organizationId}});
+    return response.data;
+  } catch (error) {
+    console.error("Error approving/rejecting org:", error);
+    throw error;
+  }
+};
+
 // ---------------------- USERS ----------------------
 
 export const getAllUsers = async (search="",page,limit) => {

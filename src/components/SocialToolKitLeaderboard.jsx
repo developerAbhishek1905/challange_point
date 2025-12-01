@@ -7,7 +7,7 @@ import {
   Linkedin,
   Youtube,
 } from "lucide-react";
-import { getLeaderboard } from "../utils/api";
+import { getLeaderboard, getGroupChallangeInfoById } from "../utils/api";
 import CreateOrganization from "./Organizations/CreateOrganization";
 
 const SocialToolKitLeaderboard = () => {
@@ -20,6 +20,14 @@ const SocialToolKitLeaderboard = () => {
   const [showChallengeModal, setShowChallengeModal] = useState(false);
   const [challengeList, setChallengeList] = useState([]);
   const [challengeGroupName, setChallengeGroupName] = useState("");
+  const [expandedDescriptions, setExpandedDescriptions] = useState({});
+
+  const toggleDescription = (index) => {
+    setExpandedDescriptions((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
 
   const handleNavClick = (page) => {
     setClickHome(page === "home");
@@ -43,10 +51,8 @@ const SocialToolKitLeaderboard = () => {
   const topThree = sortedData.slice(0, 3);
   const tableData = sortedData.slice(3); // start from 4th rank
 
-  
- console.log(clickCreateOrg)
- console.log(clickHome)
-  
+  console.log(clickCreateOrg);
+  console.log(clickHome);
 
   const CompanyCard = ({
     name,
@@ -78,19 +84,26 @@ const SocialToolKitLeaderboard = () => {
   // console.log("Top three companies:", topThree);
 
   // open modal with dummy 5 challenges for a group
-  const openChallengesModal = (group) => {
-    // dummy list - replace with real API data later
-    const dummy = [
-      "Challenge: Clean the Riverbank",
-      "Challenge: Tree Planting Drive",
-      "Challenge: Neighborhood Waste Audit",
-      "Challenge: Community Food Drive",
-      "Challenge: Animal Care Awareness"
-    ];
-    setChallengeList(dummy);
-    setChallengeGroupName(group?.name ?? group?.companyName ?? "Group");
-    setShowChallengeModal(true);
+  const openChallengesModal = async (group) => {
+    console.log(group);
+
+    try {
+      setShowChallengeModal(true);
+
+      const res = await getGroupChallangeInfoById(group.id);
+      console.log(res.challenges);
+
+      setChallengeList(res.challenges || []);
+      // return data.challenges || [];
+    } catch (error) {
+      console.error("Error fetching challenges for group:", error);
+    }
+
+    // setChallengeList(dummy);
+    // setChallengeGroupName(group?.name ?? group?.companyName ?? "Group");
+    // setShowChallengeModal(true);
   };
+  console.log(challengeList);
   const closeChallengesModal = () => setShowChallengeModal(false);
 
   return (
@@ -172,29 +185,28 @@ const SocialToolKitLeaderboard = () => {
 
         {/* Hero Section */}
 
-        {clickHome && <div className=" mx-auto text py-12 md:py-20 ">
-
-
+        {clickHome && (
+          <div className=" mx-auto text py-12 md:py-20 ">
             {/* <div className="max-w-5xl mx-auto px-6 py-16"> */}
-  {/* Hero Title */}
-  {/* <h2 className="text-4xl md:text-5xl font-bold text-center  mb-8">
+            {/* Hero Title */}
+            {/* <h2 className="text-4xl md:text-5xl font-bold text-center  mb-8">
     About <span className="text-gray-100">STK</span> 
     <span className="block text-xl md:text-3xl font-medium text-teal-400 mt-3">
       Social Tool Kit
     </span>
   </h2> */}
 
-  {/* <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"> */}
-    {/* <div className="p-10 md:p-14 space-y-10 text-gray-700 text-lg leading-relaxed"> */}
-      
-      {/* Intro */}
-      {/* <p className="text-xl md:text-2xl font-medium text-center text-gray-800">
+            {/* <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"> */}
+            {/* <div className="p-10 md:p-14 space-y-10 text-gray-700 text-lg leading-relaxed"> */}
+
+            {/* Intro */}
+            {/* <p className="text-xl md:text-2xl font-medium text-center text-gray-800">
         STK is a real-world social validation platform where actions speak louder than words.
       </p> */}
 
-      {/* Core Description */}
-      {/* <div className="space-y-8"> */}
-        {/* <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-2xl p-8 border border-teal-100">
+            {/* Core Description */}
+            {/* <div className="space-y-8"> */}
+            {/* <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-2xl p-8 border border-teal-100">
           <p className="text-lg md:text-xl">
             Anyone can use the <strong>STK Android app</strong> to <span className="text-teal-700 font-bold">validate real-life actions</span> of others in three vital areas:
           </p>
@@ -214,16 +226,16 @@ const SocialToolKitLeaderboard = () => {
           </div>
         </div> */}
 
-        {/* Real-time Feedback */}
-        {/* <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
+            {/* Real-time Feedback */}
+            {/* <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
           <p className="text-lg">
             See how the world perceives your behavior — <span className="font-bold text-blue-700">in real time</span>. 
             Every action you take can be recognized, validated, and celebrated by your community.
           </p>
         </div> */}
 
-        {/* Personal Qualities */}
-        {/* <div className="bg-purple-50 rounded-2xl p-8 border border-purple-100">
+            {/* Personal Qualities */}
+            {/* <div className="bg-purple-50 rounded-2xl p-8 border border-purple-100">
           <p className="text-lg mb-6">
             Every user has a unique social profile shaped by qualities across life contexts:
           </p>
@@ -239,8 +251,8 @@ const SocialToolKitLeaderboard = () => {
           </p>
         </div> */}
 
-        {/* Data Ownership - Highlight */}
-        {/* <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-8 text-center border border-amber-200">
+            {/* Data Ownership - Highlight */}
+            {/* <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-8 text-center border border-amber-200">
           <p className="text-2xl font-bold text-amber-900">
             Your data. Your control. Always.
           </p>
@@ -249,8 +261,8 @@ const SocialToolKitLeaderboard = () => {
           </p>
         </div> */}
 
-        {/* Challenges & Groups */}
-        {/* <div className="bg-gradient-to-br from-teal-600 to-cyan-700 rounded-2xl p-10 text-white">
+            {/* Challenges & Groups */}
+            {/* <div className="bg-gradient-to-br from-teal-600 to-cyan-700 rounded-2xl p-10 text-white">
           <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center">
             Challenges = Big Impact
           </h3>
@@ -267,10 +279,10 @@ const SocialToolKitLeaderboard = () => {
             </p>
           </div>
         </div> */}
-      {/* </div> */}
+            {/* </div> */}
 
-      {/* Final CTA Section */}
-      {/* <div className="text-center py-12 bg-gray-50 rounded-2xl">
+            {/* Final CTA Section */}
+            {/* <div className="text-center py-12 bg-gray-50 rounded-2xl">
         <h3 className="text-3xl font-bold text-gray-900 mb-4">
           Global Leaderboard of Impact Groups
         </h3>
@@ -282,44 +294,57 @@ const SocialToolKitLeaderboard = () => {
           Your group belongs here
         </div>
       </div> */}
-    {/* </div> */}
-  {/* </div> */}
-{/* </div> */}
-<div class="font-sans max-w-4xl mx-auto my-12 p-8 bg-gradient-to-br from-gray-50 to-green-50 rounded-2xl shadow-xl text-gray-800 leading-relaxed">
-  
-  <p class="text-2xl font-semibold text-gray-900 mb-6">
-    STK(Social Tool Kit) is an application focused on actions and validating those actions.
-  </p>
-  
-  <p class="text-lg mb-5 ">
-    All individuals can use the Android Application, to validate others actions in different contexts. Nature Care, Animal Care and Human Care, is always what each user can do within this application, while having a control of how others see them, on different moments of Time of their realtime performance.
-  </p>
-  
-  <p class="text-lg mb-5 ">
-    There are all kinds of personal qualities that each user can have, from the contexts of this application. Family, School, Work, Civism, Business, etc. These contexts have different qualities that can be qualified between users, giving them the notion of their performance with other users.
-  </p>
-  
-  <p class="text-lg mb-5  font-mediumbg-green-100rounded-lg inline-block">
-    All data from each user belongs only to that user.
-  </p>
-  
-  <p class="text-lg ">
-    Challenges are bigger actions, and they need the group's help. All groups need to add group information in the Top-Menu Option (Register Group), with all details that are asked. These groups will be shown in this page, above or below all other groups registered in this challenge, for Image propose, only. This is a way to promote your group actions that benefit reality and communities around the world.
-  </p>
-  
-</div>
+            {/* </div> */}
+            {/* </div> */}
+            {/* </div> */}
+            <div class="font-sans max-w-4xl mx-auto my-12 p-8 bg-gradient-to-br from-gray-50 to-green-50 rounded-2xl shadow-xl text-gray-800 leading-relaxed">
+              <p class="text-2xl font-semibold text-gray-900 mb-6">
+                STK(Social Tool Kit) is an application focused on actions and
+                validating those actions.
+              </p>
 
-</div> }
+              <p class="text-lg mb-5 ">
+                All individuals can use the Android Application, to validate
+                others actions in different contexts. Nature Care, Animal Care
+                and Human Care, is always what each user can do within this
+                application, while having a control of how others see them, on
+                different moments of Time of their realtime performance.
+              </p>
 
-{clickCreateOrg && <div className="max-w-4xl mx-auto text-center py-12 md:py-20 ">
-  
-  <div className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-lg border border-gray-100">
-  {/* <h1 className="text-3xl font-bold text-teal-700 mb-6 text-center">
+              <p class="text-lg mb-5 ">
+                There are all kinds of personal qualities that each user can
+                have, from the contexts of this application. Family, School,
+                Work, Civism, Business, etc. These contexts have different
+                qualities that can be qualified between users, giving them the
+                notion of their performance with other users.
+              </p>
+
+              <p class="text-lg mb-5  font-mediumbg-green-100rounded-lg inline-block">
+                All data from each user belongs only to that user.
+              </p>
+
+              <p class="text-lg ">
+                Challenges are bigger actions, and they need the group's help.
+                All groups need to add group information in the Top-Menu Option
+                (Register Group), with all details that are asked. These groups
+                will be shown in this page, above or below all other groups
+                registered in this challenge, for Image propose, only. This is a
+                way to promote your group actions that benefit reality and
+                communities around the world.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {clickCreateOrg && (
+          <div className="max-w-4xl mx-auto text-center py-12 md:py-20 ">
+            <div className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-lg border border-gray-100">
+              {/* <h1 className="text-3xl font-bold text-teal-700 mb-6 text-center">
     Welcome to the Challenge Arena!
   </h1> */}
 
-  <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
-    {/* <p>
+              <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
+                {/* <p>
       Please complete your <span className="font-semibold text-teal-600">group profile</span> with accurate information. 
       If you are the <span className="font-semibold">Group Leader</span>, continue below — all details will be verified by platform administration.
     </p>
@@ -386,173 +411,184 @@ const SocialToolKitLeaderboard = () => {
         Let’s build the strongest team — ready when you are!
       </p>
     </div> */}
-    Welcome to this Challenge. Please add the correct information about your members group. If you are the group leader, please continue. All information needs to be valid, and will be validated by the administration of this platform. You need to own your domain site, with email services to make group registration possible. All users need to use a Gmail account, within this application usage. Leaders can Lock challenges to solve them and get promotion in the main page of this site. We add an option to each leader, to add a dedicated Gmail account to upload the videos made with their group. These videos can be longer than 5 minutes, and we suggest you to edit and make a resume of that event, since some of these challenging events can take you some hours to solve. In the group members input box, the leader should add his own Gmail account as a regular user. Regular group members can only select the video-challenges. All  user members that will participate in solving the selected challenge, need to select the challenge, before leaders can lock the challenge. We assume that more than 50% of members select the challenge to be able to lock it. Challenges grow in points, for each user who views the challenge. After the challenge is locked, and the challenge is solved, the group gets the number of points associated with that challenge. These points will be used to put your group above or below other groups. 
-  </div>
-</div>
-  
-  </div>}
-        
-
+                Welcome to this Challenge. Please add the correct information
+                about your members group. If you are the group leader, please
+                continue. All information needs to be valid, and will be
+                validated by the administration of this platform. You need to
+                own your domain site, with email services to make group
+                registration possible. All users need to use a Gmail account,
+                within this application usage. Leaders can Lock challenges to
+                solve them and get promotion in the main page of this site. We
+                add an option to each leader, to add a dedicated Gmail account
+                to upload the videos made with their group. These videos can be
+                longer than 5 minutes, and we suggest you to edit and make a
+                resume of that event, since some of these challenging events can
+                take you some hours to solve. In the group members input box,
+                the leader should add his own Gmail account as a regular user.
+                Regular group members can only select the video-challenges. All
+                user members that will participate in solving the selected
+                challenge, need to select the challenge, before leaders can lock
+                the challenge. We assume that more than 50% of members select
+                the challenge to be able to lock it. Challenges grow in points,
+                for each user who views the challenge. After the challenge is
+                locked, and the challenge is solved, the group gets the number
+                of points associated with that challenge. These points will be
+                used to put your group above or below other groups.
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
       <main className="w-full flex flex-col items-center bg-gray-50 pt-12 ">
         {/* <div className="h-48 w-full  bg-teal-800"></div> */}
         {/* <div></div> */}
- 
-  {clickHome &&(
-            <div className="bg-gray-50 min-h-screen rounded-3xl w-[95%] mx-auto p-4">
-              <div className="container mx-auto px-4 py-12">
-                <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">
-                  Top Leaderboard
-                </h2>
 
-                {/* Podium Section */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
-                  <div className="order-2 md:order-1">
-                    {topThree[1] && (
-                      <CompanyCard
-                        {...topThree[1]}
-                        position={2}
-                        crownColor="text-gray-400"
-                      />
-                    )}
-                  </div>
-                  <div className="order-1 md:order-2">
-                    {topThree[0] && (
-                      <CompanyCard
-                        {...topThree[0]}
-                        position={1}
-                        crownColor="text-yellow-500"
-                        isTop={true}
-                      />
-                    )}
-                  </div>
-                  <div className="order-3 md:order-3">
-                    {topThree[2] && (
-                      <CompanyCard
-                        {...topThree[2]}
-                        position={3}
-                        crownColor="text-amber-600"
-                      />
-                    )}
-                  </div>
+        {clickHome && (
+          <div className="bg-gray-50 min-h-screen rounded-3xl w-[95%] mx-auto p-4">
+            <div className="container mx-auto px-4 py-12">
+              <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">
+                Top Leaderboard
+              </h2>
+
+              {/* Podium Section */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
+                <div className="order-2 md:order-1">
+                  {topThree[1] && (
+                    <CompanyCard
+                      {...topThree[1]}
+                      position={2}
+                      crownColor="text-gray-400"
+                    />
+                  )}
                 </div>
+                <div className="order-1 md:order-2">
+                  {topThree[0] && (
+                    <CompanyCard
+                      {...topThree[0]}
+                      position={1}
+                      crownColor="text-yellow-500"
+                      isTop={true}
+                    />
+                  )}
+                </div>
+                <div className="order-3 md:order-3">
+                  {topThree[2] && (
+                    <CompanyCard
+                      {...topThree[2]}
+                      position={3}
+                      crownColor="text-amber-600"
+                    />
+                  )}
+                </div>
+              </div>
 
-                {/* View All Button */}
-                {/* <div className="text-center mb-8">
+              {/* View All Button */}
+              {/* <div className="text-center mb-8">
           <button className="text-gray-600 hover:text-gray-800 font-medium">
             View All Leaderboard &gt;
           </button>
         </div> */}
 
-                {/* Table Section */}
-                <div className="bg-white rounded-lg overflow-hidden shadow-lg">
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-green-200">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
-                            S. No.
-                          </th>
+              {/* Table Section */}
+              <div className="bg-white rounded-lg overflow-hidden shadow-lg">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-green-200">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                          S. No.
+                        </th>
 
-                          <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
-                            Group Name
-                          </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
-                            All Points
-                          </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
-                           Number of Members
-                          </th>
-                          <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
-                           Approved Challanges
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tableData.length > 0 ? (
-                          tableData.map((item, index) => (
-                            <tr
-                              key={index}
-                              className={
-                                index % 2 === 0 ? "bg-green-50" : "bg-white"
-                              }
-                            >
-                              <td className="px-6 py-4 text-sm text-gray-900">
-                                {index + 4}
-                              </td>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                          Group Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                          All Points
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                          Number of Members
+                        </th>
+                        <th className="px-6 py-3 text-left text-sm font-medium text-gray-700">
+                          Approved Challanges
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leaderboardData.length > 0 ? (
+                        leaderboardData.map((item, index) => (
+                          <tr
+                            key={index}
+                            className={
+                              index % 2 === 0 ? "bg-green-50" : "bg-white"
+                            }
+                          >
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {index + 1}
+                            </td>
 
-                              <td className="px-6 py-4 text-sm text-gray-900 font-medium">
-                                {item.name}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-900">
-                                {item.points}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-800">
-                                {/* <a href={`mailto:${item.email}`}>{item.email}</a> */}
-                                {item.memberCount}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-800">
-                                {/* <a href={`mailto:${item.email}`}>{item.email}</a> */}
-                                <button
-                                  onClick={() => openChallengesModal(item)}
-                                  className="underline text-blue-600 hover:text-blue-800"
-                                >
-                                  {item.rateChallengeCount ?? 0}
-                                </button>
-                              </td>
-                            </tr>
-                          ))
-                        ) : (
-                          <tr>
-                            <td
-                              colSpan={5}
-                              className="text-center py-8 text-gray-500"
-                            >
-                              No leaderboard data found.
+                            <td className="px-6 py-4 text-sm text-gray-900 font-medium">
+                              {item.name}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-900">
+                              {item.points}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-800">
+                              {/* <a href={`mailto:${item.email}`}>{item.email}</a> */}
+                              {item.memberCount}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-blue-600 hover:text-blue-800">
+                              {/* <a href={`mailto:${item.email}`}>{item.email}</a> */}
+                              <button
+                                onClick={() => openChallengesModal(item)}
+                                className="underline text-blue-600 hover:text-blue-800"
+                              >
+                                {item.rateChallengeCount ?? 0}
+                              </button>
                             </td>
                           </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
+                        ))
+                      ) : (
+                        <tr>
+                          <td
+                            colSpan={5}
+                            className="text-center py-8 text-gray-500"
+                          >
+                            No leaderboard data found.
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
-            
-            
-          
+          </div>
         )}
         {clickCreateOrg && (
-        // <div className="absolute rounded-3xl min-h-screen w-[90%] bg-white flex flex-col items-center justify-center lg:top-[50%] md:top-[65%] top-[60%]">
+          // <div className="absolute rounded-3xl min-h-screen w-[90%] bg-white flex flex-col items-center justify-center lg:top-[50%] md:top-[65%] top-[60%]">
           <CreateOrganization></CreateOrganization>
-        // </div>
-      )}
+          // </div>
+        )}
         {/* Footer */}
         <footer className="bg-[#2e4629] text-white py-12 w-full ">
-              <div className="container mx-auto px-4">
-                <div className="text-center mb-8">
-                  <div className="flex justify-center font-bold space-x-8 mb-6">
-                    <a
-                      href="#"
-                      className="hover:text-green-300 transition-colors"
-                    >
-                      Terms & Conditions
-                    </a>
-                    <a
-                      href="#"
-                      className="hover:text-green-300 transition-colors"
-                    >
-                      Privacy Policy
-                    </a>
-                  </div>
-                  <div className=" h-[1px] w-full bg-white"></div>
-                  <div className="flex justify-around mt-8">
-                    <p className="text-sm opacity-75">
-                      © PresentYear STK - All rights reserved
-                    </p>
-                    {/* <div className="flex justify-center space-x-6 mb-6">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <div className="flex justify-center font-bold space-x-8 mb-6">
+                <a href="#" className="hover:text-green-300 transition-colors">
+                  Terms & Conditions
+                </a>
+                <a href="#" className="hover:text-green-300 transition-colors">
+                  Privacy Policy
+                </a>
+              </div>
+              <div className=" h-[1px] w-full bg-white"></div>
+              <div className="flex justify-around mt-8">
+                <p className="text-sm opacity-75">
+                  © PresentYear STK - All rights reserved
+                </p>
+                {/* <div className="flex justify-center space-x-6 mb-6">
                     <a
                       href="#"
                       className="hover:text-green-300 transition-colors"
@@ -584,10 +620,10 @@ const SocialToolKitLeaderboard = () => {
                       <Youtube className="h-6 w-6" />
                     </a>
                   </div> */}
-                  </div>
-                </div>
               </div>
-            </footer>
+            </div>
+          </div>
+        </footer>
       </main>
 
       {/* Challenges Modal */}
@@ -610,9 +646,30 @@ const SocialToolKitLeaderboard = () => {
                 challengeList.map((c, i) => (
                   <div
                     key={i}
-                    className="p-3 rounded-md bg-gray-50 border text-gray-800"
+                    className="p-5 rounded-xl bg-white border border-gray-200 shadow-sm hover:shadow-md transition-all"
                   >
-                    {i + 1}. {c}
+                    {/* Title */}
+                    <h3 className="text-base font-semibold text-gray-900 mb-2 flex items-start gap-2">
+                      <span className="text-blue-600 font-bold">{i + 1}.</span>
+                      {c?.title}
+                    </h3>
+
+                    {/* Description */}
+                    <p className="text-gray-700 leading-relaxed text-sm">
+                      {expandedDescriptions[i] || c.description.length <= 100
+                        ? c.description
+                        : c.description.slice(0, 100) + "... "}
+
+                      {/* Read More / Less Button */}
+                      {c.description.length > 100 && (
+                        <button
+                          onClick={() => toggleDescription(i)}
+                          className="text-blue-600 font-medium ml-1 hover:underline"
+                        >
+                          {expandedDescriptions[i] ? "Read Less" : "Read More"}
+                        </button>
+                      )}
+                    </p>
                   </div>
                 ))
               ) : (

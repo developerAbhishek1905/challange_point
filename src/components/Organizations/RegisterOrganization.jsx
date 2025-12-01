@@ -82,10 +82,11 @@ const RegisterOrganization = () => {
     }
   };
 
-  const removeMember = (index) => {
-    setLeaders((prev) => prev.filter((_, i) => i !== index));
-    setMembers((prev) => prev.filter((_, i) => i !== index));
-  };
+  const removeMember = (email) => {
+  setLeaders((prev) => prev.filter((m) => m !== email));
+  setMembers((prev) => prev.filter((m) => m !== email));
+};
+
 
   const validateForm = () => {
     const newErrors = {};
@@ -194,8 +195,10 @@ const RegisterOrganization = () => {
                     type="text"
                     placeholder="e.g. Green Earth Warriors"
                     className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
+                     onChange={(e) => {
+                setCompanyName(e.target.value);
+                setErrors((prev) => ({ ...prev, companyName: "" }));
+              }}
                   />
                   {errors.companyName && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.companyName}</p>}
                 </div>
@@ -227,8 +230,10 @@ const RegisterOrganization = () => {
                     placeholder="https://www.greenerath.org"
                     className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition"
                     value={organizationWebsite}
-                    onChange={(e) => setOrganizationWebsite(e.target.value)}
-                  />
+ onChange={(e) => {
+                setOrganizationWebsite(e.target.value.trim());
+                setErrors((prev) => ({ ...prev, organizationWebsite: "" }));
+              }}                  />
                   {/* {errors.organizationWebsite && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.organizationWebsite}</p>} */}
                 </div>
 
@@ -242,8 +247,10 @@ const RegisterOrganization = () => {
                     placeholder="Tell us about your group's mission..."
                     className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none resize-none transition"
                     value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                  />
+onChange={(e) => {
+                setDescription(e.target.value);
+                setErrors((prev) => ({ ...prev, description: "" }));
+              }}                  />
                   {errors.description && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.description}</p>}
                 </div>
 

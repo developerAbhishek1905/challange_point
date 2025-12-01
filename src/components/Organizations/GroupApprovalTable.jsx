@@ -60,6 +60,8 @@ const GroupApprovalTable = ({ searchValue }) => {
     }
   };
 
+  console.log(allGroups)
+
   console.log(pagination)
 
   // refetch when activeTab changes or on mount (debounce not required here)
@@ -248,7 +250,7 @@ const GroupApprovalTable = ({ searchValue }) => {
                           </button>
 
                           <button
-                            onClick={() => handleAction(group?._id ?? group?.id, { status: "denied" })}
+                            onClick={() => handleAction(group?._id ?? group?.id, { status: "rejected" })}
                             className="px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 transition whitespace-nowrap"
                           >
                             Deny
