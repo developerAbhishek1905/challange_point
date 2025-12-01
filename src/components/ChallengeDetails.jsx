@@ -306,9 +306,9 @@ const ChallengeDetails = ({ data, report }) => {
                       </div>
                       <div>
                         <p className="font-semibold text-gray-800">
-                          {member.user.name}
+                          {member?.user?.name}
                         </p>
-                        <p className="text-sm text-gray-500">{member.user.email}</p>
+                        <p className="text-sm text-gray-500">{member?.user?.email}</p>
                       </div>
                     </div>
                     {/* <span className="text-sm text-gray-600">
@@ -365,13 +365,13 @@ const ChallengeDetails = ({ data, report }) => {
                       {/* User Info */}
                       <div className="flex-1">
                         <p className="font-semibold text-gray-800">
-                          {report.reportedBy.name}
+                          {report?.reportedBy?.name}
                         </p>
                         <p className="text-sm text-gray-500">
-                          {report.reportedBy.email}
+                          {report?.reportedBy?.email}
                         </p>
                         <p className="text-base text-gray-800 mt-1">
-                          {report.reason}
+                          {report?.reason}
                         </p>
 
                         {/* Date + Time */}

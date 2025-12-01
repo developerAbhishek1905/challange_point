@@ -63,6 +63,10 @@ export default function OrganizationDetails({
       toast.error("Failed to add members");
     }
   };
+const filteredMembers = organization.members.filter(
+  (memberEmail) => organization.leaders.includes(memberEmail)
+);
+  // console.log(filteredMembers)
 
   return (
     <div className="p-6">
@@ -127,7 +131,7 @@ export default function OrganizationDetails({
       {/* Registered Members Table */}
       <section className="mb-8">
         <h3 className="text-lg font-semibold text-gray-800 mb-3">
-          Registered Users ({organization.members.length})
+          Registered Users ({filteredMembers.length})
         </h3>
         <div className="bg-white rounded-xl shadow-sm overflow-hidden border">
           <table className="w-full text-sm text-left">
@@ -138,7 +142,7 @@ export default function OrganizationDetails({
               </tr>
             </thead>
             <tbody>
-              {organization.members.map((member, i) => (
+              {filteredMembers.map((member, i) => (
                 <tr key={i} className="border-t hover:bg-gray-50">
                   <td className="px-6 py-4 flex items-center gap-3">
                     <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-gray-700 font-semibold">
@@ -153,7 +157,7 @@ export default function OrganizationDetails({
                   </td>
                 </tr>
               ))}
-              {organization.members.length === 0 && (
+              {filteredMembers.length === 0 && (
                 <tr>
                   <td colSpan={2} className="text-center py-8 text-gray-500">
                     No registered members

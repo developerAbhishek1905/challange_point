@@ -13,14 +13,17 @@ import OrganizationIcon from "../../../public/icons/OrganizationIcon.svg";
 import SettingIcon from "../../../public/icons/SettingIcon.svg";
 import UserIcon from "../../../public/icons/UserIcon.svg";
 import FeedIcon from "../../../public/icons/newspaper.svg";
+
+import { getGroupApprovalList, getApproveList } from "../../utils/api";
 const SIDEBAR_ITEMS = [
   { name: "Dashboard", icon: HomeIcon, href: "/dashboard", roles: ["admin"] },
   { name: "Challenge Manage", icon: EventIcon, href: "/challange", roles: ["admin", "user"] },
   { name: "User Manage", icon: UserIcon, href: "/users", roles: ["admin"] },
   { name: "Feed Manage", icon: FeedIcon, href: "/feed", roles: ["admin"] },
+  { name: "Group Approvals", icon: OrganizationIcon, href: "/group-approvals", roles: ["admin"] },
+
   { name: "Group Manage", icon: OrganizationIcon, href: "/group", roles: ["admin"] },
   { name: "Settings & Notifications", icon: SettingIcon, href: "/settings", roles: ["admin"] },
-  { name: "Group Approvals", icon: OrganizationIcon, href: "/group-approvals", roles: ["admin"] },
 ];
 
 const Sidebar = () => {
@@ -30,14 +33,45 @@ const Sidebar = () => {
   const dispatch = useDispatch();
   const authUser = useSelector((state) => state?.auth?.user?.user);
   const location = useLocation();
+  const [allGroups, setAllGroups] = useState([]);
+  const [members, setMembers] = useState([]);
+
+  // show red dot when both group requests and member requests exist
+  const hasApprovalRequests = (allGroups?.length ?? 0) > 0 && (members?.length ?? 0) > 0;
 
   // 🧠 Auto-collapse sidebar on small devices
+
+  const fetchGroups = async () => {
+      try {
+        
+  
+        
+          // Group requests (groups seeking approval)
+          const res = await getGroupApprovalList();
+          const groups = res?.requests ?? res?.data ?? [];
+          setAllGroups(groups);
+         
+          const response = await getApproveList();
+          const members = response?.requests ?? response?.data ?? [];
+          setMembers(members);
+      
+      } catch (err) {
+        console.error("Failed to fetch groups/members", err);
+       
+        setAllGroups([]);
+       
+      } 
+      
+    };
   useEffect(() => {
     const handleResize = () => setIsOpen(window.innerWidth > 768); // >768px → open, else collapsed
     handleResize();
+    fetchGroups()
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+ 
 
   const confirmLogout = () => {
     ["token", "isLoggedIn", "authUser", "role", "email", "eventId"].forEach((key) =>
@@ -86,20 +120,26 @@ const Sidebar = () => {
           <Link
             key={item.href}
             to={item.href}
-            className={`flex items-center gap-3 p-3 mb-1 rounded-lg text-sm font-medium transition-colors  ${isOpen === false ?"justify-center":"justify-start"} lg:justify-start
-              ${isActiveRoute(item.href) 
-                ? 'bg-gray-100 text-blue-600' 
-                : 'hover:bg-gray-100 text-gray-600 hover:text-gray-900'
+            className={`flex items-center gap-3 p-3 mb-1 rounded-lg text-sm font-medium transition-colors  ${isOpen === false ? "justify-center" : "justify-start"} lg:justify-start
+              ${isActiveRoute(item.href)
+                ? "bg-gray-100 text-blue-600"
+                : "hover:bg-gray-100 text-gray-600 hover:text-gray-900"
               }`}
           >
-            <img 
-              src={item.icon} 
-              alt={item.name} 
-              className={`w-5 h-5 ${isActiveRoute(item.href) ? 'filter-blue' : ''}`} 
-            />
+            <div className="relative flex items-center">
+              <img
+                src={item.icon}
+                alt={item.name}
+                className={`w-5 h-5 ${isActiveRoute(item.href) ? "filter-blue" : ""}`}
+              />
+              {/* red dot for Group Approvals when both lists are non-empty */}
+              {item.href === "/group-approvals" && hasApprovalRequests && (
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-600 rounded-full ring-1 ring-white" />
+              )}
+            </div>
             {isOpen && <span>{item.name}</span>}
           </Link>
-        ))}
+         ))}
       </nav>
 
       {/* Footer Section */}

@@ -269,7 +269,7 @@ export default function FeedDetails({ feed, report }) {
       ) : (
         <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
   {report?.map((report, index) => {
-    const formattedDate = new Date(report.updatedAt
+    const formattedDate = new Date(report?.updatedAt
 ).toLocaleString("en-IN", {
       dateStyle: "medium",
       timeStyle: "short",
@@ -285,9 +285,9 @@ export default function FeedDetails({ feed, report }) {
 
         {/* User Info */}
         <div className="flex-1">
-          <p className="font-semibold text-gray-800">{report.reportedBy.name}</p>
-          <p className=" text-sm text-gray-500">{report.reportedBy.email}</p>
-          <p className="text-base text-gray-800 mt-1">{report.reason}</p>
+          <p className="font-semibold text-gray-800">{report?.reportedBy?.name}</p>
+          <p className=" text-sm text-gray-500">{report?.reportedBy?.email}</p>
+          <p className="text-base text-gray-800 mt-1">{report?.reason}</p>
 
           {/* Date + Time */}
           <p className="text-xs text-gray-500">{formattedDate}</p>

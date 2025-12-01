@@ -5,119 +5,107 @@ import { toast } from "react-toastify";
 import { Modal } from "antd";
 import { Building2, Mail, Globe, Users, CheckCircle2, AlertCircle, Plus, X } from "lucide-react";
 
-
-
 const RegisterOrganization = () => {
-  const [name, setName] = useState("");
   const [companyName, setCompanyName] = useState("");
   const [organizationEmail, setOrganizationEmail] = useState("");
+  const [organizationWebsite, setOrganizationWebsite] = useState("");
   const [description, setDescription] = useState("");
   const [emailInput, setEmailInput] = useState("");
-  const [members, setMembers] = useState([]);
   const [leaders, setLeaders] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
-  const [organizationWebsite, setOrganizationWebsite] = useState("");
   const [memberDetails, setMemberDetails] = useState(null);
   const [successModalVisible, setSuccessModalVisible] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const websiteRegex =
-    /^(https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/i;
+  const websiteRegex = /^(https?:\/\/)?(www\.)?[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/[^\s]*)?$/i;
 
   const extractDomain = (email) => {
     if (!email) return "";
-    const e = String(email).trim().toLowerCase();
-    const atIndex = e.lastIndexOf("@");
+    const atIndex = email.lastIndexOf("@");
     if (atIndex === -1) return "";
-    const domainPart = e.slice(atIndex + 1).split(/[\/?#\s]/)[0];
-    return domainPart.replace(/^www\./, "");
+    return email.slice(atIndex + 1).split(/[\/?#\s]/)[0].replace(/^www\./, "");
   };
 
   const handleOrganizationEmailChange = (e) => {
-    const value = e.target.value;
+    const value = e?.target?.value ?? "";
     setOrganizationEmail(value);
-    setErrors((prev) => ({ ...prev, organizationEmail: "" }));
+    setErrors(prev => ({ ...prev, organizationEmail: "" }));
+
+    // only auto-fill when the email is a valid full email
+    if (!emailRegex.test(value)) return;
 
     const domain = extractDomain(value);
     if (!domain) return;
 
-    const currentWebsite = String(organizationWebsite || "").trim().toLowerCase();
-    const previousAuto = `www.${extractDomain(organizationEmail || "")}`.toLowerCase();
-    const suggested = `www.${domain}`;
+    const cleanDomain = domain.replace(/^www\./, "").toLowerCase();
+    const suggested = `www.${cleanDomain}`;
 
-    if (!currentWebsite || currentWebsite === previousAuto) {
+    const currentWebsite = (organizationWebsite ?? "").toLowerCase().trim();
+
+    // Auto-fill only when website is empty or already looks like an auto-suggestion
+    const looksAutoFilled =
+      !currentWebsite ||
+      currentWebsite === "www." ||
+      (currentWebsite.startsWith("www.") && currentWebsite.length <= 8) ||
+      currentWebsite.includes(cleanDomain);
+
+    if (looksAutoFilled) {
       setOrganizationWebsite(suggested);
     }
   };
 
   const addMember = () => {
     if (!emailInput.trim()) return;
-    const newEmails = emailInput
-      .trim()
-      .split(" ")
-      .map((e) => e.trim())
-      .filter((e) => e.length > 0);
 
-    const invalidEmails = [];
-    const duplicateEmails = [];
-    const validNewEmails = [];
+    const emails = emailInput.trim().split(/[\s,]+/).map(e => e.trim()).filter(Boolean);
+    const invalid = [];
+    const duplicates = [];
+    const validNew = [];
 
-    newEmails.forEach((em) => {
-      if (!emailRegex.test(em)) invalidEmails.push(em);
-      else if (leaders.includes(em) || members.includes(em)) duplicateEmails.push(em);
-      else validNewEmails.push(em);
+    emails.forEach(email => {
+      if (!emailRegex.test(email)) invalid.push(email);
+      else if (leaders.includes(email.toLowerCase())) duplicates.push(email);
+      else validNew.push(email.toLowerCase());
     });
 
-    if (invalidEmails.length > 0)
-      return setErrors({ member: `Invalid email(s): ${invalidEmails.join(", ")}` });
-    if (duplicateEmails.length > 0)
-      return setErrors({ member: "Member email already added" });
+    if (invalid.length > 0) {
+      setErrors({ member: `Invalid emails: ${invalid.join(", ")}` });
+      return;
+    }
+    if (duplicates.length > 0) {
+      toast.info(`Already added: ${duplicates.join(", ")}`);
+    }
 
-    if (validNewEmails.length > 0) {
-      setLeaders((prev) => [...prev, ...validNewEmails]);
-      setMembers((prev) => [...prev, ...validNewEmails]);
+    if (validNew.length > 0) {
+      setLeaders(prev => [...prev, ...validNew]);
       setEmailInput("");
-      setErrors((prev) => ({ ...prev, member: "" }));
+      setErrors(prev => ({ ...prev, member: "" }));
     }
   };
 
-  const removeMember = (index) => {
-    setLeaders((prev) => prev.filter((_, i) => i !== index));
-    setMembers((prev) => prev.filter((_, i) => i !== index));
+  const removeMember = (email) => {
+    setLeaders(prev => prev.filter(e => e !== email));
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!companyName.trim()) newErrors.companyName = "Organization name is required";
-    if (!organizationEmail.trim()) newErrors.organizationEmail = "Organization email is required";
-    else if (!emailRegex.test(organizationEmail)) newErrors.organizationEmail = "Enter a valid email address";
+    if (!companyName.trim()) newErrors.companyName = "Group name is required";
+    if (!organizationEmail.trim()) newErrors.organizationEmail = "Group email is required";
+    else if (!emailRegex.test(organizationEmail)) newErrors.organizationEmail = "Invalid email format";
 
     if (!organizationWebsite.trim()) newErrors.organizationWebsite = "Website is required";
-    else if (!websiteRegex.test(organizationWebsite)) newErrors.organizationWebsite = "Enter a valid website (e.g., www.example.com)";
+    else if (!websiteRegex.test(organizationWebsite)) newErrors.organizationWebsite = "Invalid website URL";
 
-    if (!description.trim()) newErrors.description = "Organization description is required";
-    if (leaders.length === 0) newErrors.member = "At least one member is required";
-
-    const normalizeDomain = (domain) =>
-      String(domain || "")
-        .replace(/^https?:\/\//, "")
-        .replace(/^www\./, "")
-        .replace(/\/.*$/, "")
-        .toLowerCase();
+    if (!description.trim()) newErrors.description = "Description is required";
+    if (leaders.length === 0) newErrors.member = "Add at least one member";
 
     const emailDomain = extractDomain(organizationEmail);
-    const websiteDomain = normalizeDomain(organizationWebsite);
+    const websiteDomain = organizationWebsite.replace(/^https?:\/\//, "").replace(/^www\./, "").split("/")[0];
 
-    if (emailDomain && websiteDomain) {
-      const domainMatches =
-        websiteDomain === emailDomain || websiteDomain.endsWith("." + emailDomain);
-
-      if (!domainMatches) {
-        newErrors.organizationWebsite =
-          "Website domain must match organization email domain (or be a subdomain)";
-      }
+    if (emailDomain && websiteDomain && !websiteDomain.endsWith(emailDomain)) {
+      newErrors.organizationWebsite = "Website domain must match email domain";
     }
 
     setErrors(newErrors);
@@ -126,38 +114,26 @@ const RegisterOrganization = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) {
-      toast.error("Please fill all fields correctly before submitting.");
+      toast.error("Please fix all errors before submitting");
       return;
     }
 
     const payload = {
-      name: companyName,
       companyName,
-      organizationEmail,
+      organizationEmail: organizationEmail.toLowerCase(),
       organizationWebsite,
       description,
       leaders,
-      members,
     };
 
     try {
       setLoading(true);
       const res = await createOrganization(payload);
-      setMemberDetails(res?.membersStatus);
-      toast.success("Organization created successfully!");
+      setMemberDetails(res?.membersStatus || res);
+      toast.success("Group registered successfully!");
       setSuccessModalVisible(true);
-
-      setName("");
-      setCompanyName("");
-      setOrganizationEmail("");
-      setOrganizationWebsite("");
-      setDescription("");
-      setEmailInput("");
-      setLeaders([]);
-      setMembers([]);
-      setErrors({});
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Failed to create organization");
+      toast.error(error?.response?.data?.message || "Failed to register group");
     } finally {
       setLoading(false);
     }
@@ -229,7 +205,7 @@ const RegisterOrganization = () => {
                     value={organizationWebsite}
                     onChange={(e) => setOrganizationWebsite(e.target.value)}
                   />
-                  {/* {errors.organizationWebsite && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.organizationWebsite}</p>} */}
+                  {errors.organizationWebsite && <p className="mt-2 text-red-600 flex items-center gap-2"><AlertCircle size={18} /> {errors.organizationWebsite}</p>}
                 </div>
 
                 {/* Description */}
@@ -301,7 +277,7 @@ const RegisterOrganization = () => {
                   <button
                     type="button"
                     onClick={() => {
-                      setCompanyName(""); setOrganizationEmail(""); setOrganizationWebsite(""); setDescription(""); setLeaders([]); setEmailInput(""); setMembers([]); setErrors({});
+                      setCompanyName(""); setOrganizationEmail(""); setOrganizationWebsite(""); setDescription(""); setLeaders([]); setEmailInput("");
                     }}
                     className="px-8 py-4 border-2 border-gray-300 text-gray-700 rounded-2xl hover:bg-gray-50 transition font-semibold"
                   >
