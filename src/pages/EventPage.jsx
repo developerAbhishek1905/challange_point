@@ -19,27 +19,27 @@ const ProductsPage = () => {
 
 
   /** ✅ Debounced Search API */
-  useEffect(() => {
-    const delay = setTimeout(async () => {
-      if (!searchValue.trim()) {
-        setSearchResults([]);
-        return;
-      }
+  // useEffect(() => {
+  //   const delay = setTimeout(async () => {
+  //     if (!searchValue.trim()) {
+  //       setSearchResults([]);
+  //       return;
+  //     }
 
-      try {
-        setIsLoading(true);
-        const data = await getAllChallangeList(1, 10, searchValue);
-        setSearchResults(data?.challenges || []);
-      } catch (error) {
-        console.error("Search failed:", error);
-        toast.error("Search failed");
-      } finally {
-        setIsLoading(false);
-      }
-    }, 500);
+  //     try {
+  //       setIsLoading(true);
+  //       const data = await getAllChallangeList(1, 10, searchValue);
+  //       setSearchResults(data?.challenges || []);
+  //     } catch (error) {
+  //       console.error("Search failed:", error);
+  //       toast.error("Search failed");
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   }, 500);
 
-    return () => clearTimeout(delay);
-  }, [searchValue]);
+  //   return () => clearTimeout(delay);
+  // }, [searchValue]);
 
   /** ✅ Memoized Results (avoid re-renders) */
   const filteredResults = useMemo(() => searchResults || [], [searchResults]);

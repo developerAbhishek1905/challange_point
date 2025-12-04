@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState ,useCallback} from "react";
 import { motion } from "framer-motion";
 import { Edit, Ellipsis, Eye, Trash2, Flag } from "lucide-react";
 import {
@@ -68,16 +68,17 @@ const EventsTable = ({
   const [challangeId, setChallangeId] = useState(null);
   const [getChallangeData, setGetChallangeData] = useState(null);
   const [report, setReport] = useState(null);
+  const [pageCountForSearch, setPageCountForSearch] = useState(1);
 
   const pageSize = 8;
 
   
   // 🔹 Fetch events
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       const data = await getAllChallangeList(
         searchValue,
-        currentPage,
+        searchValue === '' ? currentPage : pageCountForSearch,
         pageSize
       );
 
@@ -91,6 +92,7 @@ const EventsTable = ({
       });
 
       setAllEvents(events);
+      searchValue === '' && setPageCountForSearch(1)
       setTotalItems(data?.totalCount || events?.length || 0);
       setPagination(data);
     } catch (error) {
@@ -99,13 +101,16 @@ const EventsTable = ({
       setAllEvents([]);
       setTotalItems(0);
     }
-  };
+  }, [searchValue, currentPage,pageCountForSearch]);
+
 
   // 🔹 Debounced API call on search or page change
   useEffect(() => {
     const delay = setTimeout(fetchEvents, 500);
     return () => clearTimeout(delay);
-  }, [searchValue, currentPage]);
+  }, [fetchEvents]);
+
+  console.log(pageCountForSearch)
 
   // 🔹 Utility Functions
   const resetFormFields = () => {
@@ -123,6 +128,10 @@ const EventsTable = ({
   const clearError = (field) => {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
+
+  /** ✅ Pagination handler */
+  const handlePageChange = (page) => setCurrentPage(page)||setPageCountForSearch(page);
+
 
   const validateForm = () => {
     const newErrors = {};
@@ -433,11 +442,11 @@ const EventsTable = ({
         <div className="flex justify-end mt-2 pr-4">
           <Pagination
             align="end"
-            current={currentPage}
+            current={searchValue === '' ? currentPage : pageCountForSearch}
             total={pagination?.total}
             pageSize={pageSize}
             showSizeChanger={false}
-            onChange={setCurrentPage}
+            onChange={handlePageChange}
           />
         </div>
       </motion.div>

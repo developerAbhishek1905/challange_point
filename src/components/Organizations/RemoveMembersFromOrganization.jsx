@@ -104,7 +104,7 @@ const RemoveMembersFromOrganization = () => {
       setSendLoading(true);
       await removeMember(orgId, { emails: pendingToRemove });
 
-      toast.success(`${pendingToRemove.length} member(s) removed successfully!`);
+      toast.success(`${pendingToRemove.length} member(s) removed Request sended to Admin successfully!`);
 
       setCurrentMembers(prev => prev.filter(e => !pendingToRemove.includes(e)));
       setPendingToRemove([]);

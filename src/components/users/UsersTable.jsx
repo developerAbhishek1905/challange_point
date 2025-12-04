@@ -16,57 +16,164 @@ const UsersTable = ({ searchValue }) => {
   const [userToDelete, setUserToDelete] = useState(null);
   const [openSection, setOpenSection] = useState(null);
   const [userTraitsRetings, setUserTraitsRetings] = useState(null);
+  const [pageCountForSearch, setPageCountForSearch] = useState(1);
 
   const pageSize = 8;
 
-
   const TraitItem = ({ label, values }) => {
-  return (
-    <div className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md">
-      <span className="font-medium">{label}</span>
-      <div className="space-x-4">
-                              <span className="text-sm font-bold text-green-600">{values.plusOne <= 0 ? "+0" : `+${values.plusOne}`}
+    return (
+      <div className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md">
+        <span className="font-medium">{label}</span>
+        <div className="space-x-4">
+          <span className="text-sm font-bold text-green-600">
+            {values.plusOne <= 0 ? "+0" : `+${values.plusOne}`}
 
-                                {/* |  {values.minusOne ?? 0} */}
-                                </span>
-                                
-                                {/* <span className="text-sm font-bold text-red-600"> */}
-                                  {/* + {values.plusOne ?? 0}  */}
-                                  {/* {values.minusOne <= 0 ? "+0" : `-${values.minusOne}`} */}
-                                {/* </span> */}
-                                </div>
-    </div>
-  );
-};
+            {/* |  {values.minusOne ?? 0} */}
+          </span>
 
+          {/* <span className="text-sm font-bold text-red-600"> */}
+          {/* + {values.plusOne ?? 0}  */}
+          {/* {values.minusOne <= 0 ? "+0" : `-${values.minusOne}`} */}
+          {/* </span> */}
+        </div>
+      </div>
+    );
+  };
 
   const summary = {
   CivicCharacteristics: {
-    Responsibility: { plusOne: 0, minusOne: 0 },
-    Leadership: { plusOne: 0, minusOne: 0 },
-    Empathy: { plusOne: 0, minusOne: 0 },
-    ActiveParticipation: { plusOne: 0, minusOne: 0 }
+    CivicResponsibility: { plusOne: 0, minusOne: 0 },
+    RespectForOthers: { plusOne: 0, minusOne: 0 },
+    Integrity: { plusOne: 0, minusOne: 0 },
+    ActiveEngagement: { plusOne: 0, minusOne: 0 },
+    EnvironmentalResponsibility: { plusOne: 0, minusOne: 0 },
+    LifelongLearning: { plusOne: 0, minusOne: 0 },
+    CooperationAndCollaboration: { plusOne: 0, minusOne: 0 },
+    EmpowermentAndAdvocacy: { plusOne: 0, minusOne: 0 },
+    PreparednessAndResilience: { plusOne: 0, minusOne: 0 },
+    PositiveContributions: { plusOne: 0, minusOne: 0 }
   },
 
   QualitiesToCareGardens: {
-    Compassion: { plusOne: 0, minusOne: 0 },
-    EnvironmentalCare: { plusOne: 0, minusOne: 0 },
-    Teamwork: { plusOne: 0, minusOne: 0 },
-    Teamwork123: { plusOne: 0, minusOne: 0 }
+    Patience: { plusOne: 0, minusOne: 0 },
+    Observation: { plusOne: 0, minusOne: 0 },
+    Knowledgeable: { plusOne: 0, minusOne: 0 },
+    Diligence: { plusOne: 0, minusOne: 0 },
+    Perseverance: { plusOne: 0, minusOne: 0 },
+    Adaptability: { plusOne: 0, minusOne: 0 },
+    Organization: { plusOne: 0, minusOne: 0 },
+    AttentionToDetail: { plusOne: 0, minusOne: 0 },
+    ProblemSolving: { plusOne: 0, minusOne: 0 },
+    Creativity: { plusOne: 0, minusOne: 0 },
+    PhysicalStamina: { plusOne: 0, minusOne: 0 },
+    EnvironmentalAwareness: { plusOne: 0, minusOne: 0 },
+    CuriosityAndLearning: { plusOne: 0, minusOne: 0 },
+    Passion: { plusOne: 0, minusOne: 0 },
+    RespectForNature: { plusOne: 0, minusOne: 0 },
+    Enjoyment: { plusOne: 0, minusOne: 0 }
   },
 
   GoodBusinessPerson: {
-    Innovation: { plusOne: 0, minusOne: 0 },
-    Fairness: { plusOne: 0, minusOne: 0 },
-    Entrepreneurship: { plusOne: 0, minusOne: 0 },
-    Entrepreneurship123: { plusOne: 0, minusOne: 0 }
+    VisionAndAmbition: { plusOne: 0, minusOne: 0 },
+    Leadership: { plusOne: 0, minusOne: 0 },
+    IntegrityAndEthics: { plusOne: 0, minusOne: 0 },
+    AdaptabilityAndResilience: { plusOne: 0, minusOne: 0 },
+    StrategicThinking: { plusOne: 0, minusOne: 0 },
+    FinancialAcumen: { plusOne: 0, minusOne: 0 },
+    CommunicationAndInterpersonalSkills: { plusOne: 0, minusOne: 0 },
+    CustomerFocus: { plusOne: 0, minusOne: 0 },
+    InnovationAndCreativity: { plusOne: 0, minusOne: 0 },
+    NetworkingAndRelationshipBuilding: { plusOne: 0, minusOne: 0 },
+    PersistenceAndDetermination: { plusOne: 0, minusOne: 0 },
+    ContinuousLearning: { plusOne: 0, minusOne: 0 }
   },
 
   BeingAGoodStudent: {
-    Discipline: { plusOne: 0, minusOne: 0 },
-    Curiosity: { plusOne: 0, minusOne: 0 },
-    Punctuality: { plusOne: 0, minusOne: 0 },
-    Punctuality123: { plusOne: 0, minusOne: 0 }
+    DiligenceAndMotivation: { plusOne: 0, minusOne: 0 },
+    DisciplineAndTimeManagement: { plusOne: 0, minusOne: 0 },
+    ActiveListeningAndParticipation: { plusOne: 0, minusOne: 0 },
+    CriticalThinkingAndProblemSolving: { plusOne: 0, minusOne: 0 },
+    CuriosityAndEagernessToLearn: { plusOne: 0, minusOne: 0 },
+    OrganizationAndNoteTaking: { plusOne: 0, minusOne: 0 },
+    SelfDisciplineAndSelfReflection: { plusOne: 0, minusOne: 0 },
+    CollaborationAndCommunication: { plusOne: 0, minusOne: 0 },
+    InitiativeAndResourcefulness: { plusOne: 0, minusOne: 0 },
+    ResilienceAndPerseverance: { plusOne: 0, minusOne: 0 },
+    RespectForTeachersAndPeers: { plusOne: 0, minusOne: 0 },
+    BalanceAndWellBeing: { plusOne: 0, minusOne: 0 }
+  },
+
+  AnimalCare: {
+    Compassion: { plusOne: 0, minusOne: 0 },
+    Patience: { plusOne: 0, minusOne: 0 },
+    Responsibility: { plusOne: 0, minusOne: 0 },
+    Knowledgeable: { plusOne: 0, minusOne: 0 },
+    Observation: { plusOne: 0, minusOne: 0 },
+    Communication: { plusOne: 0, minusOne: 0 },
+    PhysicalStamina: { plusOne: 0, minusOne: 0 },
+    Adaptability: { plusOne: 0, minusOne: 0 },
+    ProblemSolving: { plusOne: 0, minusOne: 0 },
+    AttentionToDetail: { plusOne: 0, minusOne: 0 },
+    SafetyConsciousness: { plusOne: 0, minusOne: 0 },
+    TimeManagement: { plusOne: 0, minusOne: 0 },
+    RespectForAnimals: { plusOne: 0, minusOne: 0 },
+    Collaboration: { plusOne: 0, minusOne: 0 },
+    EmotionalStability: { plusOne: 0, minusOne: 0 },
+    LifelongLearning: { plusOne: 0, minusOne: 0 },
+    Advocacy: { plusOne: 0, minusOne: 0 }
+  },
+
+  GoodHumanCare: {
+    Empathy: { plusOne: 0, minusOne: 0 },
+    Compassion: { plusOne: 0, minusOne: 0 },
+    ActiveListening: { plusOne: 0, minusOne: 0 },
+    Respect: { plusOne: 0, minusOne: 0 },
+    Patience: { plusOne: 0, minusOne: 0 },
+    Communication: { plusOne: 0, minusOne: 0 },
+    Trustworthiness: { plusOne: 0, minusOne: 0 },
+    Flexibility: { plusOne: 0, minusOne: 0 },
+    ProblemSolving: { plusOne: 0, minusOne: 0 },
+    CulturalSensitivity: { plusOne: 0, minusOne: 0 },
+    Collaboration: { plusOne: 0, minusOne: 0 },
+    Advocacy: { plusOne: 0, minusOne: 0 },
+    EmotionalIntelligence: { plusOne: 0, minusOne: 0 },
+    Professionalism: { plusOne: 0, minusOne: 0 },
+    SelfCare: { plusOne: 0, minusOne: 0 },
+    ContinuousLearning: { plusOne: 0, minusOne: 0 },
+    NonJudgmentalAttitude: { plusOne: 0, minusOne: 0 }
+  },
+
+  BeingAGoodWorker: {
+    ReliabilityAndPunctuality: { plusOne: 0, minusOne: 0 },
+    Professionalism: { plusOne: 0, minusOne: 0 },
+    AdaptabilityAndFlexibility: { plusOne: 0, minusOne: 0 },
+    InitiativeAndProactiveness: { plusOne: 0, minusOne: 0 },
+    StrongWorkEthic: { plusOne: 0, minusOne: 0 },
+    EffectiveCommunication: { plusOne: 0, minusOne: 0 },
+    CollaborationAndTeamwork: { plusOne: 0, minusOne: 0 },
+    TimeManagementAndOrganization: { plusOne: 0, minusOne: 0 },
+    ProblemSolvingAndCriticalThinking: { plusOne: 0, minusOne: 0 },
+    ContinuousLearning: { plusOne: 0, minusOne: 0 },
+    PositiveAttitude: { plusOne: 0, minusOne: 0 },
+    IntegrityAndEthics: { plusOne: 0, minusOne: 0 }
+  },
+
+  GoodFamilyMember: {
+    LoveAndAffection: { plusOne: 0, minusOne: 0 },
+    TrustAndHonesty: { plusOne: 0, minusOne: 0 },
+    Respect: { plusOne: 0, minusOne: 0 },
+    Communication: { plusOne: 0, minusOne: 0 },
+    EmpathyAndCompassion: { plusOne: 0, minusOne: 0 },
+    ActiveListening: { plusOne: 0, minusOne: 0 },
+    FlexibilityAndAdaptability: { plusOne: 0, minusOne: 0 },
+    Forgiveness: { plusOne: 0, minusOne: 0 },
+    SharedValues: { plusOne: 0, minusOne: 0 },
+    QualityTime: { plusOne: 0, minusOne: 0 },
+    Support: { plusOne: 0, minusOne: 0 },
+    CooperationAndCollaboration: { plusOne: 0, minusOne: 0 },
+    Boundaries: { plusOne: 0, minusOne: 0 },
+    CelebrationAndJoy: { plusOne: 0, minusOne: 0 },
+    Commitment: { plusOne: 0, minusOne: 0 }
   }
 };
 
@@ -74,16 +181,17 @@ const UsersTable = ({ searchValue }) => {
   /** ✅ Fetch users */
   const fetchUsers = useCallback(async () => {
     try {
-      const data = await getAllUsers(searchValue, currentPage, pageSize);
+      const data = await getAllUsers(searchValue, searchValue==='' ?currentPage:pageCountForSearch, pageSize);
       setAllUsers(data?.users || []);
       setPagination(data);
+      searchValue === '' && setPageCountForSearch(1);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast.error("Failed to fetch users");
       setAllUsers([]);
       setPagination(null);
     }
-  }, [searchValue, currentPage]);
+  }, [searchValue, currentPage,pageCountForSearch]);
 
   useEffect(() => {
     const delayDebounce = setTimeout(() => fetchUsers(), 500);
@@ -103,9 +211,12 @@ const UsersTable = ({ searchValue }) => {
   };
 
   /** ✅ Pagination handler */
-  const handlePageChange = (page) => setCurrentPage(page);
+  const handlePageChange = (page) => setCurrentPage(page)||setPageCountForSearch(page);
 
-  const filteredUsers = allUsers.filter((user) => !user.email?.includes("@admin.com"));
+  
+  const filteredUsers = allUsers.filter(
+    (user) => !user.email?.includes("@admin.com")
+  );
 
   const viewUserDetails = async (userId) => {
     try {
@@ -116,6 +227,7 @@ const UsersTable = ({ searchValue }) => {
       setUserTraitsRetings(null);
     }
   };
+  console.log(pageCountForSearch)
 
   /** ✅ Dropdown menu for actions */
   const eventMenu = (user) => (
@@ -165,7 +277,9 @@ const UsersTable = ({ searchValue }) => {
             exit={{ scale: 0.95, opacity: 0 }}
             className="bg-white p-6 rounded-xl w-full max-w-3xl shadow-xl overflow-y-auto max-h-[90vh]"
           >
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900 text-center">User Details</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-gray-900 text-center">
+              User Details
+            </h2>
 
             {/* Profile Section (simplified border) */}
             <div className="flex flex-col items-center justify-center rounded-lg py-6 mb-6 shadow-sm">
@@ -173,13 +287,15 @@ const UsersTable = ({ searchValue }) => {
                 {/* {viewUser?.profileImage ? (
                   <img src={viewUser.profileImage} alt="User Avatar" className="h-full w-full object-cover" />
                 ) : ( */}
-                  <div className="h-full w-full flex items-center justify-center bg-gray-300 text-3xl font-bold text-gray-700">
-                    {viewUser?.name?.charAt(0)?.toUpperCase()}
-                  </div>
+                <div className="h-full w-full flex items-center justify-center bg-gray-300 text-3xl font-bold text-gray-700">
+                  {viewUser?.name?.charAt(0)?.toUpperCase()}
+                </div>
                 {/* )} */}
               </div>
 
-              <h3 className="text-lg font-semibold text-gray-900 mt-3">{viewUser?.name}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mt-3">
+                {viewUser?.name}
+              </h3>
               <p className="text-gray-600">{viewUser?.email}</p>
             </div>
 
@@ -192,13 +308,24 @@ const UsersTable = ({ searchValue }) => {
               <div className="bg-gray-100 rounded-md text-center h-full flex p-4 flex-col justify-center">
                 <strong className="block text-gray-800">Points</strong>
                 <div className="flex flex-wrap gap-4 mt-2 text-sm justify-center ">
-                  <p><strong>Human:</strong> {viewUser?.challengeTypeCounts?.human ?? 0}</p>
-                  <p><strong>Nature:</strong> {viewUser?.challengeTypeCounts?.nature ?? 0}</p>
-                  <p><strong>Animal:</strong> {viewUser?.challengeTypeCounts?.animal ?? 0}</p>
+                  <p>
+                    <strong>Human:</strong>{" "}
+                    {viewUser?.challengeTypeCounts?.human ?? 0}
+                  </p>
+                  <p>
+                    <strong>Nature:</strong>{" "}
+                    {viewUser?.challengeTypeCounts?.nature ?? 0}
+                  </p>
+                  <p>
+                    <strong>Animal:</strong>{" "}
+                    {viewUser?.challengeTypeCounts?.animal ?? 0}
+                  </p>
                 </div>
               </div>
               <div className="bg-gray-100 rounded-md text-center  h-full flex flex-col justify-center">
-                <strong className="block text-gray-800">Created Challenges</strong>
+                <strong className="block text-gray-800">
+                  Created Challenges
+                </strong>
                 <span>{viewUser?.createdChallenges ?? 0}</span>
               </div>
               {/* <div>
@@ -207,7 +334,11 @@ const UsersTable = ({ searchValue }) => {
               </div> */}
               <div className="bg-gray-100 rounded-md text-center  h-full flex flex-col justify-center">
                 <strong className="block text-gray-800">Created At</strong>
-                <span>{viewUser?.createdAt ? new Date(viewUser.createdAt).toLocaleString() : "N/A"}</span>
+                <span>
+                  {viewUser?.createdAt
+                    ? new Date(viewUser.createdAt).toLocaleString()
+                    : "N/A"}
+                </span>
               </div>
               {/* <div>
                 <strong className="block text-gray-800">Updated At:</strong>
@@ -217,18 +348,38 @@ const UsersTable = ({ searchValue }) => {
 
             {/* Traits Accordion */}
             <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Personalized Characteristics</h3>
+              <h3 className="text-lg font-bold text-gray-800 mb-2">
+                Personalized Characteristics
+              </h3>
 
-              {userTraitsRetings && Object.keys(userTraitsRetings).length > 0 ? (
+              {userTraitsRetings &&
+              Object.keys(userTraitsRetings).length > 0 ? (
                 Object.entries(userTraitsRetings).map(([category, traits]) => (
-                  <div key={category} className="border rounded-lg overflow-hidden">
+                  <div
+                    key={category}
+                    className="border rounded-lg overflow-hidden"
+                  >
                     <button
                       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
                       onClick={() => toggleSection(category)}
                       type="button"
                     >
-                      <span>{(category === "Good Business Person"?"Business Person":category)?(category === "Being a Good Student"?"Being a Student":category): category}</span>
-                      {openSection === category ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                      <span>
+                        {(
+                          category === "Good Business Person"
+                            ? "Business Person"
+                            : category
+                        )
+                          ? category === "Being a Good Student"
+                            ? "Being a Student"
+                            : category
+                          : category}
+                      </span>
+                      {openSection === category ? (
+                        <ChevronUp size={18} />
+                      ) : (
+                        <ChevronDown size={18} />
+                      )}
                     </button>
 
                     <AnimatePresence initial={false}>
@@ -242,19 +393,27 @@ const UsersTable = ({ searchValue }) => {
                           className="px-4 py-3 text-gray-700 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
                         >
                           {Object.entries(traits).map(([trait, values]) => (
-                            <div key={trait} className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md">
+                            <div
+                              key={trait}
+                              className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md"
+                            >
                               <span className="font-medium">{trait}</span>
                               <div className="space-x-4">
-                              <span className="text-sm font-bold text-green-600">{values.plusOne <= 0 ? "0" : `+${values.plusOne}`}
+                                <span className="text-sm font-bold text-green-600">
+                                  {values.plusOne <= 0
+                                    ? "0"
+                                    : `+${values.plusOne}`}
 
-                                {/* |  {values.minusOne ?? 0} */}
+                                  {/* |  {values.minusOne ?? 0} */}
                                 </span>
-                                
+
                                 <span className="text-sm font-bold text-red-600">
                                   {/* + {values.plusOne ?? 0}  */}
-                                  {values.minusOne <= 0 ? "0" : `-${values.minusOne}`}
+                                  {values.minusOne <= 0
+                                    ? "0"
+                                    : `-${values.minusOne}`}
                                 </span>
-                                </div>
+                              </div>
                             </div>
                           ))}
                         </motion.div>
@@ -263,175 +422,307 @@ const UsersTable = ({ searchValue }) => {
                   </div>
                 ))
               ) : (
-                <div className="bg-white rounded-lg text-gray-800 shadow-sm  space-y-4">
-      
+                // <div className="bg-white rounded-lg text-gray-800 shadow-sm  space-y-4">
+                //   {/* ================== 1. CivicCharacteristics ================== */}
+                //   <div className="border rounded-lg overflow-hidden">
+                //     <button
+                //       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+                //       onClick={() => toggleSection("CivicCharacteristics")}
+                //     >
+                //       <span>Civic Characteristics</span>
+                //       {openSection === "CivicCharacteristics" ? (
+                //         <ChevronUp size={18} />
+                //       ) : (
+                //         <ChevronDown size={18} />
+                //       )}
+                //     </button>
 
-      {/* ================== 1. CivicCharacteristics ================== */}
-      <div className="border rounded-lg overflow-hidden">
-        <button
-          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-          onClick={() => toggleSection("CivicCharacteristics")}
-        >
-          <span>Civic Characteristics</span>
-          {openSection === "CivicCharacteristics" ? (
-            <ChevronUp size={18} />
-          ) : (
-            <ChevronDown size={18} />
-          )}
-        </button>
+                //     <AnimatePresence>
+                //       {openSection === "CivicCharacteristics" && (
+                //         <motion.div
+                //           initial={{ height: 0, opacity: 0 }}
+                //           animate={{ height: "auto", opacity: 1 }}
+                //           exit={{ height: 0, opacity: 0 }}
+                //           transition={{ duration: 0.25 }}
+                //           className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+                //         >
+                //           <TraitItem
+                //             label="Responsibility"
+                //             values={summary.CivicCharacteristics.Responsibility}
+                //           />
+                //           <TraitItem
+                //             label="Leadership"
+                //             values={summary.CivicCharacteristics.Leadership}
+                //           />
+                //           <TraitItem
+                //             label="Empathy"
+                //             values={summary.CivicCharacteristics.Empathy}
+                //           />
+                //           <TraitItem
+                //             label="Active Participation"
+                //             values={
+                //               summary.CivicCharacteristics.ActiveParticipation
+                //             }
+                //           />
+                //         </motion.div>
+                //       )}
+                //     </AnimatePresence>
+                //   </div>
 
-        <AnimatePresence>
-          {openSection === "CivicCharacteristics" && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-            >
-              <TraitItem label="Responsibility" values={summary.CivicCharacteristics.Responsibility} />
-              <TraitItem label="Leadership" values={summary.CivicCharacteristics.Leadership} />
-              <TraitItem label="Empathy" values={summary.CivicCharacteristics.Empathy} />
-              <TraitItem label="Active Participation" values={summary.CivicCharacteristics.ActiveParticipation} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                //   {/* ================== 2. QualitiesToCareGardens ================== */}
+                //   <div className="border rounded-lg overflow-hidden">
+                //     <button
+                //       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+                //       onClick={() => toggleSection("QualitiesToCareGardens")}
+                //     >
+                //       <span>Qualities To Care Gardens</span>
+                //       {openSection === "QualitiesToCareGardens" ? (
+                //         <ChevronUp size={18} />
+                //       ) : (
+                //         <ChevronDown size={18} />
+                //       )}
+                //     </button>
 
-      {/* ================== 2. QualitiesToCareGardens ================== */}
-      <div className="border rounded-lg overflow-hidden">
-        <button
-          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-          onClick={() => toggleSection("QualitiesToCareGardens")}
-        >
-          <span>Qualities To Care Gardens</span>
-          {openSection === "QualitiesToCareGardens" ? (
-            <ChevronUp size={18} />
-          ) : (
-            <ChevronDown size={18} />
-          )}
-        </button>
+                //     <AnimatePresence>
+                //       {openSection === "QualitiesToCareGardens" && (
+                //         <motion.div
+                //           initial={{ height: 0, opacity: 0 }}
+                //           animate={{ height: "auto", opacity: 1 }}
+                //           exit={{ height: 0, opacity: 0 }}
+                //           transition={{ duration: 0.25 }}
+                //           className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+                //         >
+                //           <TraitItem
+                //             label="Compassion"
+                //             values={summary.QualitiesToCareGardens.Compassion}
+                //           />
+                //           <TraitItem
+                //             label="Environmental Care"
+                //             values={
+                //               summary.QualitiesToCareGardens.EnvironmentalCare
+                //             }
+                //           />
+                //           <TraitItem
+                //             label="Teamwork"
+                //             values={summary.QualitiesToCareGardens.Teamwork}
+                //           />
+                //           <TraitItem
+                //             label="Teamwork123"
+                //             values={summary.QualitiesToCareGardens.Teamwork123}
+                //           />
+                //         </motion.div>
+                //       )}
+                //     </AnimatePresence>
+                //   </div>
 
-        <AnimatePresence>
-          {openSection === "QualitiesToCareGardens" && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-            >
-              <TraitItem label="Compassion" values={summary.QualitiesToCareGardens.Compassion} />
-              <TraitItem label="Environmental Care" values={summary.QualitiesToCareGardens.EnvironmentalCare} />
-              <TraitItem label="Teamwork" values={summary.QualitiesToCareGardens.Teamwork} />
-              <TraitItem label="Teamwork123" values={summary.QualitiesToCareGardens.Teamwork123} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                //   {/* ================== 3. GoodBusinessPerson ================== */}
+                //   <div className="border rounded-lg overflow-hidden">
+                //     <button
+                //       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+                //       onClick={() => toggleSection("GoodBusinessPerson")}
+                //     >
+                //       <span>Business Person</span>
+                //       {openSection === "GoodBusinessPerson" ? (
+                //         <ChevronUp size={18} />
+                //       ) : (
+                //         <ChevronDown size={18} />
+                //       )}
+                //     </button>
 
-      {/* ================== 3. GoodBusinessPerson ================== */}
-      <div className="border rounded-lg overflow-hidden">
-        <button
-          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-          onClick={() => toggleSection("GoodBusinessPerson")}
-        >
-          <span>Business Person</span>
-          {openSection === "GoodBusinessPerson" ? (
-            <ChevronUp size={18} />
-          ) : (
-            <ChevronDown size={18} />
-          )}
-        </button>
+                //     <AnimatePresence>
+                //       {openSection === "GoodBusinessPerson" && (
+                //         <motion.div
+                //           initial={{ height: 0, opacity: 0 }}
+                //           animate={{ height: "auto", opacity: 1 }}
+                //           exit={{ height: 0, opacity: 0 }}
+                //           transition={{ duration: 0.25 }}
+                //           className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+                //         >
+                //           <TraitItem
+                //             label="Innovation"
+                //             values={summary.GoodBusinessPerson.Innovation}
+                //           />
+                //           <TraitItem
+                //             label="Fairness"
+                //             values={summary.GoodBusinessPerson.Fairness}
+                //           />
+                //           <TraitItem
+                //             label="Entrepreneurship"
+                //             values={summary.GoodBusinessPerson.Entrepreneurship}
+                //           />
+                //           <TraitItem
+                //             label="Entrepreneurship123"
+                //             values={
+                //               summary.GoodBusinessPerson.Entrepreneurship123
+                //             }
+                //           />
+                //         </motion.div>
+                //       )}
+                //     </AnimatePresence>
+                //   </div>
 
-        <AnimatePresence>
-          {openSection === "GoodBusinessPerson" && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-            >
-              <TraitItem label="Innovation" values={summary.GoodBusinessPerson.Innovation} />
-              <TraitItem label="Fairness" values={summary.GoodBusinessPerson.Fairness} />
-              <TraitItem label="Entrepreneurship" values={summary.GoodBusinessPerson.Entrepreneurship} />
-              <TraitItem label="Entrepreneurship123" values={summary.GoodBusinessPerson.Entrepreneurship123} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+                //   {/* ================== 4. BeingAGoodStudent ================== */}
+                //   <div className="border rounded-lg overflow-hidden">
+                //     <button
+                //       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+                //       onClick={() => toggleSection("BeingAGoodStudent")}
+                //     >
+                //       <span>Being A Student</span>
+                //       {openSection === "BeingAGoodStudent" ? (
+                //         <ChevronUp size={18} />
+                //       ) : (
+                //         <ChevronDown size={18} />
+                //       )}
+                //     </button>
 
-      {/* ================== 4. BeingAGoodStudent ================== */}
-      <div className="border rounded-lg overflow-hidden">
-        <button
-          className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-          onClick={() => toggleSection("BeingAGoodStudent")}
-        >
-          <span>Being A Student</span>
-          {openSection === "BeingAGoodStudent" ? (
-            <ChevronUp size={18} />
-          ) : (
-            <ChevronDown size={18} />
-          )}
-        </button>
+                //     <AnimatePresence>
+                //       {openSection === "BeingAGoodStudent" && (
+                //         <motion.div
+                //           initial={{ height: 0, opacity: 0 }}
+                //           animate={{ height: "auto", opacity: 1 }}
+                //           exit={{ height: 0, opacity: 0 }}
+                //           transition={{ duration: 0.25 }}
+                //           className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+                //         >
+                //           <TraitItem
+                //             label="Discipline"
+                //             values={summary.BeingAGoodStudent.Discipline}
+                //           />
+                //           <TraitItem
+                //             label="Curiosity"
+                //             values={summary.BeingAGoodStudent.Curiosity}
+                //           />
+                //           <TraitItem
+                //             label="Punctuality"
+                //             values={summary.BeingAGoodStudent.Punctuality}
+                //           />
+                //           <TraitItem
+                //             label="Punctuality123"
+                //             values={summary.BeingAGoodStudent.Punctuality123}
+                //           />
+                //         </motion.div>
+                //       )}
+                //     </AnimatePresence>
+                //   </div>
+                // </div>
+                <div className="bg-white rounded-lg text-gray-800 shadow-sm space-y-4">
 
-        <AnimatePresence>
-          {openSection === "BeingAGoodStudent" && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-            >
-              <TraitItem label="Discipline" values={summary.BeingAGoodStudent.Discipline} />
-              <TraitItem label="Curiosity" values={summary.BeingAGoodStudent.Curiosity} />
-              <TraitItem label="Punctuality" values={summary.BeingAGoodStudent.Punctuality} />
-              <TraitItem label="Punctuality123" values={summary.BeingAGoodStudent.Punctuality123} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+  {/* ==========  Helper: Render Traits Dynamically  ========== */}
+  {Object.entries(summary).map(([sectionKey, sectionData]) => (
+    <div key={sectionKey} className="border rounded-lg overflow-hidden">
+
+      {/* ========== Header Button ========== */}
+      <button
+        className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+        onClick={() => toggleSection(sectionKey)}
+      >
+        <span>{TraitItem[sectionKey] || sectionKey}</span>
+
+        {openSection === sectionKey ? (
+          <ChevronUp size={18} />
+        ) : (
+          <ChevronDown size={18} />
+        )}
+      </button>
+
+      {/* ========== Collapsible Content ========== */}
+      <AnimatePresence>
+        {openSection === sectionKey && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+          >
+            {Object.entries(sectionData).map(([traitKey, values]) => (
+              <TraitItem
+                key={traitKey}
+                label={traitKey}
+                values={values}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-       )}
+  ))}
+</div>
+
+              )}
             </div>
 
             <div className="flex justify-end mt-6">
-              <button onClick={() => { setViewUser(null); setOpenSection(null); }} className="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700">Close</button>
+              <button
+                onClick={() => {
+                  setViewUser(null);
+                  setOpenSection(null);
+                }}
+                className="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Close
+              </button>
             </div>
           </motion.div>
         </motion.div>
       )}
 
       {/* ✅ Table */}
-      <motion.div className="bg-white border border-gray-200 rounded-xl mb-8 pb-2" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+      <motion.div
+        className="bg-white border border-gray-200 rounded-xl mb-8 pb-2"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
         <div className="overflow-x-auto rounded-xl">
           <table className="min-w-full">
             <thead className="bg-gray-100">
               <tr>
-                {["Avatar", "Name", "Email", "Total Points", "Actions"].map((header) => (
-                  <th key={header} className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">{header}</th>
-                ))}
+                {["Avatar", "Name", "Email", "Total Points", "Actions"].map(
+                  (header) => (
+                    <th
+                      key={header}
+                      className="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider"
+                    >
+                      {header}
+                    </th>
+                  )
+                )}
               </tr>
             </thead>
             <tbody>
               {filteredUsers.length > 0 ? (
                 filteredUsers.map((user) => (
-                  <motion.tr key={user._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="hover:bg-gray-50 border-b">
+                  <motion.tr
+                    key={user._id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="hover:bg-gray-50 border-b"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="h-10 w-10 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
                         {/* {user.profileImage ? <img src={user.profileImage} alt="Avatar" className="h-full w-full object-cover" /> :  */}
-                        <span className="text-gray-600 font-semibold">{user.name?.charAt(0)?.toUpperCase()}</span>
+                        <span className="text-gray-600 font-semibold">
+                          {user.name?.charAt(0)?.toUpperCase()}
+                        </span>
                         {/* } */}
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-700">{user.name}</td>
                     <td className="px-6 py-4 text-gray-700">{user.email}</td>
-                    <td className="px-6 py-4 text-gray-700">{user.points || 0}</td>
+                    <td className="px-6 py-4 text-gray-700">
+                      {user.points || 0}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                      <Dropdown overlay={eventMenu(user)} trigger={["click"]} placement="bottomRight">
-                        <button><Ellipsis className="text-gray-600 hover:text-gray-800" /></button>
+                      <Dropdown
+                        overlay={eventMenu(user)}
+                        trigger={["click"]}
+                        placement="bottomRight"
+                      >
+                        <button>
+                          <Ellipsis className="text-gray-600 hover:text-gray-800" />
+                        </button>
                       </Dropdown>
                     </td>
                   </motion.tr>
@@ -439,7 +730,10 @@ const UsersTable = ({ searchValue }) => {
               ) : (
                 <tr>
                   <td colSpan="5" className="text-center py-8">
-                    <Empty description="No users found" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                    <Empty
+                      description="No users found"
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    />
                   </td>
                 </tr>
               )}
@@ -449,11 +743,28 @@ const UsersTable = ({ searchValue }) => {
 
         {/* ✅ Pagination */}
         <div className="flex justify-end mt-2 pr-4">
-          <Pagination align="end" current={currentPage} total={pagination?.totalUsers} pageSize={pageSize} showSizeChanger={false} onChange={handlePageChange} />
+          <Pagination
+            align="end"
+            current={searchValue === '' ? currentPage : pageCountForSearch}
+            total={pagination?.totalUsers}
+            pageSize={pageSize}
+            showSizeChanger={false}
+            onChange={handlePageChange}
+          />
         </div>
 
         {/* ✅ Confirmation Modal */}
-        <ConfirmationModal isOpen={confirmModalOpen} onClose={() => setConfirmModalOpen(false)} onConfirm={() => { setConfirmModalOpen(false); if (modalType === "delete") handleDelete(); }} title="Are you sure you want to delete this user?" description="This action cannot be undone." confirmText="Yes, delete" />
+        <ConfirmationModal
+          isOpen={confirmModalOpen}
+          onClose={() => setConfirmModalOpen(false)}
+          onConfirm={() => {
+            setConfirmModalOpen(false);
+            if (modalType === "delete") handleDelete();
+          }}
+          title="Are you sure you want to delete this user?"
+          description="This action cannot be undone."
+          confirmText="Yes, delete"
+        />
       </motion.div>
     </>
   );

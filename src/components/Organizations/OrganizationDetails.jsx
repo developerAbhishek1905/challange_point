@@ -15,7 +15,7 @@ export default function OrganizationDetails({
   const [selectedUsers, setSelectedUsers] = useState([]);
 
   // Get IDs of current members (registered)
-  const memberIds = organization.members.map((m) => m.user?._id);
+  const memberIds = organization?.members.map((m) => m.user?._id);
 
   // Filter out users who are already members
   const availableUsers = Users.filter((u) => !memberIds.includes(u._id));

@@ -1,8 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Ellipsis, Trash2, Eye,Bell } from "lucide-react";
 import { Dropdown, Empty, Pagination, Menu, Popover } from "antd";
 import { toast } from "react-toastify";
+import { Search } from "lucide-react";
 import {
   getAllOrganizationsList,
   createOrganization,
@@ -25,7 +26,7 @@ const OrganizationTable = ({
   organizations,
   memberAdded,
   setMemberAdded,
-  searchValue,
+  
 }) => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [modalType, setModalType] = useState(""); // 'delete' | 'cancel'
@@ -44,37 +45,52 @@ const OrganizationTable = ({
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [organizationToView, setOrganizationToView] = useState(null);
   const [status, setStatus] = useState({});
+  const [searchValue, setSearchValue] = useState("");
   const pageSize = 8;
 
   // new: notify modal state
   const [notifyModalOpen, setNotifyModalOpen] = useState(false);
   const [notifyOrganization, setNotifyOrganization] = useState(null);
   const [notifyLoading, setNotifyLoading] = useState(false);
+    const [pageCountForSearch, setPageCountForSearch] = useState(1);
+
 
   // ✅ Fetch organizations & users
-  const fetchOrganizations = async () => {
+  const fetchOrganizations = useCallback( async () => {
     try {
-      const orgs = await getAllOrganizationsList(searchValue, currentPage, pageSize);
+      const orgs = await getAllOrganizationsList(searchValue,searchValue==='' ?currentPage : pageCountForSearch, pageSize);
       const allusers = await getAllUsers();
 
       setAllOrganisation(orgs.organizations || []);
       setUsers(allusers.users || []);
+      searchValue === '' && setPageCountForSearch(1);
       setPagination(orgs);
     } catch (error) {
       toast.error("Failed to fetch Group");
     }
+  }, [searchValue, currentPage,pageCountForSearch]);
+
+  // ✅ Delete organization
+  const handleDelete = async () => {
+    try {
+      await deleteOrganization(organizationToDelete);
+      toast.success("Group deleted successfully");
+      setOrganizationToDelete(null);
+      fetchOrganizations();
+      // setMemberAdded(!memberAdded);
+    } catch {
+      toast.error("Failed to delete group");
+    }
   };
 
   useEffect(() => {
-    const delay = setTimeout(() => fetchOrganizations(searchValue, currentPage), 500);
+    const delay = setTimeout(() => fetchOrganizations(), 500);
     return () => clearTimeout(delay);
-  }, [searchValue, memberAdded, currentPage,]);
+  }, [fetchOrganizations]);
 
-  // ✅ Pagination slice (only for UI, not backend-driven pagination)
-  const pagedOrganisations = allOrganisation.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize
-  );
+  
+  /** ✅ Pagination handler */
+  const handlePageChange = (page) => setCurrentPage(page)||setPageCountForSearch(page);
 
   // ✅ Reset form
   const resetForm = () => {
@@ -116,17 +132,7 @@ const OrganizationTable = ({
     }
   };
 
-  // ✅ Delete organization
-  const handleDelete = async () => {
-    try {
-      await deleteOrganization(organizationToDelete);
-      toast.success("Group deleted successfully");
-      setOrganizationToDelete(null);
-      setMemberAdded(!memberAdded);
-    } catch {
-      toast.error("Failed to delete group");
-    }
-  };
+  
 
   // ✅ Approve/Reject organization
   const apporoveOrganization = async (orgId, statusObj) => {
@@ -143,12 +149,7 @@ const OrganizationTable = ({
     }
   };
 
-  // helper: open notify modal
-  const handleBellClick = (org) => {
-    setNotifyOrganization(org);
-    setNotifyModalOpen(true);
-  };
-  console.log(notifyOrganization)
+
 
   // updated: handle notify action -> prevent default, call API, refresh list
   const handleNotifyAction = async (action, e) => {
@@ -193,17 +194,7 @@ const OrganizationTable = ({
   };
 
 
-  const handleMamberChange = async() => {
-    try{
-      await actionApproveRejectByAdmin(orgId, status)
-      toast.success("Group status updated successfully");
-
-    }
-    catch(error){
-      toast.error("Failed to update group status");
-    }
-  }
-
+  
 
   // ✅ Menus
   const eventMenu = (org) => (
@@ -339,11 +330,27 @@ const OrganizationTable = ({
       )}
 
       {/* ✅ Table */}
+
+      <div className="relative w-full my-4 sm:w-72">
+          <Search
+            className="absolute left-3 top-2.5 text-gray-400"
+            size={18}
+          />
+          <input
+            type="text"
+            placeholder="Search Group..."
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            className="w-full bg-white text-gray-900 placeholder-gray-400 rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-gray-200 shadow-sm"
+          />
+        </div>
       <motion.div
         className="bg-white rounded-xl border pb-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
+        {/* 🔍 Search Box */}
+        
         <div className="rounded-xl overflow-scroll">
           <table className="w-full border-collapse">
             <thead className="bg-gray-100">
@@ -355,7 +362,7 @@ const OrganizationTable = ({
                   "Website",
                   "Total Members",
                   "Group Description",
-                  "Status",
+                  // "Status",
                   "Actions",
                 ].map((header) => (
                   <th
@@ -416,7 +423,7 @@ const OrganizationTable = ({
                         setViewModalOpen(true);
                       }}
                     >
-                      {(org.members?.length || 0) + (org.draftMembers?.length || 0)+(org.leaders?.length || 0)}
+                      {(org.members?.length || 0) + (org.draftMembers?.length || 0)}
                     </td>
                     
                     <td className="px-3 py-4 text-sm font-medium text-gray-700">
@@ -430,7 +437,7 @@ const OrganizationTable = ({
                       </Popover>
                     </td>
                     
-                    <td className="px-3 py-4">
+                    {/* <td className="px-3 py-4">
                       <Dropdown overlay={eventMenu(org)} trigger={["click"]}>
                         <button
                           className={`px-2 py-1 rounded-md text-xs text-white whitespace-nowrap ${
@@ -448,7 +455,7 @@ const OrganizationTable = ({
                             : "Rejected"}
                         </button>
                       </Dropdown>
-                    </td>
+                    </td> */}
                     
                     <td className="px-3 py-4 text-center">
                       <Dropdown overlay={ActionMenu(org)} trigger={["click"]}>
@@ -474,11 +481,11 @@ const OrganizationTable = ({
         {/* ✅ Pagination */}
         <div className="flex justify-end mt-3 pr-4">
           <Pagination
-            current={currentPage}
+            current={searchValue === '' ? currentPage : pageCountForSearch}
             total={pagination?.totalOrganizations}
             pageSize={pageSize}
             showSizeChanger={false}
-            onChange={setCurrentPage}
+            onChange={handlePageChange}
           />
         </div>
       </motion.div>

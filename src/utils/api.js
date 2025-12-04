@@ -5,10 +5,7 @@ import axiosInstance from "./axiosInstance";
 export const getAllOrganizationsList = async (search="",page,limit ) => {
   // console.log(limit)
   try {
-    const response = search.length > 0 ? await axiosInstance.get("api/organizations", {
-      params: { search,page:1,limit:8},
-    }):
-    await axiosInstance.get("api/organizations", {
+    const response = await axiosInstance.get("api/organizations", {
       params: {search,page,limit },
     });
     return response.data;
@@ -149,13 +146,12 @@ export const getGroupApprovalList = async (page=1,limit,search="") => {
 
 // ---------------------- CHALLENGES ----------------------
 
-export const getAllChallangeList = async (search="",page,limit) => {
+export const getAllChallangeList = async (search="",page=1,limit) => {
+  console.log("challange page",page)
   try {
-    const response = search.length > 0 ? await axiosInstance.get("api/challenges/allglobalchallenges", {
-      params: { search,page:1,limit:8},
-    }):await axiosInstance.get("api/challenges/allglobalchallenges", {
+    const response = await axiosInstance.get("api/challenges/allglobalchallenges", {
       params: { search,page,limit},
-    });
+    })
     return response.data;
   } catch (error) {
     console.error("Error fetching challenges:", error);
@@ -219,9 +215,10 @@ export const getGroupChallangeInfoById = async (organizationId) => {
 
 // ---------------------- USERS ----------------------
 
-export const getAllUsers = async (search="",page,limit) => {
+export const getAllUsers = async (search="",page=1,limit) => {
+  console.log("page", page)
   try {
-    const response = search.length > 0 ? await axiosInstance.get("api/user/users",{params:{search,page : 1,limit: 8}}):  await axiosInstance.get("api/user/users",{params:{search,page,limit}});
+    const response = search.length > 0 ? await axiosInstance.get("api/user/users",{params:{search,page,limit: 8}}):  await axiosInstance.get("api/user/users",{params:{search,page,limit}});
     return response.data;
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -322,9 +319,9 @@ export const adminLogin = async (formData) => {
 
 // ---------------------- FEEDS ----------------------
 
-export const getAllFeeds = async (search="",page,limit) => {
+export const getAllFeeds = async (search="",page=1,limit=8) => {
   try {
-    const response = search.length > 0 ? await axiosInstance.get("api/challenges/get-feed",{params:{search,page : 1,limit: 8}}): await axiosInstance.get("api/challenges/get-feed",{params:{search,page,limit}});
+    const response =  await axiosInstance.get("api/challenges/get-feed",{params:{search,page,limit}});
     return response.data;
   } catch (error) {
     console.error("Error fetching feeds:", error);

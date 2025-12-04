@@ -20,9 +20,9 @@ const SIDEBAR_ITEMS = [
   { name: "Challenge Manage", icon: EventIcon, href: "/challange", roles: ["admin", "user"] },
   { name: "User Manage", icon: UserIcon, href: "/users", roles: ["admin"] },
   { name: "Feed Manage", icon: FeedIcon, href: "/feed", roles: ["admin"] },
-  { name: "Group Approvals", icon: OrganizationIcon, href: "/group-approvals", roles: ["admin"] },
+  { name: "Group Manage", icon: OrganizationIcon, href: "/group-approvals", roles: ["admin"] },
 
-  { name: "Group Manage", icon: OrganizationIcon, href: "/group", roles: ["admin"] },
+  // { name: "Group Manage", icon: OrganizationIcon, href: "/group", roles: ["admin"] },
   { name: "Settings & Notifications", icon: SettingIcon, href: "/settings", roles: ["admin"] },
 ];
 
@@ -35,10 +35,15 @@ const Sidebar = () => {
   const location = useLocation();
   const [allGroups, setAllGroups] = useState([]);
   const [members, setMembers] = useState([]);
+  
+  // show red dot when both group requests and member requests exist
+  // const hasApprovalRequests = (allGroups?.length ?? 0) > 0 && (members?.length ?? 0) > 0;
+  
 
   // show red dot when both group requests and member requests exist
-const hasApprovalRequests = (allGroups?.length ?? 0) > 0 && (members?.length ?? 0) > 0;
-  console.log(hasApprovalRequests)
+  
+  console.log(allGroups.length)
+  console.log(members.length  )
 
   // 🧠 Auto-collapse sidebar on small devices
 
@@ -55,6 +60,8 @@ const hasApprovalRequests = (allGroups?.length ?? 0) > 0 && (members?.length ?? 
           const response = await getApproveList();
           const members = response?.requests ?? response?.data ?? [];
           setMembers(members);
+
+          
       
       } catch (err) {
         console.error("Failed to fetch groups/members", err);
@@ -69,7 +76,13 @@ const hasApprovalRequests = (allGroups?.length ?? 0) > 0 && (members?.length ?? 
     handleResize();
     fetchGroups()
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    // re-fetch when GroupApprovalTable notifies about updates
+    const handleApprovalUpdate = () => fetchGroups();
+    window.addEventListener("groupApprovalUpdated", handleApprovalUpdate);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("groupApprovalUpdated", handleApprovalUpdate);
+    };
   }, []);
 
  
@@ -133,10 +146,10 @@ const hasApprovalRequests = (allGroups?.length ?? 0) > 0 && (members?.length ?? 
                 alt={item.name}
                 className={`w-5 h-5 ${isActiveRoute(item.href) ? "filter-blue" : ""}`}
               />
-              {/* red dot for Group Approvals when both lists are non-empty */}
-              {item.href === "/group-approvals" && hasApprovalRequests && (
-                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-600 rounded-full ring-1 ring-white" />
-              )}
+              {/* red dot for Group Approvals when either list is non-empty */}
+              {item.href === "/group-approvals" && (allGroups.length > 0 || members.length > 0) && (
+                  <span className="absolute -top-1 right-4 w-2.5 h-2.5 bg-red-600 rounded-full ring-1 ring-white z-20" />
+                )}
             </div>
             {isOpen && <span>{item.name}</span>}
           </Link>

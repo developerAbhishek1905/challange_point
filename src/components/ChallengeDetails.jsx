@@ -254,7 +254,7 @@ const ChallengeDetails = ({ data, report }) => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-wrap gap-3 mt-4">
+          {/* <div className="flex flex-wrap gap-3 mt-4">
             <button
               onClick={handleViewMembers}
               className="flex items-center gap-2 border border-gray-300 hover:bg-gray-100 text-gray-800 px-5 py-2.5 rounded-lg font-medium transition-all"
@@ -264,7 +264,7 @@ const ChallengeDetails = ({ data, report }) => {
                 {data?.organization?.members?.length || 0}
               </div>
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
 

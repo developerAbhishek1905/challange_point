@@ -297,54 +297,69 @@ const SocialToolKitLeaderboard = () => {
             {/* </div> */}
             {/* </div> */}
             {/* </div> */}
-            <div class="font-sans max-w-4xl mx-auto my-12 p-8 bg-gradient-to-br from-gray-50 to-green-50 rounded-2xl shadow-xl text-gray-800 leading-relaxed">
-              <p class="text-2xl font-semibold text-gray-900 mb-6">
-                STK(Social Tool Kit) is an application focused on actions and
-                validating those actions.
-              </p>
+           <div class="font-sans max-w-6xl mx-auto mt-16 mb-20 px-6 py-12 
+            bg-white/20 backdrop-blur-xl border border-gray-200 
+            rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] ">
 
-              <p class="text-lg mb-5 ">
-                All individuals can use the Android Application, to validate
-                others actions in different contexts. Nature Care, Animal Care
-                and Human Care, is always what each user can do within this
-                application, while having a control of how others see them, on
-                different moments of Time of their realtime performance.
-              </p>
+  {/* <!-- Heading Section --> */}
+  <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-6">
+    About <span class="text-gray-100">STK (Social Tool Kit)</span>
+  </h1>
 
-              <p class="text-lg mb-5 ">
-                There are all kinds of personal qualities that each user can
-                have, from the contexts of this application. Family, School,
-                Work, Civism, Business, etc. These contexts have different
-                qualities that can be qualified between users, giving them the
-                notion of their performance with other users.
-              </p>
+  {/* <!-- Subheading / Intro --> */}
+  <p class="text-lg text-gray-100 mb-8">
+    STK is a platform designed to validate actions, promote positive behavior, 
+    and create meaningful impact across communities worldwide.
+  </p>
 
-              <p class="text-lg mb-5  font-mediumbg-green-100rounded-lg inline-block">
-                All data from each user belongs only to that user.
-              </p>
+  {/* <!-- Highlight Card --> */}
+  <div class="bg-green-50 border border-green-200 rounded-xl p-5 my-8">
+    <p class="text-gray-900 font-semibold text-lg">
+      “Every user controls how their actions are represented through real-time validated performance.”
+    </p>
+  </div>
 
-              <p class="text-lg ">
-                Challenges are bigger actions, and they need the group's help.
-                All groups need to add group information in the Top-Menu Option
-                (Register Group), with all details that are asked. These groups
-                will be shown in this page, above or below all other groups
-                registered in this challenge, for Image propose, only. This is a
-                way to promote your group actions that benefit reality and
-                communities around the world.
-              </p>
-            </div>
+  {/* <!-- Body Paragraphs --> */}
+  <p class="text-lg text-gray-100 mb-5">
+    STK empowers individuals to validate each other's actions in different contexts 
+    such as Nature Care, Animal Care, and Human Care. These interactions shape how 
+    users are viewed during different moments of their real-time performance.
+  </p>
+
+  <p class="text-lg text-gray-100 mb-5">
+    Every user can develop personal qualities within multiple environments like 
+    Family, School, Work, Business, and Civism. These qualities help others understand 
+    their contribution and performance in community-driven activities.
+  </p>
+
+  {/* <!-- Notice Box --> */}
+  <div class="bg-gray-100 border border-gray-200 rounded-xl p-4 my-6">
+    <p class="text-lg font-medium text-gray-800">
+      🔐 All user data is fully owned and controlled by the user.
+    </p>
+  </div>
+
+  <p class="text-lg text-gray-100">
+    Challenges represent larger collective actions. Groups play a major role 
+    in these challenges and can register themselves through the “Register Group” 
+    option available in the Top Menu. Registered groups are showcased to highlight 
+    meaningful contributions that positively impact communities globally.
+  </p>
+</div>
+
           </div>
         )}
 
         {clickCreateOrg && (
-          <div className="max-w-4xl mx-auto text-center py-12 md:py-20 ">
-            <div className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-lg border border-gray-100">
+          <div className="max-w-6xl mx-auto text-center py-12 md:py-20 ">
+            <div className=" bg-white/20 max-w-6xl mx-auto p- rounded-2xl shadow-lg border border-gray-100">
               {/* <h1 className="text-3xl font-bold text-teal-700 mb-6 text-center">
     Welcome to the Challenge Arena!
   </h1> */}
 
-              <div className="space-y-6 text-gray-700 leading-relaxed text-lg">
-                {/* <p>
+<div class="font-sans max-w-6xl mx-auto  px-6 py-12 
+            bg-white/20 backdrop-blur-xl border border-gray-200 text-gray-100
+            rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] ">                {/* <p>
       Please complete your <span className="font-semibold text-teal-600">group profile</span> with accurate information. 
       If you are the <span className="font-semibold">Group Leader</span>, continue below — all details will be verified by platform administration.
     </p>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef,useCallback } from "react";
 import { motion } from "framer-motion";
 import { Ellipsis, Trash2, Eye, Flag } from "lucide-react";
 import { Dropdown, Empty, Pagination, Menu, Popover } from "antd";
@@ -19,18 +19,20 @@ export default function FeedManageTable({ searchValue }) {
   const [pagination, setPagination] = useState(null);
   const [feedDetails, setFeedDetails] = useState(null);
   const [report, setReport] = useState(null);
+  const [pageCountForSearch, setPageCountForSearch] = useState(1);
 
-  const pageSize = 8;
+  const pageSize = 10;
   const isMounted = useRef(false);
   const debounceRef = useRef(null);
 
   // ✅ Fetch Feeds (supports search + pagination)
-  const fetchFeeds = async (search = "") => {
+  const fetchFeeds = useCallback(async () => {
     try {
-      const response = await getAllFeeds(search, currentPage, pageSize);
+      const response = await getAllFeeds(searchValue,searchValue ===''? currentPage:pageCountForSearch, pageSize);
       const feeds = response.feeds || [];
       setPagination(response);
       setAllFeed(feeds);
+      searchValue === '' && setPageCountForSearch(1);
 
       // prefer a totalCount from API; fallback to feeds.length
       setTotalItems(response.totalCount ?? feeds.length);
@@ -41,7 +43,7 @@ export default function FeedManageTable({ searchValue }) {
       setAllFeed([]);
       setTotalItems(0);
     }
-  };
+  }, [searchValue, currentPage,pageCountForSearch]);
 
   // Debounced effect: runs on searchValue or currentPage change
   useEffect(() => {
@@ -60,7 +62,7 @@ export default function FeedManageTable({ searchValue }) {
       clearTimeout(debounceRef.current);
     };
     // intentionally DO NOT include allFeed in deps to avoid refetch loops
-  }, [searchValue, currentPage]);
+  }, [fetchFeeds]);
 
   // initial mount fetch
   useEffect(() => {
@@ -89,6 +91,9 @@ export default function FeedManageTable({ searchValue }) {
       toast.error("Failed to delete feed");
     }
   };
+
+    const handlePageChange = (page) => setCurrentPage(page)||setPageCountForSearch(page);
+
 
   const fetchFeedDetails = async (feedId) => {
     try {
@@ -243,11 +248,11 @@ export default function FeedManageTable({ searchValue }) {
 
         <div className="flex justify-end mt-2 pr-4">
           <Pagination
-            current={currentPage}
+            current={searchValue === '' ? currentPage : pageCountForSearch}
             total={pagination?.totalFeeds || 0}
             pageSize={pageSize}
             showSizeChanger={false}
-            onChange={setCurrentPage}
+            onChange={handlePageChange}
           />
         </div>
       </motion.div>

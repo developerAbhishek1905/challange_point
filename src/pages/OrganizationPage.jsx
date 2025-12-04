@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { getAllOrganizationsList } from "../utils/api";
 import { toast } from "react-toastify";
 import OrganizationTable from "../components/Organizations/OrganizationTable";
-import { Search } from "lucide-react";
+  import { Search } from "lucide-react";
 
 const OrganizationPage = () => {
   const [showModal, setShowModal] = useState(false);

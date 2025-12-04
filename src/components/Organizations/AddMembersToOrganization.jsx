@@ -103,7 +103,7 @@ const AddMembersToOrganization = () => {
     try {
       setSendLoading(true);
       const res = await addMember(orgId, pendingToAdd);
-      toast.success(res?.message || `${pendingToAdd.length} member(s) added!`);
+      toast.success(res?.message || `${pendingToAdd.length} member(s) added Request sended to Admin successfully!`);
 
       setCurrentMembers((prev) => [...prev, ...pendingToAdd]);
       setPendingToAdd([]);
