@@ -170,9 +170,9 @@ const RegisterOrganization = () => {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
-        className="min-h-screen  py-12 px-4"
+        className="min-h-screen w-full py-12 px-4"
       >
-        <div className="max-w-3xl mx-auto">
+        <div className="mx-auto w-full max-w-5xl">
           <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
               Register New Group
@@ -194,6 +194,8 @@ const RegisterOrganization = () => {
                   <input
                     type="text"
                     placeholder="e.g. Green Earth Warriors"
+                    
+                    value={companyName}
                     className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-2xl focus:border-teal-500 focus:ring-4 focus:ring-teal-100 outline-none transition"
                      onChange={(e) => {
                 setCompanyName(e.target.value);

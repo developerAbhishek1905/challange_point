@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, Ellipsis, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import { Empty, Pagination, Dropdown, Menu } from "antd";
+import { Empty, Pagination, Dropdown, Menu,Modal } from "antd";
 import { toast } from "react-toastify";
 import ConfirmationModal from "../ConfirmationModal";
 import { getAllUsers, deleteUser, getUserTraitSummery } from "../../utils/api";
@@ -213,7 +213,7 @@ const UsersTable = ({ searchValue }) => {
   /** ✅ Pagination handler */
   const handlePageChange = (page) => setCurrentPage(page)||setPageCountForSearch(page);
 
-  
+
   const filteredUsers = allUsers.filter(
     (user) => !user.email?.includes("@admin.com")
   );
@@ -266,406 +266,118 @@ const UsersTable = ({ searchValue }) => {
     <>
       {/* ✅ View Modal */}
       {viewUser && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40"
-        >
-          <motion.div
-            initial={{ scale: 0.9 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white p-6 rounded-xl w-full max-w-3xl shadow-xl overflow-y-auto max-h-[90vh]"
-          >
-            <h2 className="text-2xl font-semibold mb-4 text-gray-900 text-center">
-              User Details
-            </h2>
+  <Modal
+    open={true}
+    footer={null}
+    onCancel={() => {
+      setViewUser(null);
+      setOpenSection(null);
+    }}
+    centered
+    width={800}
+    destroyOnClose
+    className="custom-user-modal"
+  >
+    <motion.div
+     initial={{ scale: 0.9 }}
+  animate={{ scale: 1 }}
+  exit={{ scale: 0.95, opacity: 0 }}
+className="
+    bg-white p-6 rounded-xl w-full 
+    max-w-xl sm:max-w-2xl md:max-w-5xl lg:max-w-5xl xl:max-w-6xl
+    shadow-xl overflow-y-auto max-h-[90vh]
+  "    >
+      <h2 className="text-2xl font-semibold mb-4 text-gray-900 text-center">
+        User Details
+      </h2>
 
-            {/* Profile Section (simplified border) */}
-            <div className="flex flex-col items-center justify-center rounded-lg py-6 mb-6 shadow-sm">
-              <div className="h-24 w-24 rounded-full overflow-hidden bg-gray-200 border-4 border-gray-300 shadow-md">
-                {/* {viewUser?.profileImage ? (
-                  <img src={viewUser.profileImage} alt="User Avatar" className="h-full w-full object-cover" />
-                ) : ( */}
-                <div className="h-full w-full flex items-center justify-center bg-gray-300 text-3xl font-bold text-gray-700">
-                  {viewUser?.name?.charAt(0)?.toUpperCase()}
-                </div>
-                {/* )} */}
-              </div>
+      {/* Avatar Section */}
+      <div className="flex flex-col items-center justify-center py-6 mb-6">
+        <div className="h-24 w-24 rounded-full overflow-hidden bg-gray-300 flex items-center justify-center text-3xl font-bold text-gray-700 shadow-md">
+          {viewUser?.name?.charAt(0)?.toUpperCase()}
+        </div>
 
-              <h3 className="text-lg font-semibold text-gray-900 mt-3">
-                {viewUser?.name}
-              </h3>
-              <p className="text-gray-600">{viewUser?.email}</p>
-            </div>
+        <h3 className="text-lg font-semibold text-gray-900 mt-3">
+          {viewUser?.name}
+        </h3>
+        <p className="text-gray-600 text-center break-all">{viewUser?.email}</p>
+      </div>
 
-            {/* User Details Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-6 text-gray-700 bg-white p-6 rounded-lg shadow-sm mb-6">
-              {/* <div>
-                <strong className="block text-gray-800">Role:</strong>
-                <span>{viewUser?.role || "N/A"}</span>
-              </div> */}
-              <div className="bg-gray-100 rounded-md text-center h-full flex p-4 flex-col justify-center">
-                <strong className="block text-gray-800">Points</strong>
-                <div className="flex flex-wrap gap-4 mt-2 text-sm justify-center ">
-                  <p>
-                    <strong>Human:</strong>{" "}
-                    {viewUser?.challengeTypeCounts?.human ?? 0}
-                  </p>
-                  <p>
-                    <strong>Nature:</strong>{" "}
-                    {viewUser?.challengeTypeCounts?.nature ?? 0}
-                  </p>
-                  <p>
-                    <strong>Animal:</strong>{" "}
-                    {viewUser?.challengeTypeCounts?.animal ?? 0}
-                  </p>
-                </div>
-              </div>
-              <div className="bg-gray-100 rounded-md text-center  h-full flex flex-col justify-center">
-                <strong className="block text-gray-800">
-                  Created Challenges
-                </strong>
-                <span>{viewUser?.createdChallenges ?? 0}</span>
-              </div>
-              {/* <div>
-                <strong className="block text-gray-800">Average Rating:</strong>
-                <span>{viewUser?.avgRating ?? "N/A"}</span>
-              </div> */}
-              <div className="bg-gray-100 rounded-md text-center  h-full flex flex-col justify-center">
-                <strong className="block text-gray-800">Created At</strong>
-                <span>
-                  {viewUser?.createdAt
-                    ? new Date(viewUser.createdAt).toLocaleString()
-                    : "N/A"}
-                </span>
-              </div>
-              {/* <div>
-                <strong className="block text-gray-800">Updated At:</strong>
-                <span>{viewUser?.updatedAt ? new Date(viewUser.updatedAt).toLocaleString() : "N/A"}</span>
-              </div> */}
-            </div>
+      {/* User Details - Responsive Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700 mb-6">
+        <div className="bg-gray-100 rounded-md text-center p-4 flex flex-col justify-center">
+          <strong className="block text-gray-800">Points</strong>
+          <div className="flex flex-wrap justify-center gap-3 text-sm mt-2">
+            <p><strong>Human:</strong> {viewUser?.challengeTypeCounts?.human ?? 0}</p>
+            <p><strong>Nature:</strong> {viewUser?.challengeTypeCounts?.nature ?? 0}</p>
+            <p><strong>Animal:</strong> {viewUser?.challengeTypeCounts?.animal ?? 0}</p>
+          </div>
+        </div>
 
-            {/* Traits Accordion */}
-            <div className="bg-white rounded-lg shadow-sm p-6 space-y-4">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">
-                Personalized Characteristics
-              </h3>
+        <div className="bg-gray-100 rounded-md text-center p-4 flex flex-col justify-center">
+          <strong className="block text-gray-800">Created Challenges</strong>
+          <span>{viewUser?.createdChallenges ?? 0}</span>
+        </div>
 
-              {userTraitsRetings &&
-              Object.keys(userTraitsRetings).length > 0 ? (
-                Object.entries(userTraitsRetings).map(([category, traits]) => (
-                  <div
-                    key={category}
-                    className="border rounded-lg overflow-hidden"
-                  >
-                    <button
-                      className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-                      onClick={() => toggleSection(category)}
-                      type="button"
-                    >
-                      <span>
-                        {(
-                          category === "Good Business Person"
-                            ? "Business Person"
-                            : category
-                        )
-                          ? category === "Being a Good Student"
-                            ? "Being a Student"
-                            : category
-                          : category}
-                      </span>
-                      {openSection === category ? (
-                        <ChevronUp size={18} />
-                      ) : (
-                        <ChevronDown size={18} />
-                      )}
-                    </button>
+        <div className="bg-gray-100 rounded-md text-center p-4 flex flex-col justify-center sm:col-span-2">
+          <strong className="block text-gray-800">Created At</strong>
+          <span>
+            {viewUser?.createdAt
+              ? new Date(viewUser.createdAt).toLocaleString()
+              : "N/A"}
+          </span>
+        </div>
+      </div>
 
-                    <AnimatePresence initial={false}>
-                      {openSection === category && (
-                        <motion.div
-                          key={category}
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25, ease: "easeInOut" }}
-                          className="px-4 py-3 text-gray-700 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-                        >
-                          {Object.entries(traits).map(([trait, values]) => (
-                            <div
-                              key={trait}
-                              className="flex justify-between items-center bg-gray-50 px-3 py-2 rounded-md"
-                            >
-                              <span className="font-medium">{trait}</span>
-                              <div className="space-x-4">
-                                <span className="text-sm font-bold text-green-600">
-                                  {values.plusOne <= 0
-                                    ? "0"
-                                    : `+${values.plusOne}`}
+      {/* Traits Sections */}
+      <div className="bg-white rounded-lg text-gray-800 shadow-sm space-y-4">
+        {Object.entries(summary).map(([sectionKey, sectionData]) => (
+          <div key={sectionKey} className="border rounded-lg overflow-hidden">
 
-                                  {/* |  {values.minusOne ?? 0} */}
-                                </span>
+            {/* Header */}
+            <button
+              className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
+              onClick={() => toggleSection(sectionKey)}
+            >
+              <span>{sectionKey}</span>
+              {openSection === sectionKey ? <ChevronUp /> : <ChevronDown />}
+            </button>
 
-                                <span className="text-sm font-bold text-red-600">
-                                  {/* + {values.plusOne ?? 0}  */}
-                                  {values.minusOne <= 0
-                                    ? "0"
-                                    : `-${values.minusOne}`}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))
-              ) : (
-                // <div className="bg-white rounded-lg text-gray-800 shadow-sm  space-y-4">
-                //   {/* ================== 1. CivicCharacteristics ================== */}
-                //   <div className="border rounded-lg overflow-hidden">
-                //     <button
-                //       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-                //       onClick={() => toggleSection("CivicCharacteristics")}
-                //     >
-                //       <span>Civic Characteristics</span>
-                //       {openSection === "CivicCharacteristics" ? (
-                //         <ChevronUp size={18} />
-                //       ) : (
-                //         <ChevronDown size={18} />
-                //       )}
-                //     </button>
-
-                //     <AnimatePresence>
-                //       {openSection === "CivicCharacteristics" && (
-                //         <motion.div
-                //           initial={{ height: 0, opacity: 0 }}
-                //           animate={{ height: "auto", opacity: 1 }}
-                //           exit={{ height: 0, opacity: 0 }}
-                //           transition={{ duration: 0.25 }}
-                //           className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-                //         >
-                //           <TraitItem
-                //             label="Responsibility"
-                //             values={summary.CivicCharacteristics.Responsibility}
-                //           />
-                //           <TraitItem
-                //             label="Leadership"
-                //             values={summary.CivicCharacteristics.Leadership}
-                //           />
-                //           <TraitItem
-                //             label="Empathy"
-                //             values={summary.CivicCharacteristics.Empathy}
-                //           />
-                //           <TraitItem
-                //             label="Active Participation"
-                //             values={
-                //               summary.CivicCharacteristics.ActiveParticipation
-                //             }
-                //           />
-                //         </motion.div>
-                //       )}
-                //     </AnimatePresence>
-                //   </div>
-
-                //   {/* ================== 2. QualitiesToCareGardens ================== */}
-                //   <div className="border rounded-lg overflow-hidden">
-                //     <button
-                //       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-                //       onClick={() => toggleSection("QualitiesToCareGardens")}
-                //     >
-                //       <span>Qualities To Care Gardens</span>
-                //       {openSection === "QualitiesToCareGardens" ? (
-                //         <ChevronUp size={18} />
-                //       ) : (
-                //         <ChevronDown size={18} />
-                //       )}
-                //     </button>
-
-                //     <AnimatePresence>
-                //       {openSection === "QualitiesToCareGardens" && (
-                //         <motion.div
-                //           initial={{ height: 0, opacity: 0 }}
-                //           animate={{ height: "auto", opacity: 1 }}
-                //           exit={{ height: 0, opacity: 0 }}
-                //           transition={{ duration: 0.25 }}
-                //           className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-                //         >
-                //           <TraitItem
-                //             label="Compassion"
-                //             values={summary.QualitiesToCareGardens.Compassion}
-                //           />
-                //           <TraitItem
-                //             label="Environmental Care"
-                //             values={
-                //               summary.QualitiesToCareGardens.EnvironmentalCare
-                //             }
-                //           />
-                //           <TraitItem
-                //             label="Teamwork"
-                //             values={summary.QualitiesToCareGardens.Teamwork}
-                //           />
-                //           <TraitItem
-                //             label="Teamwork123"
-                //             values={summary.QualitiesToCareGardens.Teamwork123}
-                //           />
-                //         </motion.div>
-                //       )}
-                //     </AnimatePresence>
-                //   </div>
-
-                //   {/* ================== 3. GoodBusinessPerson ================== */}
-                //   <div className="border rounded-lg overflow-hidden">
-                //     <button
-                //       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-                //       onClick={() => toggleSection("GoodBusinessPerson")}
-                //     >
-                //       <span>Business Person</span>
-                //       {openSection === "GoodBusinessPerson" ? (
-                //         <ChevronUp size={18} />
-                //       ) : (
-                //         <ChevronDown size={18} />
-                //       )}
-                //     </button>
-
-                //     <AnimatePresence>
-                //       {openSection === "GoodBusinessPerson" && (
-                //         <motion.div
-                //           initial={{ height: 0, opacity: 0 }}
-                //           animate={{ height: "auto", opacity: 1 }}
-                //           exit={{ height: 0, opacity: 0 }}
-                //           transition={{ duration: 0.25 }}
-                //           className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-                //         >
-                //           <TraitItem
-                //             label="Innovation"
-                //             values={summary.GoodBusinessPerson.Innovation}
-                //           />
-                //           <TraitItem
-                //             label="Fairness"
-                //             values={summary.GoodBusinessPerson.Fairness}
-                //           />
-                //           <TraitItem
-                //             label="Entrepreneurship"
-                //             values={summary.GoodBusinessPerson.Entrepreneurship}
-                //           />
-                //           <TraitItem
-                //             label="Entrepreneurship123"
-                //             values={
-                //               summary.GoodBusinessPerson.Entrepreneurship123
-                //             }
-                //           />
-                //         </motion.div>
-                //       )}
-                //     </AnimatePresence>
-                //   </div>
-
-                //   {/* ================== 4. BeingAGoodStudent ================== */}
-                //   <div className="border rounded-lg overflow-hidden">
-                //     <button
-                //       className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-                //       onClick={() => toggleSection("BeingAGoodStudent")}
-                //     >
-                //       <span>Being A Student</span>
-                //       {openSection === "BeingAGoodStudent" ? (
-                //         <ChevronUp size={18} />
-                //       ) : (
-                //         <ChevronDown size={18} />
-                //       )}
-                //     </button>
-
-                //     <AnimatePresence>
-                //       {openSection === "BeingAGoodStudent" && (
-                //         <motion.div
-                //           initial={{ height: 0, opacity: 0 }}
-                //           animate={{ height: "auto", opacity: 1 }}
-                //           exit={{ height: 0, opacity: 0 }}
-                //           transition={{ duration: 0.25 }}
-                //           className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-                //         >
-                //           <TraitItem
-                //             label="Discipline"
-                //             values={summary.BeingAGoodStudent.Discipline}
-                //           />
-                //           <TraitItem
-                //             label="Curiosity"
-                //             values={summary.BeingAGoodStudent.Curiosity}
-                //           />
-                //           <TraitItem
-                //             label="Punctuality"
-                //             values={summary.BeingAGoodStudent.Punctuality}
-                //           />
-                //           <TraitItem
-                //             label="Punctuality123"
-                //             values={summary.BeingAGoodStudent.Punctuality123}
-                //           />
-                //         </motion.div>
-                //       )}
-                //     </AnimatePresence>
-                //   </div>
-                // </div>
-                <div className="bg-white rounded-lg text-gray-800 shadow-sm space-y-4">
-
-  {/* ==========  Helper: Render Traits Dynamically  ========== */}
-  {Object.entries(summary).map(([sectionKey, sectionData]) => (
-    <div key={sectionKey} className="border rounded-lg overflow-hidden">
-
-      {/* ========== Header Button ========== */}
-      <button
-        className="w-full flex justify-between items-center px-4 py-3 bg-gray-100 font-semibold text-gray-800"
-        onClick={() => toggleSection(sectionKey)}
-      >
-        <span>{TraitItem[sectionKey] || sectionKey}</span>
-
-        {openSection === sectionKey ? (
-          <ChevronUp size={18} />
-        ) : (
-          <ChevronDown size={18} />
-        )}
-      </button>
-
-      {/* ========== Collapsible Content ========== */}
-      <AnimatePresence>
-        {openSection === sectionKey && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
-          >
-            {Object.entries(sectionData).map(([traitKey, values]) => (
-              <TraitItem
-                key={traitKey}
-                label={traitKey}
-                values={values}
-              />
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  ))}
-</div>
-
+            {/* Collapsible Content */}
+            <AnimatePresence>
+              {openSection === sectionKey && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25 }}
+                  className="px-4 py-3 border-t grid grid-cols-1 sm:grid-cols-2 gap-3"
+                >
+                  {Object.entries(sectionData).map(([traitKey, values]) => (
+                    <TraitItem key={traitKey} label={traitKey} values={values} />
+                  ))}
+                </motion.div>
               )}
-            </div>
+            </AnimatePresence>
+          </div>
+        ))}
+      </div>
 
-            <div className="flex justify-end mt-6">
-              <button
-                onClick={() => {
-                  setViewUser(null);
-                  setOpenSection(null);
-                }}
-                className="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-              >
-                Close
-              </button>
-            </div>
-          </motion.div>
-        </motion.div>
-      )}
+      <div className="flex justify-center mt-6">
+        <button
+          onClick={() => {
+            setViewUser(null);
+            setOpenSection(null);
+          }}
+          className="px-5 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 w-full sm:w-auto"
+        >
+          Close
+        </button>
+      </div>
+    </motion.div>
+  </Modal>
+)}
+
 
       {/* ✅ Table */}
       <motion.div

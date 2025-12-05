@@ -94,7 +94,7 @@ const filteredMembers = organization.members.filter(
         <h3 className="text-lg font-semibold text-gray-800 mb-3">
           Leaderboard Users ({organization.leaders.length})
         </h3>
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border">
+        <div className="bg-white rounded-xl shadow-sm overflow-y-scroll border">
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-100 text-gray-600 uppercase text-xs font-semibold">
               <tr>
@@ -131,12 +131,12 @@ const filteredMembers = organization.members.filter(
       </section>
 
       {/* Registered Members Table */}
-      <section className="mb-8">
+      <section className="mb-8 ">
         <h3 className="text-lg font-semibold text-gray-800 mb-3">
           Registered Users ({filteredMembers.length})
         </h3>
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border">
-          <table className="w-full text-sm text-left">
+        <div className="bg-white rounded-xl shadow-sm overflow-y-scroll border">
+          <table className="w-full text-sm text-left ">
             <thead className="bg-gray-100 text-gray-600 uppercase text-xs font-semibold">
               <tr>
                 <th className="px-6 py-3">Name</th>
@@ -176,7 +176,7 @@ const filteredMembers = organization.members.filter(
         <h3 className="text-lg font-semibold text-gray-800 mb-3">
           Unregistered Users ({organization.draftMembers?.length || 0})
         </h3>
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border">
+        <div className="bg-white rounded-xl shadow-sm overflow-y-scroll border">
           <table className="w-full text-sm text-left">
             <thead className="bg-gray-100 text-gray-600 uppercase text-xs font-semibold">
               <tr>

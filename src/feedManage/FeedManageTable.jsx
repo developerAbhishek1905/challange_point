@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef,useCallback } from "react";
 import { motion } from "framer-motion";
 import { Ellipsis, Trash2, Eye, Flag } from "lucide-react";
-import { Dropdown, Empty, Pagination, Menu, Popover } from "antd";
+import { Dropdown, Empty, Pagination, Menu, Popover,Modal } from "antd";
 import { toast } from "react-toastify";
 import { getAllFeeds, deleteFeed,getFeedById,getreportById } from "../utils/api";
 import FeedDetails from "./FeedDetails";
@@ -258,49 +258,48 @@ export default function FeedManageTable({ searchValue }) {
       </motion.div>
 
       {/* ✅ View Feed Details Modal */}
-      {viewModalOpen && feedToView && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-lg w-full max-w-5xl h-[90vh] overflow-y-auto relative">
-            <button
-              onClick={() => setViewModalOpen(false)}
-              className="absolute top-4 right-4  text-gray-600 rounded-full px-3 py-1 text-lg"
-            >
-              ✕
-            </button>
+      <Modal
+  open={viewModalOpen}
+  onCancel={() => setViewModalOpen(false)}
+  footer={null}
+  width={800}
+  destroyOnHidden
+>
+  <FeedDetails feed={feedToView} report={report} />
+</Modal>
 
-            <FeedDetails feed={feedToView} report={report}/>
-          </div>
-        </div>
-      )}
 
       {/* ✅ Delete Confirmation */}
-      {feedToDelete && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-xl w-full max-w-md">
-            <h3 className="text-lg font-semibold mb-4">Delete Feed?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Are you sure you want to delete this feed? This action cannot be
-              undone.
-            </p>
+      <Modal
+  open={!!feedToDelete}
+  onCancel={() => setFeedToDelete(null)}
+  footer={null}
+  centered
+  width={400}
+  destroyOnHidden
+>
+  <h3 className="text-lg font-semibold mb-4">Delete Feed?</h3>
+  <p className="text-sm text-gray-600 mb-4">
+    Are you sure you want to delete this feed? This action cannot be undone.
+  </p>
 
-            <div className="flex justify-end gap-3">
-              <button
-                className="px-4 py-2 rounded-md border text-gray-700"
-                onClick={() => setFeedToDelete(null)}
-              >
-                Cancel
-              </button>
+  <div className="flex justify-end gap-3">
+    <button
+      className="px-4 py-2 rounded-md border text-gray-700"
+      onClick={() => setFeedToDelete(null)}
+    >
+      Cancel
+    </button>
 
-              <button
-                className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
-                onClick={handleDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+    <button
+      className="px-4 py-2 rounded-md bg-red-600 text-white hover:bg-red-700"
+      onClick={handleDelete}
+    >
+      Delete
+    </button>
+  </div>
+</Modal>
+
     </>
   );
 }

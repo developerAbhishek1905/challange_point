@@ -29,38 +29,41 @@ const GroupApprovalPage = () => {
   const [groupCount, setGroupCount] = useState(0);
   const [memberCount, setMemberCount] = useState(0);
 
+
+  // Centralized fetch function for all data/counts
+  const fetchAll = async () => {
+    try {
+      const orgRes = await getAllOrganizationsList(
+        searchValue,
+        orgPage,
+        pageSize
+      );
+      setOrganizationData(orgRes?.organizations ?? orgRes?.data ?? []);
+      setGroupsCount(orgRes?.totalOrganizations);
+
+      const groupReqRes = await getGroupApprovalList(
+        groupReqPage,
+        pageSize,
+        searchValue
+      );
+      setGroupRequestData(groupReqRes?.requests ?? groupReqRes?.data ?? []);
+      setGroupCount(groupReqRes?.total);
+
+      const memberReqRes = await getApproveList(
+        memberReqPage,
+        pageSize,
+        searchValue
+      );
+      setMemberRequestData(memberReqRes?.requests ?? memberReqRes?.data ?? []);
+      setMemberCount(memberReqRes?.total ?? memberReqRes?.totalRequests ?? 0);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const orgRes = await getAllOrganizationsList(
-          searchValue,
-          orgPage,
-          pageSize
-        );
-        setOrganizationData(orgRes?.organizations ?? orgRes?.data ?? []);
-        setGroupsCount(orgRes?.totalOrganizations);
-
-        const groupReqRes = await getGroupApprovalList(
-          groupReqPage,
-          pageSize,
-          searchValue
-        );
-        setGroupRequestData(groupReqRes?.requests ?? groupReqRes?.data ?? []);
-        setGroupCount(groupReqRes?.total);
-
-        const memberReqRes = await getApproveList(
-          memberReqPage,
-          pageSize,
-          searchValue
-        );
-        setMemberRequestData(memberReqRes?.requests ?? memberReqRes?.data ?? []);
-        setMemberCount(memberReqRes?.total ?? memberReqRes?.totalRequests ?? 0);
-      } catch (err) {
-        console.log(err);
-      }
-    };
-
     fetchAll();
+    // eslint-disable-next-line
   }, [searchValue, orgPage, groupReqPage, memberReqPage]);
 
   return (
@@ -69,7 +72,7 @@ const GroupApprovalPage = () => {
       <header className="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <h1 className="text-2xl font-semibold text-gray-900">
-            Group Approvals
+            Group Manage
           </h1>
 
           {/* Search Box */}
@@ -111,12 +114,15 @@ const GroupApprovalPage = () => {
       >
 
         {/* Count Badge */}
-        {tab.count > 0 && (
+        {
+          tab.label=== "Groups"?"":tab.count > 0 && (
           <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] 
             text-[9px] font-medium text-white bg-red-600 rounded-full">
             {tab.count > 99 ? "99+" : tab.count}
           </span>
-        )}
+        )
+        }
+        
         {/* Label — mobile par 2 line allow hogi */}
         <span className="leading-tight text-center break-words">
           {tab.label}
@@ -145,6 +151,7 @@ const GroupApprovalPage = () => {
               groupList={groupRequestData}
               currentPage={groupReqPage}
               setCurrentPage={setGroupReqPage}
+              onActionComplete={fetchAll}
             />
           )}
 
@@ -153,6 +160,7 @@ const GroupApprovalPage = () => {
               memberList={memberRequestData}
               currentPage={memberReqPage}
               setCurrentPage={setMemberReqPage}
+              onActionComplete={fetchAll}
             />
           )}
         </div>

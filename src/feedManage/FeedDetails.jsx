@@ -1,7 +1,5 @@
-
-import {X, Play, MapPin, Calendar, Eye } from "lucide-react";
+import { X, Play, MapPin, Calendar, Eye } from "lucide-react";
 import { useState } from "react";
-
 
 const reportCount = [
   {
@@ -96,14 +94,10 @@ const reportCount = [
   },
 ];
 
-
-
 export default function FeedDetails({ feed, report }) {
+  const [showReportCount, setShowReportCount] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-      const [showReportCount, setShowReportCount] = useState(false)
-        const [loading, setLoading] = useState(false);
-      
-    
   if (!feed) {
     return (
       <div className="p-6 text-center text-gray-500">
@@ -112,10 +106,10 @@ export default function FeedDetails({ feed, report }) {
     );
   }
 
-  console.log(report)
+  console.log(report);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 ">
       {/* Header */}
       {/* <header className="flex items-center justify-between mb-6">
         <div>
@@ -148,8 +142,7 @@ export default function FeedDetails({ feed, report }) {
           <div className="p-6 flex-1">
             <h3 className="text-lg font-semibold mb-2 text-gray-800">
               {feed.youtubeVideoTitle}
-                        <p className="text-sm text-gray-500">{feed.description}</p>
-
+              <p className="text-sm text-gray-500">{feed.description}</p>
             </h3>
 
             <p className="text-sm text-gray-500 mb-4">
@@ -166,8 +159,8 @@ export default function FeedDetails({ feed, report }) {
                 className="w-12 h-12 rounded-full object-cover"
               /> */}
               <div className="bg-gray-300 w-10 h-10 rounded-full flex items-center justify-center text-gray-700 font-semibold">
-  {feed?.uploadedBy?.name?.charAt(0)?.toUpperCase() || "?"}
-</div>
+                {feed?.uploadedBy?.name?.charAt(0)?.toUpperCase() || "?"}
+              </div>
 
               <div>
                 <p className="font-medium text-gray-800">
@@ -217,15 +210,13 @@ export default function FeedDetails({ feed, report }) {
             <strong>Denied:</strong> {feed.dislikesCount}
           </li>
           <li>
-            <strong>Report Count: </strong>{" "}
-            {report?.length}
-             
-  <button
-    onClick={() => setShowReportCount(true)}
-    className="text-blue-600 hover:underline ml-1"
-  >
-    View Reports
-  </button>
+            <strong>Report Count: </strong> {report?.length}
+            <button
+              onClick={() => setShowReportCount(true)}
+              className="text-blue-600 hover:underline ml-1"
+            >
+              View Reports
+            </button>
           </li>
           {/* <li>
             <strong>Points Awarded:</strong>{" "}
@@ -235,71 +226,74 @@ export default function FeedDetails({ feed, report }) {
             <strong>Created At:</strong>{" "}
             {new Date(feed.createdAt).toLocaleString()}
           </li>
-          
+
           {/* <li>
             <strong>Coordinates:</strong> Lat {feed.location.lat}, Lng{" "}
             {feed.location.lng}
           </li> */}
         </ul>
- 
       </div>
       {showReportCount && (
-  <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-    <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
-      {/* ❌ Close Button */}
-      <button
-        onClick={() => setShowReportCount(false)}
-        className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
-      >
-        <X className="w-6 h-6" />
-      </button>
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg relative p-6">
+            {/* ❌ Close Button */}
+            <button
+              onClick={() => setShowReportCount(false)}
+              className="absolute top-3 right-3 text-gray-500 hover:text-gray-800"
+            >
+              <X className="w-6 h-6" />
+            </button>
 
-      {/* 🧾 Title */}
-      <h3 className="text-xl font-bold text-gray-800 mb-4">
-        Reported Users
-      </h3>
+            {/* 🧾 Title */}
+            <h3 className="text-xl font-bold text-gray-800 mb-4">
+              Reported Users
+            </h3>
 
-      {/* 🌀 Loader or No Data */}
-      {loading ? (
-        <p className="text-center text-gray-500">Loading reports...</p>
-      ) : report?.length === 0 ? (
-        <p className="text-center text-gray-500">
-          No reports found.
-        </p>
-      ) : (
-        <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
-  {report?.map((report, index) => {
-    const formattedDate = new Date(report?.updatedAt
-).toLocaleString("en-IN", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    });
+            {/* 🌀 Loader or No Data */}
+            {loading ? (
+              <p className="text-center text-gray-500">Loading reports...</p>
+            ) : report?.length === 0 ? (
+              <p className="text-center text-gray-500">No reports found.</p>
+            ) : (
+              <ul className="divide-y divide-gray-200 max-h-80 overflow-y-auto">
+                {report?.map((report, index) => {
+                  const formattedDate = new Date(
+                    report?.updatedAt
+                  ).toLocaleString("en-IN", {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  });
 
-    return (
-      <li key={index} className="py-3 flex items-start gap-3">
-        
-        {/* Profile Initial */}
-        <div className="w-10 h-10 flex items-center justify-center bg-gray-300 text-xl font-bold text-gray-700 rounded-full">
-          {report?.reportedBy?.name?.charAt(0)?.toUpperCase()}
+                  return (
+                    <li key={index} className="py-3 flex items-start gap-3">
+                      {/* Profile Initial */}
+                      <div className="w-10 h-10 flex items-center justify-center bg-gray-300 text-xl font-bold text-gray-700 rounded-full">
+                        {report?.reportedBy?.name?.charAt(0)?.toUpperCase()}
+                      </div>
+
+                      {/* User Info */}
+                      <div className="flex-1">
+                        <p className="font-semibold text-gray-800">
+                          {report?.reportedBy?.name}
+                        </p>
+                        <p className=" text-sm text-gray-500">
+                          {report?.reportedBy?.email}
+                        </p>
+                        <p className="text-base text-gray-800 mt-1">
+                          {report?.reason}
+                        </p>
+
+                        {/* Date + Time */}
+                        <p className="text-xs text-gray-500">{formattedDate}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
         </div>
-
-        {/* User Info */}
-        <div className="flex-1">
-          <p className="font-semibold text-gray-800">{report?.reportedBy?.name}</p>
-          <p className=" text-sm text-gray-500">{report?.reportedBy?.email}</p>
-          <p className="text-base text-gray-800 mt-1">{report?.reason}</p>
-
-          {/* Date + Time */}
-          <p className="text-xs text-gray-500">{formattedDate}</p>
-        </div>
-      </li>
-    );
-  })}
-</ul>
       )}
-    </div>
-  </div>
-)}
     </div>
   );
 }

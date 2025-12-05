@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { Pagination, Empty } from "antd";
+import { Pagination, Empty, Modal } from "antd";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { toast } from "react-toastify";
@@ -7,8 +7,8 @@ import { getGroupApprovalList, approve_reject } from "../../utils/api";
 import ConfirmationModal from "../ConfirmationModal";
 import OrganizationDetails from "./OrganizationDetails";
 
-const GroupRequestTable = () => {
-  const [groupList, setGroupList] = useState([]);
+const GroupRequestTable = ({ groupList: propGroupList, currentPage, setCurrentPage, onActionComplete }) => {
+  const [groupList, setGroupList] = useState(propGroupList || []);
   const [groupPage, setGroupPage] = useState(1);
   const [groupTotal, setGroupTotal] = useState(0);
   const [pageSize] = useState(8);
@@ -68,8 +68,8 @@ const GroupRequestTable = () => {
       setLoadingAction(true);
       await approve_reject(id, { status });
       toast.success(status === "approved" ? "Approved" : "Rejected");
-
       fetchGroups();
+      if (onActionComplete) onActionComplete();
     } catch {
       toast.error("Action failed");
     } finally {
@@ -182,53 +182,69 @@ const GroupRequestTable = () => {
       </div>
 
       {/* View Modal */}
-      {viewModalOpen && groupToView && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl shadow-lg w-full max-w-2xl max-h-[80vh] overflow-y-auto relative">
+      <Modal
+  open={viewModalOpen}
+  onCancel={() => {
+    setViewModalOpen(false);
+    setGroupToView(null);
+  }}
+  footer={null}
+  centered
+  width={600}
+  destroyOnClose
+  modalRender={(node) => (
+    <div className="bg-white rounded-2xl shadow-lg w-full max-w-3xl max-h-[85vh] overflow-y-auto relative">
+      {node}
+    </div>
+  )}
+>
+  {viewModalOpen && groupToView && (
+    <div className="p-4 relative">
 
-            <button
-              onClick={() => {
-                setViewModalOpen(false);
-                setGroupToView(null);
-              }}
-              className="absolute top-3 right-3 text-black bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1"
-            >
-              ✕
-            </button>
+      {/* Close Button */}
+      {/* <button
+        onClick={() => {
+          setViewModalOpen(false);
+          setGroupToView(null);
+        }}
+        className="absolute top-4 right-4 text-black bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1"
+      >
+        ✕
+      </button> */}
 
-            <div className="p-6">
-              <h3 className="text-lg text-gray-900 font-semibold mb-2">Member Emails</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                {groupToView?.organizationId?.name ?? groupToView?.name}
-              </p>
+      {/* Content */}
+      <h3 className="text-lg text-gray-900 font-semibold mb-2">Member Emails</h3>
+      <p className="text-sm text-gray-600 mb-4">
+        {groupToView?.organizationId?.name ?? groupToView?.name}
+      </p>
 
-              {(() => {
-                const emails =
-                  groupToView?.emails ?? groupToView?.leaders ?? [];
-                return (
-                  <div>
-                    <h4 className="font-medium text-gray-800">
-                      {groupToView?.type ?? "Request"} Member List ({emails.length})
-                    </h4>
+      {(() => {
+        const emails = groupToView?.emails ?? groupToView?.leaders ?? [];
 
-                    {emails.length > 0 ? (
-                      <div className="mt-2 border rounded p-3 max-h-40 overflow-y-auto bg-white">
-                        {emails.map((em, i) => (
-                          <div key={i} className="text-sm text-gray-700 py-1">
-                            • {typeof em === "string" ? em : em?.email}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-gray-500 mt-2">No emails available</p>
-                    )}
+        return (
+          <>
+            <h4 className="font-medium text-gray-800">
+              {groupToView?.type ?? "Request"} Member List ({emails.length})
+            </h4>
+
+            {emails.length > 0 ? (
+              <div className="mt-3 border rounded p-3 max-h-40 overflow-y-auto bg-white">
+                {emails.map((em, i) => (
+                  <div key={i} className="text-sm text-gray-700 py-1">
+                    • {typeof em === "string" ? em : em?.email}
                   </div>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-      )}
+                ))}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-500 mt-2">No emails available</p>
+            )}
+          </>
+        );
+      })()}
+    </div>
+  )}
+</Modal>
+
     </>
   );
 };

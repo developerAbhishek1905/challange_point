@@ -94,7 +94,7 @@ const RemoveMembersFromOrganization = () => {
 
     setPendingToRemove(validToRemove);
     setShowConfirmModal(true);
-    setRemoveInput("");
+    // setRemoveInput("");
   };
 
   const confirmRemoveMembers = async () => {
@@ -109,6 +109,8 @@ const RemoveMembersFromOrganization = () => {
       setCurrentMembers(prev => prev.filter(e => !pendingToRemove.includes(e)));
       setPendingToRemove([]);
       setShowConfirmModal(false);
+          setRemoveInput("");
+
     } catch (err) {
       toast.error(err?.response?.data?.message || "Failed to remove members");
     } finally {
@@ -131,9 +133,9 @@ const RemoveMembersFromOrganization = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="min-h-screen py-8 px-4 sm:px-6 lg:px-8"
+        className="min-h-screen w-full py-8 px-4 sm:px-6 lg:px-8"
       >
-        <div className="max-w-4xl mx-auto">
+        <div className="mx-auto w-full max-w-5xl">
           <div className="text-center mb-10">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
               Remove Members from Group

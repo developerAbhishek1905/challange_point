@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Ellipsis, Trash2, Eye,Bell } from "lucide-react";
-import { Dropdown, Empty, Pagination, Menu, Popover } from "antd";
+import { Dropdown, Empty, Pagination, Menu, Popover, Modal } from "antd";
 import { toast } from "react-toastify";
 import { Search } from "lucide-react";
 import {
@@ -193,6 +193,16 @@ const OrganizationTable = ({
     }
   };
 
+  const AnimatedModal = ({ children }) => (
+  <motion.div
+    initial={{ scale: 0.9, opacity: 0 }}
+    animate={{ scale: 1, opacity: 1 }}
+    className="w-full max-w-[60vw] sm:max-w-[90vw]"
+  >
+    {children}
+  </motion.div>
+);
+
 
   
 
@@ -254,80 +264,91 @@ const OrganizationTable = ({
     <>
       {/* ✅ Add/Edit Modal */}
       {showModal && (
-        <motion.div className="fixed inset-0 text-black z-50 flex items-center justify-center bg-black bg-opacity-40">
-          <motion.div className="bg-white p-6 rounded-xl w-full max-w-xl shadow-xl">
-            <h2 className="text-xl font-semibold mb-4 text-gray-900">
-              {modalMode === "Edit" ? "Edit Group" : "Add Group"}
-            </h2>
-            <div className="space-y-4">
-              {/* Organization name */}
-              <div>
-                <label className="text-sm font-medium">Group Name</label>
-                <input
-                  type="text"
-                  placeholder="Group name"
-                  className="w-full mt-1 p-2 border rounded-md text-gray-600"
-                  value={organisationName}
-                  onChange={(e) => {
-                    setOrganisationName(e.target.value);
-                    clearError("organisationName");
-                  }}
-                />
-                {errors.organisationName && (
-                  <div className="text-red-500 text-xs mt-1">
-                    {errors.organisationName}
-                  </div>
-                )}
-              </div>
+  <Modal
+    open={showModal}
+    onCancel={() => setShowModal(false)}
+    footer={null}
+    centered
+    width={800}  // ⬅ MAIN WIDTH CONTROL
+    distroyOnHidden
+    className="max-w-[60vw] md:max-w-[50vw] sm:max-w-[90vw]"
+  >
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      className="p-6"
+    >
+      <h2 className="text-xl font-semibold mb-4 text-gray-900">
+        {modalMode === "Edit" ? "Edit Group" : "Add Group"}
+      </h2>
 
-              {/* Description */}
-              <div>
-                <label className="text-sm font-medium text-gray-900">
-                  Group Description
-                </label>
-                <input
-                  type="text"
-                  placeholder="Group Description"
-                  className="w-full mt-1 p-2 border rounded-md text-gray-600"
-                  value={organizationDescription}
-                  onChange={(e) => {
-                    setOrganizationDescription(e.target.value);
-                    clearError("organizationDescription");
-                  }}
-                />
-                {errors.organizationDescription && (
-                  <div className="text-red-500 text-xs mt-1">
-                    {errors.organizationDescription}
-                  </div>
-                )}
-              </div>
-
-              {/* Buttons */}
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  onClick={() => {
-                    setModalType("cancel");
-                    setConfirmModalOpen(true);
-                  }}
-                  className="px-4 py-2 rounded-md border text-gray-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-                  onClick={
-                    modalMode === "Edit" ? handleEditSubmit : addOrganisation
-                  }
-                >
-                  {modalMode === "Edit"
-                    ? "Edit Group"
-                    : "Add Group"}
-                </button>
-              </div>
+      <div className="space-y-4">
+        {/* Group Name */}
+        <div>
+          <label className="text-sm font-medium">Group Name</label>
+          <input
+            type="text"
+            placeholder="Group name"
+            className="w-full mt-1 p-2 border rounded-md text-gray-600"
+            value={organisationName}
+            onChange={(e) => {
+              setOrganisationName(e.target.value);
+              clearError("organisationName");
+            }}
+          />
+          {errors.organisationName && (
+            <div className="text-red-500 text-xs mt-1">
+              {errors.organisationName}
             </div>
-          </motion.div>
-        </motion.div>
-      )}
+          )}
+        </div>
+
+        {/* Description */}
+        <div>
+          <label className="text-sm font-medium text-gray-900">
+            Group Description
+          </label>
+          <input
+            type="text"
+            placeholder="Group Description"
+            className="w-full mt-1 p-2 border rounded-md text-gray-600"
+            value={organizationDescription}
+            onChange={(e) => {
+              setOrganizationDescription(e.target.value);
+              clearError("organizationDescription");
+            }}
+          />
+          {errors.organizationDescription && (
+            <div className="text-red-500 text-xs mt-1">
+              {errors.organizationDescription}
+            </div>
+          )}
+        </div>
+
+        {/* Buttons */}
+        <div className="flex justify-end gap-3 mt-4">
+          <button
+            onClick={() => {
+              setModalType("cancel");
+              setConfirmModalOpen(true);
+            }}
+            className="w-28 py-2 rounded-md border text-gray-700"
+          >
+            Cancel
+          </button>
+
+          <button
+            className="w-28 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
+            onClick={modalMode === "Edit" ? handleEditSubmit : addOrganisation}
+          >
+            {modalMode === "Edit" ? "Edit Group" : "Add Group"}
+          </button>
+        </div>
+      </div>
+    </motion.div>
+  </Modal>
+)}
+
 
       {/* ✅ Table */}
 
@@ -682,14 +703,25 @@ const OrganizationTable = ({
 
       {/* ✅ View Modal */}
       {viewModalOpen && organizationToView && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 text-black">
-          <div className="bg-white rounded-2xl shadow-lg w-full max-w-6xl h-[90vh] overflow-y-auto relative">
-            <button
+        <Modal
+        
+        open={viewModalOpen && organizationToView}
+          onCancel={() => setViewModalOpen(false)}
+          footer={null}
+          centered 
+          width={900}
+          destroyOnClose
+           className="bg-white rounded-2xl shadow-lg w-full max-w-6xl h-[90vh] overflow-y-auto relative"
+
+        >
+        {/* <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 text-black"> */}
+          {/* <div className="bg-white rounded-2xl shadow-lg w-full max-w-6xl h-[90vh] overflow-y-auto relative"> */}
+            {/* <button
               onClick={() => setViewModalOpen(false)}
               className="absolute top-4 right-4 text-black bg-gray-100 hover:bg-gray-200 rounded-full px-3 py-1"
             >
               ✕
-            </button>
+            </button> */}
             <OrganizationDetails
               organization={organizationToView}
               setViewModalOpen={setViewModalOpen}
@@ -702,8 +734,9 @@ const OrganizationTable = ({
                 if (updatedOrg) setOrganizationToView(updatedOrg);
               }}
             />
-          </div>
-        </div>
+          {/* </div> */}
+        {/* // </div> */}
+        </Modal>
       )}
     </>
   );
