@@ -141,7 +141,7 @@ const SocialToolKitLeaderboard = () => {
         content={
           <div>
             <img
-              src="./vector-qr-code-illustration.jpg"
+              src="./bing_generated_qrcode.png"
               alt="APK Download QR Code"
               className="w-64 h-64 object-contain"
             />
