@@ -9,14 +9,14 @@ import {
 } from "lucide-react";
 import { getLeaderboard, getGroupChallangeInfoById } from "../utils/api";
 import CreateOrganization from "./Organizations/CreateOrganization";
+import { Popover } from "antd";
 
 const SocialToolKitLeaderboard = () => {
   const [leaderboardData, setLeaderboardData] = useState([]);
   const [clickHome, setClickHome] = useState(true);
   const [clickCreateOrg, setClickCreateOrg] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // Challenge modal state
+  const [isPopoverVisible, setIsPopoverVisible] = useState(false);
   const [showChallengeModal, setShowChallengeModal] = useState(false);
   const [challengeList, setChallengeList] = useState([]);
   const [challengeGroupName, setChallengeGroupName] = useState("");
@@ -106,6 +106,10 @@ const SocialToolKitLeaderboard = () => {
   console.log(challengeList);
   const closeChallengesModal = () => setShowChallengeModal(false);
 
+  const handleDownloadClick = () => {
+    setIsPopoverVisible(!isPopoverVisible);
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center ">
       {/* Header */}
@@ -133,7 +137,32 @@ const SocialToolKitLeaderboard = () => {
               >
                 Register Group
               </div>
+                   <Popover
+        content={
+          <div>
+            <img
+              src="./vector-qr-code-illustration.jpg"
+              alt="APK Download QR Code"
+              className="w-64 h-64 object-contain"
+            />
+          </div>
+        }
+        // title="Download APK"
+        trigger="click"
+        visible={isPopoverVisible}
+        onVisibleChange={setIsPopoverVisible}
+      >
+              <div
+                onClick={handleDownloadClick}
+                className="hover:text-green-200 transition-colors cursor-pointer"
+              >
+                Download APK
+              </div>
+              </Popover>
             </div>
+
+        
+       
 
             {/* Mobile Menu Button */}
             <div className="md:hidden">
@@ -187,116 +216,7 @@ const SocialToolKitLeaderboard = () => {
 
         {clickHome && (
           <div className=" mx-auto text py-12 md:py-20 ">
-            {/* <div className="max-w-5xl mx-auto px-6 py-16"> */}
-            {/* Hero Title */}
-            {/* <h2 className="text-4xl md:text-5xl font-bold text-center  mb-8">
-    About <span className="text-gray-100">STK</span> 
-    <span className="block text-xl md:text-3xl font-medium text-teal-400 mt-3">
-      Social Tool Kit
-    </span>
-  </h2> */}
-
-            {/* <div className="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden"> */}
-            {/* <div className="p-10 md:p-14 space-y-10 text-gray-700 text-lg leading-relaxed"> */}
-
-            {/* Intro */}
-            {/* <p className="text-xl md:text-2xl font-medium text-center text-gray-800">
-        STK is a real-world social validation platform where actions speak louder than words.
-      </p> */}
-
-            {/* Core Description */}
-            {/* <div className="space-y-8"> */}
-            {/* <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-2xl p-8 border border-teal-100">
-          <p className="text-lg md:text-xl">
-            Anyone can use the <strong>STK Android app</strong> to <span className="text-teal-700 font-bold">validate real-life actions</span> of others in three vital areas:
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div className="text-center">
-              <div className="text-4xl mb-3">Nature Care</div>
-              <p className="text-gray-600">Protecting our planet</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl mb-3">Animal Care</div>
-              <p className="text-gray-600">Compassion for all beings</p>
-            </div>
-            <div className="text-center">
-              <div className="text-4xl mb-3">Human Care</div>
-              <p className="text-gray-600">Kindness in action</p>
-            </div>
-          </div>
-        </div> */}
-
-            {/* Real-time Feedback */}
-            {/* <div className="bg-blue-50 rounded-2xl p-8 border border-blue-100">
-          <p className="text-lg">
-            See how the world perceives your behavior — <span className="font-bold text-blue-700">in real time</span>. 
-            Every action you take can be recognized, validated, and celebrated by your community.
-          </p>
-        </div> */}
-
-            {/* Personal Qualities */}
-            {/* <div className="bg-purple-50 rounded-2xl p-8 border border-purple-100">
-          <p className="text-lg mb-6">
-            Every user has a unique social profile shaped by qualities across life contexts:
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-center">
-            {["Family", "School", "Work", "Civism", "Business"].map((context) => (
-              <div key={context} className="bg-white rounded-xl py-4 px-3 shadow-sm border">
-                <span className="font-semibold text-purple-700">{context}</span>
-              </div>
-            ))}
-          </div>
-          <p className="mt-6 text-purple-800 font-medium">
-            Others evaluate you. You grow. Society improves.
-          </p>
-        </div> */}
-
-            {/* Data Ownership - Highlight */}
-            {/* <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-8 text-center border border-amber-200">
-          <p className="text-2xl font-bold text-amber-900">
-            Your data. Your control. Always.
-          </p>
-          <p className="mt-3 text-amber-800">
-            All information belongs 100% to you — private, secure, and never shared without consent.
-          </p>
-        </div> */}
-
-            {/* Challenges & Groups */}
-            {/* <div className="bg-gradient-to-br from-teal-600 to-cyan-700 rounded-2xl p-10 text-white">
-          <h3 className="text-2xl md:text-3xl font-bold mb-6 text-center">
-            Challenges = Big Impact
-          </h3>
-          <p className="text-lg opacity-95 leading-relaxed text-center max-w-3xl mx-auto">
-            Join or create <strong>registered groups</strong> to take on global challenges. 
-            Complete them together → earn points → rise on the world leaderboard.
-          </p>
-          <div className="mt-8 text-center">
-            <p className="text-sm uppercase tracking-wider opacity-80">
-              Register your group via
-            </p>
-            <p className="text-xl font-bold mt-2">
-              Top Menu → Register Group
-            </p>
-          </div>
-        </div> */}
-            {/* </div> */}
-
-            {/* Final CTA Section */}
-            {/* <div className="text-center py-12 bg-gray-50 rounded-2xl">
-        <h3 className="text-3xl font-bold text-gray-900 mb-4">
-          Global Leaderboard of Impact Groups
-        </h3>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-          Coming soon: Live ranking of groups making the biggest real-world difference — 
-          powered by verified actions and community validation.
-        </p>
-        <div className="mt-8 inline-block px-10 py-4 bg-teal-600 text-white text-lg font-semibold rounded-full shadow-lg hover:bg-teal-700 transition">
-          Your group belongs here
-        </div>
-      </div> */}
-            {/* </div> */}
-            {/* </div> */}
-            {/* </div> */}
+           
            <div class="font-sans max-w-6xl mx-auto mt-16 mb-20 px-6 py-12 
             bg-white/20 backdrop-blur-xl border border-gray-200 
             rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] ">
@@ -353,79 +273,11 @@ const SocialToolKitLeaderboard = () => {
         {clickCreateOrg && (
           <div className="max-w-6xl mx-auto text-center py-12 md:py-20 ">
             <div className=" bg-white/20 max-w-6xl mx-auto p- rounded-2xl shadow-lg border border-gray-100">
-              {/* <h1 className="text-3xl font-bold text-teal-700 mb-6 text-center">
-    Welcome to the Challenge Arena!
-  </h1> */}
+              
 
 <div class="font-sans max-w-6xl mx-auto  px-6 py-12 
             bg-white/20 backdrop-blur-xl border border-gray-200 text-gray-100
-            rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] ">                {/* <p>
-      Please complete your <span className="font-semibold text-teal-600">group profile</span> with accurate information. 
-      If you are the <span className="font-semibold">Group Leader</span>, continue below — all details will be verified by platform administration.
-    </p>
-
-    <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-      <p className="font-semibold text-amber-900 mb-2">Important Requirements</p>
-      <ul className="list-disc list-inside space-y-1 text-amber-800">
-        <li>You must own a verified domain with active email services</li>
-        <li>All members must use a <span className="font-medium">Gmail account</span> within this platform</li>
-      </ul>
-    </div>
-
-    <div className="bg-gradient-to-r from-teal-50 to-cyan-50 rounded-xl p-6 border border-teal-100">
-      <h2 className="text-xl font-bold text-teal-800 mb-3">Leader-Only Features</h2>
-      <ul className="space-y-3 text-gray-700">
-        <li className="flex items-start gap-3">
-          <span className="text-teal-600 mt-1">Lock</span>
-          <span>Lock a challenge once <strong>more than 50% of your members</strong> have selected it</span>
-        </li>
-        <li className="flex items-start gap-3">
-          <span className="text-teal-600 mt-1">Upload</span>
-          <span>Add a <strong>dedicated Gmail account</strong> to upload full-length solution videos (no 5-minute limit)</span>
-        </li>
-        <li className="flex items-start gap-3">
-          <span className="text-teal-600 mt-1">Promote</span>
-          <span>Solved challenges earn points → higher ranking on the leaderboard & homepage promotion</span>
-        </li>
-      </ul>
-    </div>
-
-    <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-      <p className="font-medium text-blue-900">
-        Pro Tip: We recommend editing long recordings into a concise highlight reel (even if the solve took hours!)
-      </p>
-    </div>
-
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-      <div className="bg-gray-50 rounded-lg p-5 border">
-        <h3 className="font-bold text-gray-800 mb-2">Group Leader</h3>
-        <p className="text-sm text-gray-600">
-          • Add your own Gmail as a regular member in the members list<br />
-          • Select & lock challenges<br />
-          • Upload solution videos<br />
-          • Earn points and climb rankings
-        </p>
-      </div>
-
-      <div className="bg-gray-50 rounded-lg p-5 border">
-        <h3 className="font-bold text-gray-800 mb-2">Regular Members</h3>
-        <p className="text-sm text-gray-600">
-          • Browse and select available video-challenges<br />
-          • Vote by selecting a challenge (helps leader lock it)<br />
-          • Participate in solving locked challenges
-        </p>
-      </div>
-    </div>
-
-    <div className="mt-8 text-center">
-      <p className="text-xl font-semibold text-teal-700">
-        Challenges grow in value with every view.<br />
-        Solve them. Earn points. Dominate the leaderboard.
-      </p>
-      <p className="mt-4 text-sm text-gray-500">
-        Let’s build the strongest team — ready when you are!
-      </p>
-    </div> */}
+            rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.02)] ">                
                 Welcome to this Challenge. Please add the correct information
                 about your members group. If you are the group leader, please
                 continue. All information needs to be valid, and will be
@@ -457,8 +309,7 @@ const SocialToolKitLeaderboard = () => {
 
       {/* Main Content */}
       <main className="w-full flex flex-col items-center bg-gray-50 pt-12 ">
-        {/* <div className="h-48 w-full  bg-teal-800"></div> */}
-        {/* <div></div> */}
+       
 
         {clickHome && (
           <div className="bg-gray-50 min-h-screen rounded-3xl w-[95%] mx-auto p-4">
@@ -499,12 +350,7 @@ const SocialToolKitLeaderboard = () => {
                 </div>
               </div>
 
-              {/* View All Button */}
-              {/* <div className="text-center mb-8">
-          <button className="text-gray-600 hover:text-gray-800 font-medium">
-            View All Leaderboard &gt;
-          </button>
-        </div> */}
+             
 
               {/* Table Section */}
               <div className="bg-white rounded-lg overflow-hidden shadow-lg">
@@ -702,6 +548,27 @@ const SocialToolKitLeaderboard = () => {
           </div>
         </div>
       )}
+
+      {/* Download APK Popover */}
+      {/* <Popover
+        content={
+          <div>
+            <img
+              src="/path-to-your-image.jpg"
+              alt="APK Download QR Code"
+              className="w-64 h-64 object-contain"
+            />
+          </div>
+        }
+        title="Download APK"
+        trigger="click"
+        visible={isPopoverVisible}
+        onVisibleChange={setIsPopoverVisible}
+      >
+        <div className="hover:text-green-200 transition-colors cursor-pointer">
+          Download APK
+        </div>
+      </Popover> */}
     </div>
   );
 };

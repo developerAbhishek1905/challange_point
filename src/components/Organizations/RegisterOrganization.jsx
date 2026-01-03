@@ -260,7 +260,7 @@ onChange={(e) => {
                 <div>
                   <label className="flex items-center gap-3 text-lg font-semibold text-gray-800 mb-4">
                     <Users className="text-teal-600" size={24} />
-                    Group Members ({leaders.length})
+                    Group Leaders ({leaders.length})
                   </label>
 
                   {leaders.length > 0 && (
